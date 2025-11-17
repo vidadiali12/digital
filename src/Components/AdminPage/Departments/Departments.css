@@ -1,0 +1,144 @@
+.departments-page {
+  padding: 0;
+  padding-top: 2rem;
+  width: 100%;
+  color: var(--color-white);
+}
+
+.departments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.departments-header h1 {
+  font-size: 1.7rem;
+  color: #462b92;
+}
+
+.add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-dark-teal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-btn:hover {
+  background: var(--color-teal);
+}
+
+.departments-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+}
+
+.departments-table th,
+.departments-table td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+}
+
+.departments-table th {
+  background: rgba(45, 35, 100, 0.8);
+}
+
+.departments-table td {
+  background: rgba(85, 65, 165, 0.4);
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.departments-table thead {
+  background: rgb(98, 84, 199);
+}
+
+.departments-table tbody tr {
+  border-bottom: 1px solid white;
+}
+
+.departments-table tbody tr:hover td {
+  background: rgba(70, 55, 160, 0.6);
+  transition: background 0.3s;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.actions button:hover {
+  transform: scale(1.1);
+}
+
+.edit-btn {
+  background: var(--color-light-teal);
+  color: white;
+}
+
+.edit-btn:hover {
+  background: var(--color-teal);
+}
+
+.delete-btn {
+  background: var(--color-danger);
+  color: white;
+}
+
+.delete-btn:hover {
+  background: rgb(180, 25, 50);
+}
+
+
+.departments-table>thead>tr>th:nth-child(1),
+.departments-table>tbody>tr>td:nth-child(1) {
+  width: 6%;
+}
+
+.departments-table>thead>tr>th:nth-child(2),
+.departments-table>tbody>tr>td:nth-child(2) {
+  width: 25%;
+}
+
+
+.departments-table>thead>tr>th:nth-child(3),
+.departments-table>tbody>tr>td:nth-child(3) {
+  width: 25%;
+}
+
+
+.departments-table>thead>tr>th:nth-child(4),
+.departments-table>tbody>tr>td:nth-child(4) {
+  width: calc(44% - 130px);
+}
+
+.departments-table>thead>tr>th:nth-child(5),
+.departments-table>tbody>tr>td:nth-child(5) {
+  width: 130px;
+  text-align: center;
+  justify-content: center;
+}

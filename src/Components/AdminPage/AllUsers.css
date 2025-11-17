@@ -1,0 +1,229 @@
+.users-container {
+    width: 100%;
+    color: #fff;
+    padding: 2rem 0;
+}
+
+.users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 180px;
+    z-index: 1;
+    background: #e8e6fa;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.users-header h2 {
+    color: #1d0c6b;
+    font-weight: 600;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    padding: 6px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.search-icon {
+    color: #6b56d6;
+    margin-right: 6px;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+.users-table th,
+.users-table td {
+    padding: 10px;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+    width: 50px;
+}
+
+.users-table th {
+    background: rgba(45, 35, 100, 0.8);
+    color: #fff;
+    font-weight: 500;
+    text-align: left !important;
+}
+
+.users-table td {
+    background: rgba(85, 65, 165, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    height: 100%;
+    text-align: left !important;
+}
+
+.users-table tr {
+    height: 100%;
+}
+
+.users-table tr:hover td {
+    background: rgba(70, 55, 160, 0.6);
+    transition: background 0.3s;
+}
+
+.all-users-tr>th:nth-child(1),
+.all-users-tr>td:nth-child(1) {
+    width: 3%;
+}
+
+.all-users-tr>th:nth-child(2),
+.all-users-tr>td:nth-child(2) {
+    width: 13%;
+}
+
+.all-users-tr>th:nth-child(3),
+.all-users-tr>td:nth-child(3) {
+    width: 13%;
+}
+
+.all-users-tr>th:nth-child(4),
+.all-users-tr>td:nth-child(4) {
+    width: 13%;
+}
+
+.all-users-tr>th:nth-child(5),
+.all-users-tr>td:nth-child(5) {
+    width: 15%;
+}
+
+.all-users-tr>th:nth-child(6),
+.all-users-tr>td:nth-child(6) {
+    width: 8%;
+}
+
+.all-users-tr>th:nth-child(7),
+.all-users-tr>td:nth-child(7) {
+    width: 7%;
+}
+
+.all-users-tr>th:nth-child(8),
+.all-users-tr>td:nth-child(8) {
+    width: calc(28% - 120px);
+}
+
+.all-users-tr>th:nth-child(9),
+.all-users-tr>td:nth-child(9) {
+    width: 120px;
+    text-align: center !important;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 8px;
+    height: 100%;
+}
+
+.edit-btn,
+.delete-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px !important;
+    height: 40px;
+    min-height: 40px;
+    aspect-ratio: 1 / 1;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.2s ease;
+}
+
+
+.edit-btn:hover {
+    background: rgba(87, 182, 236, 0.25);
+    color: #57b6ec;
+    transform: scale(1.1);
+}
+
+.delete-btn:hover {
+    background: rgba(255, 127, 127, 0.25);
+    color: #ff7f7f;
+    transform: scale(1.1);
+}
+
+.admin-row {
+    background: rgba(250, 215, 80, 0.25);
+    font-weight: 600;
+}
+
+.admin-icon {
+    color: gold;
+    margin-left: 5px;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 0.5rem;
+}
+
+.pagination button {
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: 0.3s;
+}
+
+.pagination button:hover {
+    background: #007bff;
+    color: #fff;
+}
+
+.pagination button.active {
+    background: #007bff;
+    color: #fff;
+    font-weight: bold;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-size {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}

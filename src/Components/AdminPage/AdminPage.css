@@ -1,0 +1,73 @@
+.admin-page {
+    height: auto;
+    padding: 2rem 4rem;
+    background: linear-gradient(135deg, var(--color-dark-teal), var(--color-teal));
+    color: var(--color-white);
+    font-family: 'Poppins', sans-serif;
+    z-index: 0;
+    width: 100%;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.admin-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-light-teal);
+}
+
+.admin-actions {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.admin-card {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    width: 300px;
+    text-align: center;
+    color: var(--color-white);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 0;
+}
+
+.admin-card:hover {
+    background: rgba(108, 93, 211, 0.85);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.admin-card-icon {
+    font-size: 3rem;
+    color: var(--color-light-teal);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.admin-card:hover .admin-card-icon {
+    transform: scale(1.2);
+    color: var(--color-white);
+}
+
+.admin-card h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.admin-card p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+}

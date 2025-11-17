@@ -1,0 +1,96 @@
+.modal-back {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  background: rgba(20, 20, 40, 0.3);
+  z-index: 1000000000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-back > .modal {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  width: 400px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  color: white;
+  animation: scaleIn 0.25s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.modal-back > .modal > p {
+  font-size: 1.1rem;
+  text-align: center;
+  line-height: 1.4;
+  color: #fff;
+}
+
+.modal-back > .modal > div {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.modal-back > .modal > div > button {
+  border: none;
+  outline: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transform: scale(1);
+}
+
+.modal-back > .modal > div > button:hover {
+  transform: scale(1.05);
+}
+
+.modal-back > .modal > div > button:nth-child(1) {
+  background: linear-gradient(135deg, #703cb4, #33065c);
+  box-shadow: 0 3px 10px rgba(82, 18, 156, 0.4);
+}
+
+.modal-back > .modal > div > button:nth-child(1):hover {
+  background: linear-gradient(135deg, #703cb4, #33065c);
+}
+
+.modal-back > .modal > div > button:nth-child(2) {
+  background: linear-gradient(135deg, #32a852, #157a28);
+  box-shadow: 0 3px 10px rgba(50, 168, 82, 0.4);
+}
+
+.modal-back > .modal > div > button:nth-child(2):hover {
+  background: linear-gradient(135deg, #4be06c, #0d5a1b);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

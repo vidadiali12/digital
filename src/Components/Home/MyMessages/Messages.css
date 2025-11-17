@@ -1,0 +1,153 @@
+.all-messages-container {
+    width: 100%;
+    margin: 24px auto;
+    background: var(--color-pale-teal);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(10, 10, 20, 0.5);
+    padding: 24px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.all-messages-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.all-messages-header,
+.all-messages-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    align-items: center;
+    padding: 10px 8px;
+    border-bottom: 1px solid #ddd;
+    gap: 10px;
+}
+
+.all-messages-header {
+    font-weight: 600;
+    background-color: #e6f7f1;
+    border-radius: 8px;
+}
+
+.all-messages-row {
+    transition: background 0.2s;
+}
+
+.all-messages-row:hover {
+    background-color: rgba(0, 128, 0, 0.05);
+}
+
+.all-messages-empty {
+    text-align: center;
+    padding: 24px;
+    color: #666;
+}
+
+.index-cell,
+.status-cell,
+.delete-cell,
+.header-index,
+.header-status,
+.header-delete {
+    text-align: center;
+}
+
+.full-width {
+    grid-column: 2 span;
+}
+
+.full-width-3 {
+    grid-column: 3 span;
+}
+
+
+.pdf-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.pdf-icon {
+    color: red;
+    font-size: 1.3rem;
+    transition: transform 0.2s;
+}
+
+.see-text {
+    cursor: pointer;
+    color: #007bff;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.see-text::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    left: 0;
+    bottom: -2px;
+    background-color: #007bff;
+    transition: width 0.3s;
+}
+
+.see-text:hover::after {
+    width: 100%;
+}
+
+.pdf-cell:hover .pdf-icon {
+    transform: scale(1.2);
+}
+
+.status-read {
+    color: green;
+    font-size: 1.2rem;
+}
+
+.status-unread {
+    color: gray;
+    font-size: 1.2rem;
+}
+
+.all-messages-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.all-messages-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--color-teal);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.all-messages-btn:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.all-messages-page-info {
+    font-weight: 500;
+}
+
+.delete-cell{
+    color: red;
+    scale: 1;
+    transition: .3s;
+    cursor: pointer;
+}
+.delete-cell:hover{
+    scale: 1.1;
+}

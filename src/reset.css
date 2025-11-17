@@ -1,0 +1,21 @@
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  list-style-position: inside;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+}
+
+:root {
+  --color-dark-teal: #1a1446;     
+  --color-teal: #3b2e85;         
+  --color-light-teal: #6c5dd3;   
+  --color-pale-teal: #e8e6fa;     
+  --color-white: #ffffff;
+  --color-gray-light: #e0e2ec;
+  --color-gray-dark: #2a2d3e;
+  --color-danger: #e11d48;        
+}
+

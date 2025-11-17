@@ -1,0 +1,154 @@
+.profile-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26,20,70,0.55), rgba(59,46,133,0.7));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-white);
+  font-family: 'Poppins', sans-serif;
+  z-index: 1000000;
+}
+
+.profile-card-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  border-radius: 20px;
+}
+
+.profile-info-card {
+  padding: 2.5rem 3rem;
+  width: 380px;
+  text-align: center;
+  position: relative;
+  border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.close-btn-profile {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: white !important;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.avatar {
+  font-size: 5rem;
+  color: var(--color-teal);
+  margin-bottom: 1rem;
+}
+
+.username {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.position {
+  font-size: 1rem;
+  color: var(--color-pale-teal);
+  margin-bottom: 1.5rem;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  text-align: left;
+  background: rgba(255,255,255,0.05);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.2rem;
+}
+
+.info-section div strong {
+  color: var(--color-teal);
+  font-weight: 600;
+}
+
+.admin-badge {
+  background: var(--color-teal);
+  color: var(--color-white);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+}
+
+.password-section-card {
+  padding: 2rem 2.5rem;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.8rem;
+  text-align: center;
+  border-left: 1px solid rgba(255,255,255,0.2);
+}
+
+.password-section-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: var(--color-teal);
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  border: none !important;
+  outline: none;
+  border-radius: 8px;
+  color: var(--color-white);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  padding-right: 2.5rem;
+}
+
+.password-input-wrapper input::placeholder {
+  color: rgb(207, 207, 207);
+}
+
+.password-toggle-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: var(--color-light-teal);
+  display: flex;
+  align-items: center;
+}
+
+.update-btn {
+  background: var(--color-teal);
+  border: none;
+  border-radius: 8px;
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  border-bottom: 1px solid var(--color-white) !important;
+}
+
+.update-btn:hover {
+  background: var(--color-light-teal);
+}

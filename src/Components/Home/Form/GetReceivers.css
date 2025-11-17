@@ -1,0 +1,130 @@
+.receivers-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: linear-gradient(180deg, var(--color-dark-teal), var(--color-teal));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.receivers-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  gap: 20px;
+  width: 70%;
+  max-height: 90vh;
+  background: var(--color-pale-teal);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(10, 10, 20, 0.5);
+  overflow: hidden;
+}
+
+.receivers-left {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: var(--color-pale-teal);
+  overflow-y: auto;
+  max-height: 90vh;
+  gap: 10px;
+  grid-column: 2 span;
+}
+
+.receivers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.receivers-right {
+  background: var(--color-white);
+  border-left: 2px solid var(--color-light-teal);
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-column: 3 span;
+}
+
+.desc-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.receiver-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-white);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.receiver-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  background: #f9fefe;
+}
+
+.receiver-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.receiver-info h3 {
+  margin: 0;
+  color: var(--color-teal);
+  font-size: 16px;
+}
+
+.receiver-info p {
+  margin: 2px 0 0;
+  color: #333;
+  font-size: 14px;
+}
+
+.no-pdf {
+  color: #555;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.receivers-header {
+  position: relative;
+}
+
+.close-btn {
+  top: 0 !important;
+}
+
+.load-more {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 48, 88, 0.8);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  color: white;
+  outline: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  width: min-content;
+  white-space: nowrap;
+  border-radius: 5px;
+  transition: .3s;
+  transform: translateY(2px);
+}
+
+.load-more:hover{
+  background: rgba(5, 48, 88, 1);
+  transform: translateY(-2px);
+}
