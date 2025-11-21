@@ -9,10 +9,12 @@ import { HiOutlineInbox } from "react-icons/hi";
 import { FiSend } from "react-icons/fi";
 import { useEffect, useState } from 'react';
 import Profile from '../Modals/Profile';
+import api from '../api';
 
 const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
 
-    const [profile, setProfile] = useState(null)
+    const [profile, setProfile] = useState(null);
+    const [unReadCount, setUnReadCount] = useState(null)
 
     const uObj = JSON.parse(localStorage.getItem("userObj"));
     useEffect(() => {
@@ -46,6 +48,27 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
         e.target.classList.add("active-navigate")
         console.log(e.target)
     }
+
+    const callUnRead = async () => {
+        const token = localStorage.getItem("myUserDocumentToken");
+        if (!token) throw new Error("❌ Token tapılmadı!");
+
+        try {
+            const resUnRead = await api.get("doc/getUnreadDocs", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+           setUnReadCount(resUnRead.data.data)
+        } catch (err) {
+
+        }
+    }
+
+    useEffect(() => {
+        callUnRead()
+    }, [])
 
     return (
         <div className='header'>
@@ -93,6 +116,9 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
 
                     <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
                         <NavLink to="/inbox-all-messages">
+                            {
+                                unReadCount && (<span className='un-read-count'>{unReadCount}</span>)
+                            }
                             <HiOutlineInbox className='menu-icon' /> Gələn mesajlar
                         </NavLink>
                     </span>

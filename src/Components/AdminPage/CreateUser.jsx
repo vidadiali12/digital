@@ -4,17 +4,20 @@ import { useEffect, useState } from 'react';
 import CreateForm from './CreateForm';
 import { useNavigate } from 'react-router-dom';
 
-const CreateUser = ({ userObj, modalValues, setModalValues }) => {
+const CreateUser = ({ modalValues, setModalValues }) => {
+
+    const [userObj, setUserObj] = useState({})
 
     const navigate = useNavigate();
-
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate])
+    }, [navigate])
 
     const [showForm, setShowForm] = useState(null)
     const [ep, setEp] = useState(null)

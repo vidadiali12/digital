@@ -237,3 +237,19 @@
 .active-navigate{
   background-color: var(--color-dark-teal);
 }
+
+.passiv-navigate>a{
+  position: relative;
+}
+
+.passiv-navigate>a>.un-read-count{
+  position: absolute;
+  width: 30px !important;
+  height: 30px !important;
+  z-index: 10;
+  top: -18px;
+  right: -10px;
+  border-radius: 100%;
+  background-color: #d1bc02 !important;
+  color: white;
+}

@@ -6,7 +6,7 @@ import "./AllUsers.css";
 import CreateForm from "./CreateForm";
 import Loading from "../Modals/Loading";
 
-const AllUsers = ({ userObj, setItem, setModalValues }) => {
+const AllUsers = ({ setItem, setModalValues }) => {
     const [allUsers, setAllUsers] = useState([]);
     const [countOfUsers, setCountOfUsers] = useState(0);
     const [page, setPage] = useState(1);
@@ -22,13 +22,17 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
 
     const totalPages = Math.ceil(countOfUsers / pageSize);
 
+    const [userObj, setUserObj] = useState({})
+
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
-            navigate("/");
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
+            navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate]);
+    }, [navigate])
 
     useEffect(() => {
         const getAllUsers = async () => {

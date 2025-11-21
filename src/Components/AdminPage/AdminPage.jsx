@@ -1,18 +1,22 @@
 import { FaUserPlus, FaUsers, FaBuilding, FaLayerGroup } from 'react-icons/fa';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './AdminPage.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-const AdminPage = ({ userObj }) => {
+const AdminPage = () => {
+
+  const [userObj, setUserObj] = useState({})
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (userObj && userObj.admin === false) {
+    const uObj = JSON.parse(localStorage.getItem("userObj"))
+    setUserObj(uObj)
+    if (uObj && uObj?.admin === false) {
       navigate("/")
       localStorage.removeItem("myUserDocumentToken");
       localStorage.removeItem("tokenExpiration");
     }
-  }, [userObj, navigate])
+  }, [navigate])
 
   return (
     userObj?.admin && (

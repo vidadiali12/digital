@@ -205,21 +205,17 @@ function App() {
               setItem={setItem}
               item={item} />} />
 
-            <Route path="/adminpage" element={<AdminPage
-              userObj={userObj} />} />
+            <Route path="/adminpage" element={<AdminPage />} />
 
             <Route path="/adminpage/create-user" element={<CreateUser
-              userObj={userObj}
               modalValues={modalValues}
               setModalValues={setModalValues} />} />
 
             <Route path="/adminpage/all-users" element={<AllUsers
-              userObj={userObj}
               setItem={setItem}
               setModalValues={setModalValues} />} />
 
             <Route path="/adminpage/all-units" element={<Units
-              userObj={userObj}
               setModalValues={setModalValues}
               setUpdateItem={setUpdateItem}
               setAddItem={setAddItem}
@@ -227,7 +223,6 @@ function App() {
               setTypeOfItem={setTypeOfItem} />} />
 
             <Route path="/adminpage/all-departments" element={<Departments
-              userObj={userObj}
               setModalValues={setModalValues}
               setUpdateItem={setUpdateItem}
               setAddItem={setAddItem}

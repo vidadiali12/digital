@@ -5,17 +5,20 @@ import Loading from "../../Modals/Loading";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
-const Departments = ({ userObj, setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfItem }) => {
+const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfItem }) => {
+
+    const [userObj, setUserObj] = useState({})
 
     const navigate = useNavigate();
-
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate])
+    }, [navigate])
 
     const [loading, setLoading] = useState(null)
     const [departments, setDepartments] = useState([]);

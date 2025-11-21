@@ -5,17 +5,20 @@ import Loading from '../../Modals/Loading';
 import './Units.css';
 import { useNavigate } from 'react-router-dom';
 
-const Units = ({ userObj, setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfItem }) => {
+const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfItem }) => {
+
+    const [userObj, setUserObj] = useState({})
 
     const navigate = useNavigate();
-
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate])
+    }, [navigate])
 
     const [headUnits, setHeadUnits] = useState([]);
     const [units, setUnits] = useState([]);
@@ -39,7 +42,7 @@ const Units = ({ userObj, setModalValues, setUpdateItem, setAddItem, setItem, se
             setHeadUnits(headRes.data.data || []);
             setUnits(allRes.data.data || []);
         } catch (err) {
-            console.error('❌ Məlumat alınmadı:', err); 
+            console.error('❌ Məlumat alınmadı:', err);
             setModalValues(prev => ({
                 ...prev,
                 message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
