@@ -45,7 +45,7 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
             console.error('❌ Məlumat alınmadı:', err);
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
                 showModal: true,
                 isQuestion: false,
             }))

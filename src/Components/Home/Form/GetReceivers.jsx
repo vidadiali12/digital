@@ -48,7 +48,7 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
       setError("İstifadəçilər alınmadı");
       setModalValues(prev => ({
         ...prev,
-        message: `❌ İstifadəçi Alınmadı: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+        message: `❌ İstifadəçi Alınmadı: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
         showModal: true,
         isQuestion: false,
       }))

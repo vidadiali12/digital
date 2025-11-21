@@ -26,129 +26,79 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
   const callDoc = async () => {
     if (!choosenDoc?.id) return;
+    setLoading(true);
     try {
       const tokenGet = localStorage.getItem("myUserDocumentToken");
       if (!tokenGet) return;
 
-      const hdrs = {
-        Authorization: `Bearer ${tokenGet}`
-      }
-      const rsp = await api.get(`/doc/getDocumentDetails/${choosenDoc.id}`, { headers: hdrs })
+      const hdrs = { Authorization: `Bearer ${tokenGet}` };
+
+      const rsp = await api.get(`/doc/getDocumentDetails/${choosenDoc.id}`, { headers: hdrs });
       const element = rsp.data.data;
       setDocElements(element);
 
       const importedServerPrivateKeyB64 = localStorage.getItem("privateKeyLast");
       if (!importedServerPrivateKeyB64) throw new Error("Private key tapılmadı");
 
-      const pkcs8ArrayBuffer = Uint8Array.from(
-        atob(importedServerPrivateKeyB64),
-        c => c.charCodeAt(0)
-      );
-
-      const importedPrivateKey = await window.crypto.subtle.importKey(
-        "pkcs8",
-        pkcs8ArrayBuffer,
-        { name: "RSA-OAEP", hash: "SHA-256" },
-        false,
-        ["decrypt"]
-      );
-
+      const pkcs8ArrayBuffer = Uint8Array.from(atob(importedServerPrivateKeyB64), c => c.charCodeAt(0));
+      const importedPrivateKey = await window.crypto.subtle.importKey("pkcs8", pkcs8ArrayBuffer, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["decrypt"]);
       const decryptedKeyBuffer = await decryptKeyWithRsa(element.encAesKey, importedPrivateKey);
-
-      const decryptedBase64 = await decryptDataWithAes(
-        element.encPdfData,
-        element.encIv,
-        decryptedKeyBuffer
-      );
-      setDcryptdStrng(decryptedBase64)
+      const decryptedBase64 = await decryptDataWithAes(element.encPdfData, element.encIv, decryptedKeyBuffer);
+      setDcryptdStrng(decryptedBase64);
 
       const binary = atob(decryptedBase64);
       const byteArray = Uint8Array.from(binary, c => c.charCodeAt(0));
       const blob = new Blob([byteArray], { type: "application/pdf" });
       setPdfUrl(URL.createObjectURL(blob));
-
-      const base64String = btoa(
-        new Uint8Array(byteArray).reduce((data, byte) => data + String.fromCharCode(byte), "")
-      );
+      const base64String = btoa(new Uint8Array(byteArray).reduce((data, byte) => data + String.fromCharCode(byte), ""));
       setPdfBase64(base64String);
 
       if (element.hasForum) {
         try {
-          const docsList = await api.get(`/doc/form/getDocForm/${choosenDoc?.id}`, { headers: hdrs })
+          const docsList = await api.get(`/doc/form/getDocForm/${choosenDoc?.id}`, { headers: hdrs });
           const docsListRes = docsList.data.data;
-          console.log("docs", docsList)
-          const importedServerPrivateKeyB64PK = localStorage.getItem("clientPrivateKey");
-          if (!importedServerPrivateKeyB64PK) throw new Error("Private key tapılmadı");
+          const importedPrivateKeyB64PK = localStorage.getItem("clientPrivateKey");
+          if (!importedPrivateKeyB64PK) throw new Error("Private key tapılmadı");
 
-          const pkcs8ArrayBufferPK = Uint8Array.from(
-            atob(importedServerPrivateKeyB64PK),
-            c => c.charCodeAt(0)
-          );
-
-          const importedPrivateKeyPK = await window.crypto.subtle.importKey(
-            "pkcs8",
-            pkcs8ArrayBufferPK,
-            { name: "RSA-OAEP", hash: "SHA-256" },
-            false,
-            ["decrypt"]
-          );
-
+          const pkcs8ArrayBufferPK = Uint8Array.from(atob(importedPrivateKeyB64PK), c => c.charCodeAt(0));
+          const importedPrivateKeyPK = await window.crypto.subtle.importKey("pkcs8", pkcs8ArrayBufferPK, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["decrypt"]);
 
           const decryptedDocList = await decryptKeyWithRsa(docsListRes.key, importedPrivateKeyPK);
-          const decryptedList = await decryptDataWithAes(
-            docsListRes.cipherText,
-            docsListRes.iv,
-            decryptedDocList
-          );
-
-          setDocList(JSON.parse(decryptedList))
+          const decryptedList = await decryptDataWithAes(docsListRes.cipherText, docsListRes.iv, decryptedDocList);
+          setDocList(JSON.parse(decryptedList));
         } catch (err) {
-          console.log(err)
+          console.log(err);
         }
       }
 
-
       try {
-        const token = localStorage.getItem("myUserDocumentToken");
         const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
-
-        const aesKey = await window.crypto.subtle.generateKey(
-          { name: "AES-CBC", length: 256 },
-          true,
-          ["encrypt", "decrypt"]
-        );
-
+        const aesKey = await window.crypto.subtle.generateKey({ name: "AES-CBC", length: 256 }, true, ["encrypt", "decrypt"]);
         const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
         const { cipherText, iv } = await encryptDataWithAes(decryptedBase64, aesKey);
         const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
 
-        const sigRsp = await api.post(
-          "/doc/verifyDoc",
-          { cipherText, key: encryptedKey, iv },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const sigRsp = await api.post("/doc/verifyDoc", { cipherText, key: encryptedKey, iv }, { headers: { Authorization: `Bearer ${tokenGet}` } });
         setSignDetail(sigRsp.data?.data || []);
+
         if (whoIs === "getDoc") {
           try {
-            const tokenRead = localStorage.getItem("myUserDocumentToken");
-            if (!tokenRead) return;
-
-            const readMsgRsp = await api.put(`/doc/readDoc/${choosenDoc?.id}`, {
-              headers: {
-                Authorization: `Bearer ${tokenRead}`
-              }
-            })
-          } catch (error) {
+            await api.put(`/doc/readDoc/${choosenDoc?.id}`, { headers: { Authorization: tokenGet } });
+          } catch (err) {
             console.error(err);
           }
         }
       } catch (err) {
         console.error(err);
       }
+
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
+
 
 
   const closeDetails = () => {

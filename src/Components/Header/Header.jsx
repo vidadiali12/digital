@@ -60,9 +60,14 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
                 }
             })
 
-           setUnReadCount(resUnRead.data.data)
+            setUnReadCount(resUnRead.data.data)
         } catch (err) {
-
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: '❌ Məlumatlar çəkilərkən xəta baş verdi! Yenidən yoxlayın.'
+            }))
         }
     }
 

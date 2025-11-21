@@ -75,7 +75,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
             console.log(err);
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Proses zamanı xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+                message: `❌ Proses zamanı xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
                 showModal: true,
                 isQuestion: false,
             }))

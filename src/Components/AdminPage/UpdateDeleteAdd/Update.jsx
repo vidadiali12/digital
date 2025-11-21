@@ -90,7 +90,7 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
             setLoading(false)
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Xəta baş verdi \n${err.response.data.errorDescription}`,
+                message: `❌ Xəta baş verdi \n${err?.response?.data?.errorDescription || err}`,
                 showModal: true,
                 isQuestion: false,
             }))
@@ -125,11 +125,10 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                 setLoading(false)
 
             } catch (err) {
-                console.error("Error fetching data:", err);
                 setLoading(false)
                 setModalValues(prev => ({
                     ...prev,
-                    message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+                    message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
                     showModal: true,
                     isQuestion: false,
                 }))

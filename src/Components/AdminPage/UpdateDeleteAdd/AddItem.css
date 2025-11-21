@@ -20,10 +20,10 @@
     animation: fadeIn 0.3s ease-in-out;
 }
 
-.close-btn {
+.close-btn-add{
     position: absolute;
     top: 12px;
-    right: 12px;
+    right: 15px;
     background: transparent;
     border: none;
     font-size: 20px;

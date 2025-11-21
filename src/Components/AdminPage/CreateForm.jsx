@@ -120,8 +120,10 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             headers: { Authorization: `Bearer ${token}` }
           });
           setHeadUnits(response.data.data);
+          if (response.data.data.length === 0) {
+            throw new Error("❌ Seçilən İdarəyə uyğun Baş Bölmə mövcud deyil!")
+          }
         } catch (err) {
-          console.log(err);
           setModalValues(prev => ({
             ...prev,
             message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err}.\nYenidən yoxlayın`,
@@ -156,11 +158,14 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
           headers: { Authorization: `Bearer ${token}` }
         });
         setUnits(response.data.data);
+        if (response.data.data.length === 0) {
+          throw new Error("❌ Seçilən Baş Bölməyə uyğun Baş Bölmə mövcud deyil!")
+        }
       } catch (err) {
         console.log(err);
         setModalValues(prev => ({
           ...prev,
-          message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+          message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
           showModal: true,
           isQuestion: false,
         }))
@@ -371,7 +376,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         ...prev,
         message: `${err?.response?.data?.errorDescription?.includes("User csr is empty")
           ? `❌ Xəta baş verdi.\nZəhmət olmasa yenidən yoxlayın` :
-          `\n${err?.response?.data?.errorDescription || err.message}\nxətası baş verdi.\nDüzəliş edib, yenidən yoxlayın`
+          `\n${err?.response?.data?.errorDescription || err}\nxətası baş verdi.\nDüzəliş edib, yenidən yoxlayın`
           }`,
         showModal: true,
         isQuestion: false,

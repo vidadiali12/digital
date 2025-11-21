@@ -48,6 +48,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const [receiver, setReceiver] = useState(null);
     const [showDocument, setShowDocument] = useState(false);
     const [showFlash, setShowFlash] = useState(null)
+    const [classForWord, setClassForWord] = useState('')
 
 
     const initialForm = {
@@ -579,6 +580,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     setShowButton("show-button")
                     setTotalDisabled(true)
                     setShowSendButton('')
+                    setClassForWord('word-file-style')
                 }
             }
             else {
@@ -589,6 +591,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     setShowButton("show-button")
                     setTotalDisabled(true)
                     setShowSendButton('')
+                    setClassForWord('word-file-style')
                 }
             }
         };
@@ -704,7 +707,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     {
 
                         (!showExcelData ? (
-                            <div className="form-fields">
+                            <div className={`form-fields ${classForWord}`}>
                                 {
                                     (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                                         <>
@@ -763,7 +766,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                 }
 
 
-                                <label className={`file-input-label ${showFileArea}`}>
+                                <label className={`file-input-label ${showFileArea} ${classForWord}`}>
                                     {fileData.file ? fileData.file.name : 'Word faylını seçin'}
                                     <input type="file" name="file" accept=".doc,.docx" onChange={handleChangeFile} />
                                 </label>

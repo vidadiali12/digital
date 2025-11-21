@@ -127,7 +127,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
             setLoading(false);
             setModalValues((prev) => ({
                 ...prev,
-                message: `❌ Xəta baş verdi \n${err.response?.data?.errorDescription || err.message
+                message: `❌ Xəta baş verdi \n${err.response?.data?.errorDescription || err
                     }`,
                 showModal: true,
                 isQuestion: false,
@@ -146,7 +146,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
         userObj?.admin && (
             <div className="additem-backdrop">
                 <div className="additem-card">
-                    <button className="close-btn" onClick={onClose}>
+                    <button className="close-btn-add" onClick={onClose}>
                         <FaTimes />
                     </button>
 
