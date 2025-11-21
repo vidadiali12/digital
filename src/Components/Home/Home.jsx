@@ -150,7 +150,9 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
                         userObj={userObj}
                         setShowForm={setShowForm}
                         setModalValues={setModalValues}
-                        item={item} />
+                        item={item}
+                        fromDocDetail={[]}
+                        chapter={null} />
                 )
             }
         </div>

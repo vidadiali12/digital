@@ -15,6 +15,8 @@ import Update from './Components/AdminPage/UpdateDeleteAdd/Update';
 import AddItem from './Components/AdminPage/UpdateDeleteAdd/AddItem';
 import GetMessages from './Components/Home/MyMessages/GetMessages';
 import SendMessages from './Components/Home/MyMessages/SendMessages';
+import Loading from './Components/Modals/Loading';
+import CreateForm from './Components/AdminPage/CreateForm';
 
 function App() {
 
@@ -22,6 +24,21 @@ function App() {
   const [addItem, setAddItem] = useState(null)
   const [item, setItem] = useState({})
   const [typeOfItem, setTypeOfItem] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [showForm, setShowForm] = useState(true)
+  const [formData, setFormData] = useState({
+    name: "",
+    surname: "",
+    fatherName: "",
+    position: "",
+    username: "",
+    password: "",
+    rankId: "",
+    csr: "",
+    fin: "",
+    adminUsername: "",
+    adminPassword: ""
+  })
 
   const [modalValues, setModalValues] = useState({
     message: null,
@@ -35,11 +52,9 @@ function App() {
   const navigate = useNavigate();
   const noNavbar = location.pathname === '/login';
 
-  // Token state
   const [token, setToken] = useState(localStorage.getItem("myUserDocumentToken"));
   const [userObj, setUserObj] = useState('');
 
-  // Eyni tab üçün token yoxlama (localStorage dəyişdikdə)
   useEffect(() => {
     const interval = setInterval(() => {
       const currentToken = localStorage.getItem("myUserDocumentToken");
@@ -47,7 +62,7 @@ function App() {
         setToken(currentToken);
         if (!currentToken) navigate("/login", { replace: true });
       }
-    }, 100); // hər 100ms yoxlayır
+    }, 100);
     return () => clearInterval(interval);
   }, [token, navigate]);
 
@@ -60,7 +75,9 @@ function App() {
     const url = itemName === "deleteDepartment" ? '/manage/deleteDepartment/' :
       itemName === "deleteHeadUnit" ? '/manage/deleteHeadUnit/' :
         itemName === "deleteUnit" ? '/manage/deleteUnit/' :
-          itemName === "deleteUser" ? '/admin/deleteUser/' : '/admin/chapter/deleteChapter/'
+          itemName === "deleteUser" ? '/admin/deleteUser/' :
+            itemName === "deleteTitle" ? '/admin/chapter/deleteChapter/' : "/doc/deleteDoc/"
+
 
     try {
       await api.delete(`${url}${item.id}`, {
@@ -73,7 +90,8 @@ function App() {
         message: `${itemName === "deleteDepartment" ? 'İdarə' :
           itemName === "deleteHeadUnit" ? 'Baş Bölmə' :
             itemName === "deleteUnit" ? 'Bölmə' :
-              itemName === "deleteUser" ? "İstifadəçi" : 'Başlıq'}${' '}uğurla silindi ✅`,
+              itemName === "deleteUser" ? "İstifadəçi" :
+                itemName === "deleteTitle" ? 'Başlıq' : 'Sənəd'}${' '}uğurla silindi ✅`,
         showModal: true,
         isQuestion: false,
         answer: null,
@@ -85,7 +103,13 @@ function App() {
       }, 1500);
     }
     catch (err) {
-      console.log(err)
+      setModalValues({
+        message: `❌ Məlumatlar yüklənərkən problem yaşandı...`,
+        showModal: true,
+        isQuestion: false,
+        answer: null,
+        type: null
+      })
     }
   }
 
@@ -97,6 +121,7 @@ function App() {
         if (!token) return;
 
         try {
+          setLoading(true)
           await api.put("/auth/signOut", {
             headers: {
               'Content-Type': 'application/json',
@@ -105,6 +130,7 @@ function App() {
           })
           localStorage.removeItem("myUserDocumentToken");
           localStorage.removeItem("tokenExpiration");
+          localStorage.removeItem("userObj")
           setToken(null);
           navigate("/login", { replace: true });
           setModalValues(prev => ({
@@ -112,9 +138,17 @@ function App() {
             answer: null,
             type: null
           }))
+          setLoading(false)
         }
         catch (err) {
-          console.log(err)
+          setLoading(false)
+          setModalValues({
+            message: `❌ Hesabdan çıxarkən problem yaşandı...`,
+            showModal: true,
+            isQuestion: false,
+            answer: null,
+            type: null
+          })
         }
       }
       else if (modalValues.answer && modalValues.type === "deleteDepartment") {
@@ -132,15 +166,19 @@ function App() {
       else if (modalValues.answer && modalValues.type === "deleteTitle") {
         deleteItem('deleteTitle')
       }
+      else if (modalValues.answer && modalValues.type === "deleteDoc") {
+        deleteItem('deleteDoc')
+      }
     }
 
     exitAccount()
   }, [modalValues.answer])
 
   return (
-    <div className='main-element'>
+    loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> : <div className='main-element'>
       {!noNavbar && <Header
         setUserObj={setUserObj}
+        userObj={userObj}
         modalValues={modalValues}
         setModalValues={setModalValues}
       />}
@@ -148,6 +186,15 @@ function App() {
         {!token ? (
           <>
             <Route path="/login" element={<Login setToken={setToken} setItem={setItem} />} />
+            {showForm && (
+              <Route path='/create-admin-page' element={<CreateForm
+                formData={formData}
+                setFormData={setFormData}
+                setShowForm={setShowForm}
+                ep={"/admin/createAdmin"} isAdmin={true}
+                setModalValues={setModalValues} />
+              } />
+            )}
             <Route path="*" element={<Navigate to="/login" replace />} />
           </>
         ) : (
@@ -187,9 +234,9 @@ function App() {
               setItem={setItem}
               setTypeOfItem={setTypeOfItem} />} />
 
-            <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} />} />
+            <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item} />} />
 
-            <Route path='/sent-all-messages' element={<SendMessages />} />
+            <Route path='/sent-all-messages' element={<SendMessages setModalValues={setModalValues} setItem={setItem} item={item} />} />
 
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />

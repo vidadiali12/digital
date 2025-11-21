@@ -15,6 +15,7 @@
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: 20px;
   width: 70%;
+  min-height: 50vh;
   max-height: 90vh;
   background: var(--color-pale-teal);
   border-radius: 16px;

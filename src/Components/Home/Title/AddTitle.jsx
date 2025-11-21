@@ -73,6 +73,12 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
             setTimeout(() => window.location.reload(), 1500);
         } catch (err) {
             console.log(err);
+            setModalValues(prev => ({
+                ...prev,
+                message: `❌ Proses zamanı xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+                showModal: true,
+                isQuestion: false,
+            }))
             setLoading(false);
         }
     };

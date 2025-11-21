@@ -13,6 +13,8 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
   const [hasMore, setHasMore] = useState(true);
   const [description, setDescription] = useState("");
 
+  const userObj = JSON.parse(localStorage.getItem("userObj"))
+
   useEffect(() => {
     if (visible) {
       setUsers([]);
@@ -37,11 +39,19 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
       );
 
       const newUsers = response.data?.data?.data || [];
+      console.log(newUsers);
+
       if (reset) setUsers(newUsers);
       else setUsers((prev) => [...prev, ...newUsers]);
       if (newUsers.length < pageSize) setHasMore(false);
     } catch (err) {
       setError("İstifadəçilər alınmadı");
+      setModalValues(prev => ({
+        ...prev,
+        message: `❌ İstifadəçi Alınmadı: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+        showModal: true,
+        isQuestion: false,
+      }))
     } finally {
       setLoading(false);
     }
@@ -95,29 +105,39 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
 
           {!loading && users.length > 0 && (
             <div className="receivers-grid">
-              {users.map((u) => (
-                <div
-                  key={u.id}
-                  className="receiver-card"
-                  onClick={() => handleUserClick(u)}
-                >
-                  <div className="receiver-icon">
-                    {u.rank?.name?.toLowerCase()?.includes("rəhbər") ? (
-                      <IoIosShareAlt size={36} color="#007b83" />
-                    ) : (
-                      <IoIosShareAlt size={36} color="#007b83" />
-                    )}
+              {users.map((u) => {
+                if (userObj.username !== u.username) {
+                  return <div
+                    key={u.id}
+                    className="receiver-card"
+                    onClick={() => handleUserClick(u)}
+                  >
+                    <div className="receiver-icon">
+                      {u.rank?.name?.toLowerCase()?.includes("rəhbər") ? (
+                        <IoIosShareAlt size={36} color="#007b83" />
+                      ) : (
+                        <IoIosShareAlt size={36} color="#007b83" />
+                      )}
+                    </div>
+                    <div className="receiver-info">
+                      <h3>
+                        {u.name} {u.surname} {u.father}
+                      </h3>
+                      <p><strong>Rütbə: </strong>{u.rank?.description || "—"}</p>
+
+                      <p><strong>İdarə (Bölmə): </strong>{u.management?.name || "—"}</p>
+                      {/* <p>
+                        {
+                          users.find(e => e.username == userObj.username).managementRank?.id > u.managementRank?.id ? "üst idarə(bölmə)": "alt idarə(bölmə)"
+                        }
+                      </p> */}
+                    </div>
                   </div>
-                  <div className="receiver-info">
-                    <h3>
-                      {u.name} {u.surname}
-                    </h3>
-                    <p >{u.rank?.description || "—"}</p>
-                  </div>
-                </div>
-              ))}
+                }
+              })}
             </div>
           )}
+          
 
           {hasMore && !loading && (
             <button className="load-more" onClick={loadMore}>

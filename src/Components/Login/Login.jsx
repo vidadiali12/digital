@@ -26,7 +26,7 @@ const Login = ({ setToken, setItem }) => {
 
     const fetchServerPublicKey = async () => {
         try {
-            const keyBase64 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEArVyVkuqczjZb5H4zbp3HukTNXgA5JbPegfUKoPCmQ749tigljljU+ztlzg+4MTldsuOnxIbaK9bVemQ/pkY54MrRcuZRBQJZCzhZGDfLgk/qhJfMUg1haewkhI3Ney4wNoOIGhih4u9XrxKYPRY/VuW3KmNuOYFzHn+OjhBNoN144MMpp+GXQgdoCUCXRZ1/5LkKqjutAZ5UOZSqvThw2PnWTWsHp6IM3aB3SRz5iiYRKfsR802tKBvugOvz5QNJfrPKWNwEu6tk7ZzoSsGb3BrOscRF2nUMo8qfhnzqwXOy1rjn/uLptWSUfFQQqq3IKa0iykU4H/gLGNyKEwL5RgLP53d172O/fyWCWekMUdkKXSmseE2BFVyK5IGx3rR9CuVYldr5UC8ThzIOsYstMO48gJHe5eDhXhAzxEcOPfskMdt0+LCIhEwYTjiBYMn7duSeyHWYLvGUJZCxWxr36jWaj0HTpbGERIY4DllHonEccW9FXSeHLk3KBuRV6myTvmRdYJycenIZOPNYfnwYk3Li8jplg+BWxl8S8wdNJ6j6eCuttJCSoynnyvuLD5WXvfjR+24rK6Ofk8O4xiIGT3Ftkgh2/Ptxu/V9zo+/OUSDinOKQYicMzhWjCme0Tlu09Up0rPtAJHP9ZE6qYpd7Fh400sTmDp5VMrpCVUabu0CAwEAAQ==";
+            const keyBase64 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA1CUTSIHT3jOeRUpTAkqgniN+a2oUYi5Y/TY2evwxugai9e8MiCTF65bpxPy3Q7AP/pwVGXt+XpDhqGMrtHmoVOljfrlMELhzQ60bCFLhzuFDvvufnbRlrKIXAMjka2trYtLRonrDBTmmEqYC0DN273b0SSEqIbUwNYI/cY/nit00xLsKrJzMgqzAkshHJhRnED6I6o4hYY+B0AM44Mzt4qui8kFzgWYWrNaidbSpqhal/RLv4xygnvB2JUsbc0BJq0mj3iLb7Y77992hK4Cwe4K3jc2D12T9YrvH0DEboFlevY05tkom8faB/hIFMUsTFRtZNXLBibNsrODO+VLTWFwvGS1tffDS/OYzEE3l+Sze3fQnPuGjw+zoBRbZuNgQPL1qlKoj2ptEBHp2OysLZ1bc8vy5QzN/+taCTpSoWJVgv06M8PfOF+NKTFGsRh9oMtEpWK+EYeDmhIzCddSObwzEzQhkTjW1v23cKTQ2xWYJmvENCOWo+e2mpbIw3kOghXsXONOWae9L9UtzMXlgRuVxzDOTRxe7KQVXcZ1myWuuH1bJkyj/fO1dleYFtqOaegTo96pOuOrSWC67ZOuZcZE8hOIMK9phYxo0q2aAEicsyN/xmJImLRenXU+WrLuyNFMGIT3446dWvvE0JnCLs1v2UW6Jd4YINKS1U8JOhZUCAwEAAQ=="
             localStorage.setItem("serverPublicKey", keyBase64);
             return keyBase64;
         } catch (error) {
@@ -166,8 +166,6 @@ const Login = ({ setToken, setItem }) => {
                 } catch (err) {
                     console.error("❌ Error fetching user data:", err);
                     setError("İstifadəçi məlumatları alınarkən xəta baş verdi.");
-                    localStorage.removeItem("myUserDocumentToken");
-                    localStorage.removeItem("tokenExpiration");
                     navigate("/login", { replace: true });
                 } finally {
                     setLoading(false);

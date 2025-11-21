@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "./AllUsers.css";
 import CreateForm from "./CreateForm";
+import Loading from "../Modals/Loading";
 
 const AllUsers = ({ userObj, setItem, setModalValues }) => {
     const [allUsers, setAllUsers] = useState([]);
@@ -14,6 +15,8 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
     const [showForm, setShowForm] = useState(null);
     const [formData, setFormData] = useState({});
     const [ep, setEp] = useState(null);
+    const [loading, setLoading] = useState(null)
+    const [mng, setMng] = useState(null)
 
     const navigate = useNavigate();
 
@@ -33,15 +36,23 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
             if (!token) throw new Error("Token tapılmadı");
 
             try {
+                setLoading(true)
                 const resUsers = await api.get("/user/getAllUsers", {
                     headers: { Authorization: `Bearer ${token}` },
                     params: { page, pageSize },
                 });
                 setAllUsers(resUsers.data.data.data || []);
                 setCountOfUsers(resUsers.data.data.totalItem);
-                console.log(resUsers.data.data.data)
+                setLoading(false)
             } catch (err) {
+                setLoading(false)
                 console.log("İstifadəçilər alınmadı:", err);
+                setModalValues(prev => ({
+                    ...prev,
+                    message: "❌ İstifadəçi məlumatları çağrılarkən problem yaşandı. Yenidən yoxlayın...",
+                    showModal: true,
+                    isQuestion: false
+                }))
             }
         };
         getAllUsers();
@@ -69,18 +80,19 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
         setItem(allUsers.find(u => u.id === id))
     }
 
-    const editUser = async(id) => {
+    const editUser = async (id) => {
         try {
+            setLoading(true)
             const token = localStorage.getItem("myUserDocumentToken");
-            if(!token) return;
+            if (!token) return;
 
             const resUser = await api.get(`/admin/user/getUser/${id}`, {
                 headers: {
-                    Authorization : `Beare ${token}`
+                    Authorization: `Beare ${token}`
                 }
             })
             const user = resUser.data.data;
-            
+
             setFormData({
                 name: user.name,
                 surname: user.surname,
@@ -88,19 +100,33 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
                 position: user.position,
                 username: user.username,
                 password: "",
+                passwordOld: "",
                 rankId: user?.rank?.id,
                 csr: "",
                 fin: user.fin
             })
+
             setEp(`/admin/updateUser/${id}`)
             setShowForm(true)
-        } catch (err) {
+            setLoading(false)
 
+            setMng({
+                managementId: user.management?.id,
+                managementRankId: user.managementRank?.id
+            });
+        } catch (err) {
+            setLoading(false)
+            setModalValues(prev => ({
+                ...prev,
+                message: "❌ İstifadəçi məlumatları çağrılarkən problem yaşandı. Yenidən yoxlayın...",
+                showModal: true,
+                isQuestion: false,
+            }))
         }
     }
 
     return (
-        userObj?.admin && (
+        loading ? <Loading loadingMessage={"Məlumatlar alınır..."} /> : userObj?.admin && (
             <div className="users-container">
                 <div className="users-header">
                     <h2>İstifadəçilər siyahısı</h2>
@@ -231,7 +257,8 @@ const AllUsers = ({ userObj, setItem, setModalValues }) => {
                             setFormData={setFormData}
                             setShowForm={setShowForm}
                             ep={ep} isAdmin={true}
-                            setModalValues={setModalValues} />
+                            setModalValues={setModalValues}
+                            mng={mng} />
                     )
                 }
             </div>

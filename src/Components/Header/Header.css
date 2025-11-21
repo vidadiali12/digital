@@ -146,10 +146,12 @@
   gap: 0.8rem;
   font-weight: 600;
   padding: .5rem .7rem;
-  background-color: var(--color-teal);
   border-radius: 10px !important;
 }
 
+.ul-down li a{
+  background-color: var(--color-teal);
+}
 .main-page-ul span {
   border-radius: 10px !important;
 }
@@ -230,4 +232,8 @@
 .admin-link:hover .admin-icon {
   color: #ffffff;
   transform: scale(1.1);
+}
+
+.active-navigate{
+  background-color: var(--color-dark-teal);
 }

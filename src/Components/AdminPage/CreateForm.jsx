@@ -21,7 +21,7 @@ const iconMap = {
 
 
 
-const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalValues }) => {
+const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalValues, mng }) => {
 
   const keyPlaceholder = {
     name: "Ad",
@@ -40,7 +40,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   };
 
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState({});
   const [ranks, setRanks] = useState([]);
   const [managmentRanks, setManagmentRanks] = useState([]);
@@ -99,8 +99,6 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   }
 
   const changeDepartment = (e) => {
-    const token = localStorage.getItem('myUserDocumentToken');
-    if (!token) return;
 
     const value = e.target.value;
     if (!value) {
@@ -113,14 +111,24 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     setDepartmentsId(numericValue);
 
     const getHeadUnits = async () => {
-      try {
-        const response = await api.get(`/manage/getHeadUnits/${numericValue}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setHeadUnits(response.data.data);
-        console.log(response.data.data)
-      } catch (err) {
-        console.log(err);
+      if (!isAdmin) {
+        const token = localStorage.getItem('myUserDocumentToken');
+        if (!token) return;
+
+        try {
+          const response = await api.get(`/manage/getHeadUnits/${numericValue}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setHeadUnits(response.data.data);
+        } catch (err) {
+          console.log(err);
+          setModalValues(prev => ({
+            ...prev,
+            message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err}.\nYenidən yoxlayın`,
+            showModal: true,
+            isQuestion: false,
+          }))
+        }
       }
     };
 
@@ -150,6 +158,12 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         setUnits(response.data.data);
       } catch (err) {
         console.log(err);
+        setModalValues(prev => ({
+          ...prev,
+          message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+          showModal: true,
+          isQuestion: false,
+        }))
       }
     };
 
@@ -170,21 +184,18 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
 
-        const token = localStorage.getItem("myUserDocumentToken");
-        if (!token) throw new Error("Token tapılmadı");
-
-
-        const hdrs = {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-
-        const ranksRes = await api.get('/manage/getRanks', { headers: hdrs })
+        const ranksRes = await api.get('/manage/getRanks')
         setRanks(ranksRes.data.data);
 
         if (!isAdmin) {
+          const token = localStorage.getItem("myUserDocumentToken");
+          if (!token) throw new Error("Token tapılmadı");
+          const hdrs = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
           const [managementRes, departmentsRes, headDepartmentsRes] = await Promise.all([
             api.get('/manage/getManagementRanks', { headers: hdrs }),
             api.get('/manage/getDepartments', { headers: hdrs }),
@@ -202,7 +213,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         setLoading(false)
         setModalValues(prev => ({
           ...prev,
-          message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+          message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err}.\nYenidən yoxlayın`,
           showModal: true,
           isQuestion: false,
         }))
@@ -219,10 +230,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   const createUser = async () => {
 
     try {
-      const token = localStorage.getItem("myUserDocumentToken");
-      if (!token) throw new Error("Token tapılmadı");
+      const serverPublicKeyBase64 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA1CUTSIHT3jOeRUpTAkqgniN+a2oUYi5Y/TY2evwxugai9e8MiCTF65bpxPy3Q7AP/pwVGXt+XpDhqGMrtHmoVOljfrlMELhzQ60bCFLhzuFDvvufnbRlrKIXAMjka2trYtLRonrDBTmmEqYC0DN273b0SSEqIbUwNYI/cY/nit00xLsKrJzMgqzAkshHJhRnED6I6o4hYY+B0AM44Mzt4qui8kFzgWYWrNaidbSpqhal/RLv4xygnvB2JUsbc0BJq0mj3iLb7Y77992hK4Cwe4K3jc2D12T9YrvH0DEboFlevY05tkom8faB/hIFMUsTFRtZNXLBibNsrODO+VLTWFwvGS1tffDS/OYzEE3l+Sze3fQnPuGjw+zoBRbZuNgQPL1qlKoj2ptEBHp2OysLZ1bc8vy5QzN/+taCTpSoWJVgv06M8PfOF+NKTFGsRh9oMtEpWK+EYeDmhIzCddSObwzEzQhkTjW1v23cKTQ2xWYJmvENCOWo+e2mpbIw3kOghXsXONOWae9L9UtzMXlgRuVxzDOTRxe7KQVXcZ1myWuuH1bJkyj/fO1dleYFtqOaegTo96pOuOrSWC67ZOuZcZE8hOIMK9phYxo0q2aAEicsyN/xmJImLRenXU+WrLuyNFMGIT3446dWvvE0JnCLs1v2UW6Jd4YINKS1U8JOhZUCAwEAAQ=="
 
-      const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
       if (!serverPublicKeyBase64) throw new Error("Server public key tapılmadı");
 
       for (const [key, value] of Object.entries(formData)) {
@@ -247,11 +256,31 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         throw new Error('❌ "CSR yaradıla bilmədi"');
       }
 
-      console.log("creatimg: ", csr);
 
-      const updatedFormData = { ...formData, csr };
+      let updatedFormData = { ...formData, csr };
+
+      console.log(formData)
+      if (ep.includes("/admin/updateUser/")) {
+        updatedFormData = {
+          changePassword: formData.password,
+          name: formData.name,
+          surname: formData.surname,
+          fatherName: formData.father,
+          position: formData.position,
+          username: formData.username,
+          password: formData.password,
+          managementRankId: mng.managementRankId,
+          managementId: mng.managementId,
+          rankId: formData.rankId,
+          fin: formData.fin,
+          csr: csr
+        }
+      }
+
+
 
       setFormData(updatedFormData);
+
 
       const requestDataJson = updatedFormData;
 
@@ -301,6 +330,9 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         }
       }
       else {
+        const token = localStorage.getItem("myUserDocumentToken");
+        if (!token) throw new Error("Token tapılmadı");
+
         hdrs = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -310,6 +342,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       let response = null;
 
       if (ep.includes("/admin/updateUser/")) {
+        const token = localStorage.getItem("myUserDocumentToken");
+        if (!token) throw new Error("Token tapılmadı");
         response = await api.put(ep, { cipherText, key: encryptedKey, iv }, {
           headers: {
             Authorization: `Bearer ${token}`,

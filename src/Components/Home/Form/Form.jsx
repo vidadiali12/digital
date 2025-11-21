@@ -8,8 +8,10 @@ import Loading from '../../Modals/Loading';
 import { arrayBufferToBase64, decryptDataWithAes, decryptKeyWithRsa, encryptDataWithAes, encryptKeyWithRsa, generateCsr } from '../../Functions/Functions';
 import WithPassword from './WithPassword';
 import GetReceivers from './GetReceivers';
+import { sendDoc } from './SendDocument';
+import { signDoc } from './signDocument';
 
-const Form = ({ userObj, item, setShowForm, setModalValues }) => {
+const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapter }) => {
 
     const [selectedWord, setSelectedWord] = useState('');
     const [pdfUrl, setPdfUrl] = useState('');
@@ -39,34 +41,43 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
     const [countOfDepartments, setCountOfDepartments] = useState(1);
     const [countOfUnits, setCountOfUnits] = useState(1);
 
-    const [showPasswordAlert, setShowPasswordAlert] = useState(false)
+    const [showPasswordAlert, setShowPasswordAlert] = useState(false);
 
-    const [pdfBase64, setPdfBase64] = useState("")
-    const [dcryptdStrng, setDcryptdStrng] = useState("")
-    const [receiver, setReceiver] = useState(null)
+    const [pdfBase64, setPdfBase64] = useState("");
+    const [dcryptdStrng, setDcryptdStrng] = useState("");
+    const [receiver, setReceiver] = useState(null);
+    const [showDocument, setShowDocument] = useState(false);
+    const [showFlash, setShowFlash] = useState(null)
+
 
     const initialForm = {
         name: '',
         surname: '',
-        father: '',
+        fatherName: '',
         fin: '',
-        rank: '',
+        rankId: '',
         position: '',
-        phone: '',
-        management: '',
-        unit: '',
+        phoneNumber: '',
+        departmentId: '',
+        unitId: '',
+        mark: '',
+        capacity: '',
+        serialNumber: ''
     };
 
     const initialFormKey = {
         name: 'Ad',
         surname: 'Soyad',
-        father: 'Ata adı',
+        fatherName: 'Ata adı',
         fin: 'Fin',
         rank: 'Rütbə',
         position: 'Vəzifə',
-        phone: 'Telefon nömrəsi',
-        management: 'İdarə',
-        unit: 'Bölmə',
+        phoneNumber: 'Telefon nömrəsi',
+        departmentId: 'İdarə',
+        unitId: 'Bölmə',
+        mark: 'Marka',
+        capacity: 'Tutum',
+        serialNumber: 'Serial Nömrə'
     };
 
     const fileForm = { file: null };
@@ -76,27 +87,39 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
 
     const handleWordClick = (word) => setSelectedWord(word);
 
-    const changeTypeOfAccount = (e) => {
-        setTypeOfAccountId(e.target.value)
-        setTotalDisabled(false)
-    }
+    const changeTypeOfAccount = (id) => {
+        setTypeOfAccountId(id);
+        setTotalDisabled(false);
+
+        const typeObj = typeOfAccounts?.find(t => Number(t.id) === Number(id));
+        if (!typeObj) {
+            console.warn("Account type not found:", id);
+            return;
+        }
+        if (typeObj?.name.toUpperCase() === "Local istifadəçi".toUpperCase()) {
+            setShowFlash(true);
+        }
+        else {
+            setShowFlash(false);
+        }
+    };
 
     const handleChange = async (e) => {
         const { name, value } = e.target;
 
-        if (name === 'management') {
+        if (name === 'departmentId') {
             if (value === 'load_more') {
                 await loadMoreDepartments();
                 return;
             } else {
-                setFormData(prev => ({ ...prev, management: value, unit: '' }));
+                setFormData(prev => ({ ...prev, departmentId: value, unitId: '' }));
             }
-        } else if (name === 'unit') {
+        } else if (name === 'unitId') {
             if (value === 'load_more') {
                 await loadMoreUnits();
                 return;
             } else {
-                setFormData(prev => ({ ...prev, unit: value }));
+                setFormData(prev => ({ ...prev, unitId: value }));
             }
         } else {
             setFormData({ ...formData, [name]: value });
@@ -196,17 +219,17 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
 
         reader.readAsArrayBuffer(file);
 
-        if (mainExcelData.length > 0) {
-            setShowExcelData(true);
-        } else {
-            setModalValues((prev) => ({
-                ...prev,
-                message:
-                    '❌ Excel məlumatlarınız boşdur. Məlumatları yenidən doldurub, sənədləri yenidən hazırlayın!',
-                isQuestion: false,
-                showModal: true,
-            }));
-        }
+        //   if (mainExcelData.length > 0) {
+        //         setShowExcelData(true);
+        //     } else {
+        //         setModalValues((prev) => ({
+        //             ...prev,
+        //             message:
+        //                 '❌ Excel məlumatlarınız boşdur. Məlumatları yenidən doldurub, sənədləri yenidən hazırlayın!',
+        //             isQuestion: false,
+        //             showModal: true,
+        //         }));
+        //     }
     };
 
     const downloadExcel = () => {
@@ -232,6 +255,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
 
                 const requestDataJson = { forms: mainForm };
 
+                console.log(requestDataJson)
                 const aesKey = await window.crypto.subtle.generateKey(
                     { name: "AES-CBC", length: 256 },
                     true,
@@ -285,7 +309,24 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
 
-                const excelData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
+                //const excelData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
+                const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
+
+                const excelData = rawData.map(item => ({
+                    name: item.Name || "",
+                    surname: item.Surname || "",
+                    fatherName: item.Father || item.FatherName || "",
+                    fin: item.Fin || "",
+                    rankId: item.Rank || "",
+                    position: item.Position || "",
+                    phoneNumber: item.Phone || item.PhoneNumber || "",
+                    departmentId: item.DepartmentId || "",
+                    unitId: item.Unit || "",
+                    mark: item.mark || '',
+                    capacity: item.capacity || '',
+                    serialNumber: item.serialNumber || '',
+                    accountTypeId: item.AccountTypeId || typeOfAccountId
+                }));
 
                 const blob = new Blob([excelArrayBuffer], {
                     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -339,10 +380,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
     const handleAddOrEdit = () => {
         try {
             for (const [key, value] of Object.entries(formData)) {
-                if (key !== "unit") {
-                    if (value === '') {
-                        throw new Error(`❌ ${initialFormKey[key]} boş saxlanıla bilməz!`);
-                    }
+                if (key !== "unitId" && value === '' && showFlash) {
+                    throw new Error(`❌ ${initialFormKey[key]} boş saxlanıla bilməz!`);
                 }
             }
 
@@ -353,53 +392,39 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
 
                 const updatedMainForm = [...mainForm];
                 updatedMainForm[editingIndex] = {
-                    ...{
-                        fin: formData.fin,
-                        name: formData.name,
-                        surname: formData.surname,
-                        fatherName: formData.father,
-                        rankId: formData.rank,
-                        departmentId: formData.management,
-                        unitId: formData.unit,
-                        position: formData.position,
-                        phoneNumber: formData.phone,
-                        accountTypeId: typeOfAccountId
-                    }
-                }
+                    ...formData,
+                    accountTypeId: typeOfAccountId
+                };
                 setMainForm(updatedMainForm);
 
                 setEditingIndex(null);
+
             } else {
+                // add new entry
                 setAddedEntries(prev => [...prev, { ...formData }]);
                 setMainForm(prev => [
                     ...prev,
                     {
-                        fin: formData.fin,
-                        name: formData.name,
-                        surname: formData.surname,
-                        fatherName: formData.father,
-                        rankId: formData.rank,
-                        departmentId: formData.management,
-                        unitId: formData.unit,
-                        position: formData.position,
-                        phoneNumber: formData.phone,
+                        ...formData,
                         accountTypeId: typeOfAccountId
                     }
-                ])
+                ]);
             }
 
             setFormData(initialForm);
-            setDisabled(true)
-            document.getElementById('selectType').style.cursor = "default"
+            setDisabled(true);
+            document.getElementById('selectType').style.cursor = "default";
+
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
                 message: err.message,
                 showModal: true,
-                isQuestion: false,
+                isQuestion: false
             }));
         }
     };
+
 
     const handleEdit = (index) => {
         setFormData(addedEntries[index]);
@@ -407,11 +432,31 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
     };
 
     const handleDelete = (index) => {
-        setAddedEntries(prev => prev.filter((_, i) => i !== index));
-        if (editingIndex === index) {
-            setEditingIndex(null);
-            setFormData(initialForm);
-        }
+        setAddedEntries(prev => {
+            const next = prev.filter((_, i) => i !== index);
+            return next;
+        });
+
+        setMainForm(prev => {
+            const next = prev.filter((_, i) => i !== index);
+            return next;
+        });
+
+        setMainExcelData(prev => {
+            if (!prev || prev.length === 0) return prev;
+            return prev.filter((_, i) => i !== index);
+        });
+
+        setEditingIndex(prevIdx => {
+            if (prevIdx === null) return null;
+            if (prevIdx === index) {
+                setFormData(initialForm);
+                return null;
+            }
+            if (prevIdx > index) return prevIdx - 1;
+            return prevIdx;
+        });
+
     };
 
     const chooseType = async () => {
@@ -436,13 +481,19 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
             ]);
 
             setTypeOfAccounts(resType.data.data.data);
-            setRanks(resRank.data.data)
+            setRanks(resRank.data.data);
             setDepartments(resDepartments.data.data.data);
             setUnits(resUnits.data.data.data);
             setCountOfDepartments(resDepartments.data.data.totalItem);
             setCountOfUnits(resUnits.data.data.totalItem);
             setLoading(null);
         } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err}.\nYenidən yoxlayın`,
+                showModal: true,
+                isQuestion: false,
+            }));
             setLoading(null);
         }
     };
@@ -498,189 +549,85 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
     };
 
     useEffect(() => {
-        chooseType();
+        const load = async () => {
+            await chooseType();
+
+            if (fromDocDetail.length > 0) {
+                setAddedEntries(fromDocDetail);
+                setMainForm(fromDocDetail);
+                setDisabled(true);
+                if (
+                    chapter?.title.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                ) {
+                    setShowFileArea('show-file-area')
+                    setShowButton("show-button")
+                    setAddedEntries([])
+                    setTotalDisabled(true)
+                    setShowSendButton('')
+                }
+            }
+            else {
+                if (
+                    item?.title.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                ) {
+                    setShowFileArea('show-file-area')
+                    setShowButton("show-button")
+                    setAddedEntries([])
+                    setTotalDisabled(true)
+                    setShowSendButton('')
+                }
+            }
+        };
+        load();
     }, []);
 
-
+    useEffect(() => {
+        if (typeOfAccounts && fromDocDetail.length > 0) {
+            changeTypeOfAccount(fromDocDetail[0].accountTypeId);
+        }
+    }, [typeOfAccounts, fromDocDetail]);
 
     const handleSignClick = () => {
-        setShowPasswordAlert(true);
+        if (fileData.file) {
+            setShowPasswordAlert(true);
+        }
+        else {
+            setModalValues((prev) => ({
+                ...prev,
+                message:
+                    '❌ Fayl seçin!',
+                isQuestion: false,
+                showModal: true,
+            }));
+        }
     };
 
     const signDocument = async (pwd) => {
-        try {
-            setShowPasswordAlert(false);
-            setLoading(true)
-
-            const token = localStorage.getItem("myUserDocumentToken");
-            if (!token) throw new Error("Token tapılmadı");
-
-            const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
-            if (!serverPublicKeyBase64) throw new Error("Server public key tapılmadı");
-
-            const aesKey = await window.crypto.subtle.generateKey(
-                { name: "AES-CBC", length: 256 },
-                true,
-                ["encrypt", "decrypt"]
-            );
-            const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
-
-            const csr = await generateCsr({
-                name: userObj?.name,
-                surname: userObj?.surname,
-                father: userObj?.father,
-                fin: userObj?.fin,
-                password: pwd
-            });
-
-            if (!csr) throw new Error('❌ "CSR yaradıla bilmədi"');
-
-            const requestDataJson = {
-                pdfBase64,
-                csr,
-            };
-
-            const { cipherText, iv } = await encryptDataWithAes(
-                requestDataJson,
-                aesKey
-            );
-
-            const encryptedKey = await encryptKeyWithRsa(
-                rawAesKeyBuffer,
-                serverPublicKeyBase64
-            );
-
-            const response = await api.post(
-                '/doc/signDoc',
-                { cipherText, key: encryptedKey, iv },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            const responseData = response.data.data;
-
-            const importedServerPrivateKeyB64 = localStorage.getItem("clientPrivateKey");
-            if (!importedServerPrivateKeyB64) throw new Error("❌ Private key tapılmadı!");
-
-            function base64ToArrayBuffer(b64) {
-                const binary = atob(b64);
-                const bytes = new Uint8Array(binary.length);
-                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-                return bytes.buffer;
-            }
-
-            const pkcs8ArrayBuffer = base64ToArrayBuffer(importedServerPrivateKeyB64);
-
-            const importedPrivateKey = await window.crypto.subtle.importKey(
-                "pkcs8",
-                pkcs8ArrayBuffer,
-                { name: "RSA-OAEP", hash: "SHA-256" },
-                false,
-                ["decrypt"]
-            );
-
-
-            const decryptedKeyBuffer = await decryptKeyWithRsa(responseData.key, importedPrivateKey);
-            const decryptedString = await decryptDataWithAes(responseData.cipherText, responseData.iv, decryptedKeyBuffer);
-
-            setDcryptdStrng(decryptedString)
-
-            getReceiver();
-
-        } catch (err) {
-            setModalValues(prev => (
-                {
-                    ...prev,
-                    message: `❌ Sənəd göndərilərkən xəta baş verdi. Yenidən yoxlayın (İmza problemi) ${err}`,
-                    isQuestion: false,
-                    showModal: true
-                }
-            ))
-        }
-        finally {
-            setLoading(false)
-        }
+        await signDoc({
+            pwd,
+            pdfBase64,
+            setLoading,
+            setShowPasswordAlert,
+            setDcryptdStrng,
+            setReceiver,
+            setModalValues
+        })
     };
 
-    const getReceiver = () => {
-        setReceiver(true)
-    }
 
     const sendDocumend = async (receiver, description) => {
-        try {
-            setLoading(true)
-            const token = localStorage.getItem("myUserDocumentToken");
-            if (!token) throw new Error("Token tapılmadı");
-
-            const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
-            if (!serverPublicKeyBase64) throw new Error("Server public key tapılmadı");
-
-            const aesKey = await window.crypto.subtle.generateKey(
-                { name: "AES-CBC", length: 256 },
-                true,
-                ["encrypt", "decrypt"]
-            );
-            const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
-
-            if (!typeOfAccountId || mainForm.length == 0) throw new Error("Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
-
-            const requestDataJson = {
-                pdfBase64: dcryptdStrng,
-                receiverId: receiver?.id,
-                chapterId: typeOfAccountId,
-                description: description,
-                forum: {
-                    forms: mainForm
-                }
-            };
-
-            const { cipherText, iv } = await encryptDataWithAes(
-                requestDataJson,
-                aesKey
-            );
-
-            const encryptedKey = await encryptKeyWithRsa(
-                rawAesKeyBuffer,
-                serverPublicKeyBase64
-            );
-
-            const response = await api.post(
-                '/doc/sendDoc',
-                { cipherText, key: encryptedKey, iv },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-            setShowForm(false)
-            const responseData = response.data.data;
-            setModalValues(prev => (
-                {
-                    ...prev,
-                    message: "Sənəd uğurla göndərildi ✅",
-                    isQuestion: false,
-                    showModal: true
-                }
-            ))
-        } catch (err) {
-            setModalValues(prev => (
-                {
-                    ...prev,
-                    message: `❌ Sənəd göndərilərkən xəta baş verdi. Yenidən yoxlayın ${err}`,
-                    isQuestion: false,
-                    showModal: true
-                }
-            ))
-            
-      setLoading(false);
-        }
+        await sendDoc({
+            description,
+            receiver,
+            setLoading,
+            itemId: chapter ? Number(chapter?.id) : item?.id,
+            dcryptdStrng,
+            mainForm,
+            setShowForm,
+            setModalValues,
+            setReceiver,
+            setShowDocument
+        });
     }
 
 
@@ -695,24 +642,35 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
                         {item?.title}
                     </span>
 
-                    <select className="select" disabled={disabled} id='selectType' onChange={(e) => changeTypeOfAccount(e)}>
-                        <option value="" >İstifadəçi növü seç</option>
-                        {typeOfAccounts?.map((type) => (
-                            <option value={type.id} key={type.id}>
-                                {type.name}
-                            </option>
-                        ))}
-                    </select>
+                    {
+                        (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                            <select
+                                className="select"
+                                disabled={disabled}
+                                id="selectType"
+                                value={typeOfAccountId || ""}
+                                onChange={(e) => changeTypeOfAccount(e.target.value)}
+                            >
+                                <option value="">İstifadəçi növü seç</option>
+
+                                {typeOfAccounts?.map(type => (
+                                    <option value={type.id} key={type.id}>
+                                        {type?.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )
+                    }
                 </h2>
 
-                {addedEntries.length > 0 && typeOfAccountId && (
+                {addedEntries.length > 0 && (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                     <div className="added-entries">
                         {addedEntries.map((entry, idx) => (
                             <div key={idx} className="entry-card">
                                 <p>
                                     <b>{idx + 1}.</b>{' '}
                                     <i>
-                                        {ranks.find(rank => Number(rank.id) == Number(entry.rank)).name} {entry.name} {entry.surname} {entry.father}
+                                        {ranks?.find(rank => Number(rank?.id) == Number(entry.rankId))?.name} {entry?.name} {entry?.surname} {entry?.fatherName}
                                     </i>
                                 </p>
                                 <div className="entry-actions">
@@ -730,56 +688,70 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
 
                 <div className="form-body">
                     {
+
                         (!showExcelData ? (
                             <div className="form-fields">
-                                <input name="name" value={formData.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
-                                <input name="surname" value={formData.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
-                                <input name="father" value={formData.father} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
-                                <input name="fin" value={formData.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
-                                <select name="rank" value={formData.rank} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
-                                    <option value="">Rütbə seç</option>
-                                    {
-                                        ranks.map((rank) => (
-                                            <option value={rank.id}>
-                                                {rank.description}
-                                            </option>
-                                        ))
-                                    }
-                                </select>
-                                <input name="position" value={formData.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
-                                <input name="phone" value={formData.phone} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
+                                {
+                                    (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                                        <>
+                                            <input name="name" value={formData.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
+                                            <input name="surname" value={formData.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
+                                            <input name="fatherName" value={formData.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
+                                            <input name="fin" value={formData.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
+                                            <select name="rankId" value={formData.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
+                                                <option value="">Rütbə seç</option>
+                                                {
+                                                    ranks.map((rank) => (
+                                                        <option value={rank.id}>
+                                                            {rank.description}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
+                                            <input name="position" value={formData.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
+                                            <input name="phoneNumber" value={formData.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
 
-                                <select name="management" value={formData.management} disabled={totalDisabled} onChange={handleChange} className="select">
-                                    <option value="">İdarə seç</option>
-                                    {departments?.map((d, i) => (
-                                        <option key={i} value={d.id}>{d.tag}</option>
-                                    ))}
-                                    {departments.length < countOfDepartments && <option value="load_more">...</option>}
-                                </select>
+                                            {showFlash && (<>
+                                                <input name="mark" value={formData.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" />
+                                                <input name="capacity" value={formData.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" />
+                                                <input name="serialNumber" value={formData.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" />
+                                            </>)}
 
-                                <select name="unit" value={formData.unit} disabled={totalDisabled} onChange={handleChange} className="select">
-                                    <option value="">Bölmə seç</option>
-                                    {units
-                                        ?.filter(u => u.departmentId == formData.management)
-                                        .map((u, i) => (
-                                            <option key={i} value={u.id}>{u.tag}</option>
-                                        ))}
-                                    {units.length < countOfUnits && <option value="load_more">...</option>}
-                                </select>
+                                            <select name="departmentId" value={formData.departmentId} disabled={totalDisabled} onChange={handleChange} className="select">
+                                                <option value="">İdarə seç</option>
+                                                {departments?.map((d, i) => (
+                                                    <option key={i} value={d.id}>{d.tag}</option>
+                                                ))}
+                                                {departments.length < countOfDepartments && <option value="load_more">...</option>}
+                                            </select>
 
-                                <button type="button" className="btn btn-green" onClick={handleAddOrEdit} disabled={totalDisabled} style={{ display: 'flex', alignItems: 'center' }}>
-                                    <FiPlus style={{ marginRight: '6px', fontSize: '22px' }} />
-                                    {editingIndex !== null ? 'Yadda saxla' : 'İstifadəçi əlavə et'}
-                                </button>
+                                            <select name="unitId" value={formData.unitId} disabled={totalDisabled} onChange={handleChange} className="select">
+                                                <option value="">Bölmə seç</option>
+                                                {units
+                                                    ?.filter(u => u.departmentId == formData.departmentId)
+                                                    .map((u, i) => (
+                                                        <option key={i} value={u.id}>{u.tag}</option>
+                                                    ))}
+                                                {units.length < countOfUnits && <option value="load_more">...</option>}
+                                            </select>
+
+                                            <button type="button" className="btn btn-green" onClick={handleAddOrEdit} disabled={totalDisabled} style={{ display: 'flex', alignItems: 'center' }}>
+                                                <FiPlus style={{ marginRight: '6px', fontSize: '22px' }} />
+                                                {editingIndex !== null ? 'Yadda saxla' : 'İstifadəçi əlavə et'}
+                                            </button>
+
+                                            <label className={`file-input-label file-input-label-2 ${showFileArea}`}>
+                                                Excel olaraq endirin
+                                                <input type="button" onClick={downloadExcel} />
+                                            </label>
+                                        </>
+                                    )
+                                }
+
 
                                 <label className={`file-input-label ${showFileArea}`}>
                                     {fileData.file ? fileData.file.name : 'Word faylını seçin'}
                                     <input type="file" name="file" accept=".doc,.docx" onChange={handleChangeFile} />
-                                </label>
-
-                                <label className={`file-input-label file-input-label-2 ${showFileArea}`}>
-                                    Excel olaraq endirin
-                                    <input type="button" onClick={downloadExcel} />
                                 </label>
                             </div>
                         ) :
@@ -793,7 +765,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues }) => {
                                                     return <div key={dataIndex}>
                                                         <span>{dataIndex + 1}. </span>
                                                         <span>
-                                                            {data.Name} {data.Surname}
+                                                            {data.name} {data.surname}
                                                         </span>
                                                     </div>
                                                 })

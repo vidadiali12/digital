@@ -116,8 +116,8 @@ export async function generateCsr({ name, surname, father, fin, password }) {
         throw new Error('❌ "Ad, soyad, ata adı, fin və  parol boş qala bilməz!"');
 
     const encoder = new TextEncoder();
-    const data = encoder.encode(`${name}${surname}${father}${fin}${password}`);
-
+    const data = encoder.encode(`${name}${surname}${father}${fin.toUpperCase()}${password}`);
+    
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const bytes = new Uint8Array(hashBuffer);
 
@@ -128,9 +128,11 @@ export async function generateCsr({ name, surname, father, fin, password }) {
 
     return btoa(binary);
 }
+
 const PBKDF2_ITER = 200_000;
 const AES_KEY_BITS = 256;
 const GCM_TAG_LEN = 128; // bits
+
 // 1) PBKDF2 → AES-GCM açarı yaratmaq
 export async function repairSecretKey2(csr, saltBase64) {
     const salt = Uint8Array.from(atob(saltBase64), c => c.charCodeAt(0));

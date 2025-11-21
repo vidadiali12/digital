@@ -151,3 +151,7 @@
 .delete-cell:hover{
     scale: 1.1;
 }
+
+.un-read-style{
+    font-weight: 555;
+}

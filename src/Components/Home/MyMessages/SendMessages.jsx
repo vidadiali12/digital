@@ -6,7 +6,7 @@ import { FiTrash } from "react-icons/fi";
 import "./Messages.css";
 import GetDocument from "./GetDocument";
 
-const SendMessages = ({ setModalValues }) => {
+const SendMessages = ({ setModalValues, setItem, item }) => {
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
     const [loading, setLoading] = useState(false);
@@ -14,7 +14,7 @@ const SendMessages = ({ setModalValues }) => {
     const [totalPages, setTotalPages] = useState(1);
     const [showDocument, setShowDocument] = useState(null);
     const [choosenDoc, setChoosenDoc] = useState(null);
-    const [unReadStyle, setUnReadStyle] = useState('');
+    const [unReadStyle, setUnReadStyle] = useState('un-read-style');
 
     const getMessages = async () => {
         try {
@@ -28,9 +28,6 @@ const SendMessages = ({ setModalValues }) => {
             });
 
             setMessages(res.data.data || []);
-            if (res.data.data.read) {
-                setUnReadStyle('un-read-style')
-            }
             setTotalPages(res.data.totalPages || 1);
         } catch (err) {
             setModalValues(prev => ({
@@ -63,6 +60,18 @@ const SendMessages = ({ setModalValues }) => {
         setShowDocument(true)
     }
 
+
+    const deleteDoc = (id) => {
+        setItem(messages.find(doc => Number(doc.id) === Number(id)))
+        setModalValues(prev => ({
+            ...prev,
+            isQuestion: true,
+            type: 'deleteDoc',
+            message: 'Bu sənədi silməyə əminsiniz?',
+            showModal: true
+        }))
+    }
+
     return loading ? (
         <Loading loadingMessage={"Sənədlər yüklənir..."} />
     ) : (
@@ -75,7 +84,7 @@ const SendMessages = ({ setModalValues }) => {
                 <span className="header-receiver full-width-3">Qəbul edən</span>
                 <span className="header-management">İdarə</span>
                 <span className="header-title full-width">Başlıq</span>
-                <span className="header-chapter full-width">Chapter</span>
+                <span className="header-chapter full-width">Səbəb</span>
                 <span className="header-date ">Tarix</span>
                 <span className="header-status">Status</span>
                 <span className="header-delete">Sil</span>
@@ -86,20 +95,20 @@ const SendMessages = ({ setModalValues }) => {
             ) : (
                 messages.map((msg, index) => (
                     <div key={msg.id} className="all-messages-row">
-                        <span className={`index-cell ${unReadStyle}`}>{(page - 1) * pageSize + index + 1}</span>
+                        <span className={`index-cell ${msg.read ? "" : unReadStyle}`}>{(page - 1) * pageSize + index + 1}</span>
 
-                        <button className="pdf-cell full-width" onClick={() => goDocument(msg.id)}>
+                        <span className="pdf-cell full-width" onClick={() => goDocument(msg.id)}>
                             <FaFilePdf className="pdf-icon" />
-                            <span className={`see-text ${unReadStyle}`}>Sənədi gör</span>
-                        </button>
-
-                        <span className={`receiver-cell full-width-3 ${unReadStyle}`}>
-                            {msg.sender?.rank?.description} {msg.sender?.name} {msg.sender?.surname}
+                            <span className={`see-text  ${msg.read ? "" : unReadStyle}`}>Sənədi gör</span>
                         </span>
-                        <span className={`management-cell ${unReadStyle}`}>{msg.sender?.management?.name}</span>
-                        <span className={`title-cell full-width ${unReadStyle}`}>{msg.description}</span>
-                        <span className={`chapter-cell full-width ${unReadStyle}`}>{msg.chapter || "—"}</span>
-                        <span className={`date-cell ${unReadStyle}`}>{msg.date}</span>
+
+                        <span className={`receiver-cell full-width-3  ${msg.read ? "" : unReadStyle}`}>
+                            {msg.receiver?.rank?.description} {msg.receiver?.name} {msg.receiver?.surname}
+                        </span>
+                        <span className={`management-cell  ${msg.read ? "" : unReadStyle}`}>{msg.receiver?.management?.name}</span>
+                        <span className={`title-cell full-width  ${msg.read ? "" : unReadStyle}`}>{msg.description}</span>
+                        <span className={`chapter-cell full-width  ${msg.read ? "" : unReadStyle}`}>{msg.chapter || "—"}</span>
+                        <span className={`date-cell  ${msg.read ? "" : unReadStyle}`}>{msg.date}</span>
 
                         <span className="status-cell">
                             {msg.read ? (
@@ -108,7 +117,7 @@ const SendMessages = ({ setModalValues }) => {
                                 <FaRegCircle className="status-unread" />
                             )}
                         </span>
-                        <span className="delete-cell">
+                        <span className="delete-cell" onClick={() => deleteDoc(msg.id)}>
                             <FiTrash size={20} className="delete-icon-delete" />
                         </span>
                     </div>
@@ -129,7 +138,7 @@ const SendMessages = ({ setModalValues }) => {
 
             {
                 showDocument && (
-                    <GetDocument setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} />
+                    <GetDocument setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} whoIs={"sendDoc"} item={item} />
                 )
             }
 

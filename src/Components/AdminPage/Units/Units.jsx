@@ -39,7 +39,13 @@ const Units = ({ userObj, setModalValues, setUpdateItem, setAddItem, setItem, se
             setHeadUnits(headRes.data.data || []);
             setUnits(allRes.data.data || []);
         } catch (err) {
-            console.error('❌ Məlumat alınmadı:', err);
+            console.error('❌ Məlumat alınmadı:', err); 
+            setModalValues(prev => ({
+                ...prev,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err.response.data.errorDescription}.\nYenidən yoxlayın`,
+                showModal: true,
+                isQuestion: false,
+            }))
         } finally {
             setLoading(false);
         }
