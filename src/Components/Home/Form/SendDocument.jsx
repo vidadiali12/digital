@@ -65,7 +65,7 @@ export const sendDoc = async ({
         setShowDocument(false)
         setReceiver(false)
         const responseData = response.data.data;
-        
+
         setModalValues(prev => (
             {
                 ...prev,
@@ -74,6 +74,10 @@ export const sendDoc = async ({
                 showModal: true
             }
         ))
+
+        setTimeout(() => {
+            window.location.reload()
+        }, 1200)
     } catch (err) {
         setModalValues(prev => (
             {

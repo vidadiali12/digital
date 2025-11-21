@@ -89,14 +89,18 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
     const changeTypeOfAccount = (id) => {
         setTypeOfAccountId(id);
-        setTotalDisabled(false);
-
+        if (id) {
+            setTotalDisabled(false);
+        }
+        else {
+            setTotalDisabled(true);
+        }
         const typeObj = typeOfAccounts?.find(t => Number(t.id) === Number(id));
         if (!typeObj) {
             console.warn("Account type not found:", id);
             return;
         }
-        if (typeObj?.name.toUpperCase() === "Local istifadəçi".toUpperCase()) {
+        if (typeObj?.name?.toUpperCase() === "Local istifadəçi".toUpperCase()) {
             setShowFlash(true);
         }
         else {
@@ -219,17 +223,23 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
         reader.readAsArrayBuffer(file);
 
-        //   if (mainExcelData.length > 0) {
-        //         setShowExcelData(true);
-        //     } else {
-        //         setModalValues((prev) => ({
-        //             ...prev,
-        //             message:
-        //                 '❌ Excel məlumatlarınız boşdur. Məlumatları yenidən doldurub, sənədləri yenidən hazırlayın!',
-        //             isQuestion: false,
-        //             showModal: true,
-        //         }));
-        //     }
+        if (
+            item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()
+            ||
+            chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()
+        ) {
+            if (mainExcelData.length > 0) {
+                setShowExcelData(true);
+            } else {
+                setModalValues((prev) => ({
+                    ...prev,
+                    message:
+                        '❌ Excel məlumatlarınız boşdur. Məlumatları yenidən doldurub, sənədləri yenidən hazırlayın!',
+                    isQuestion: false,
+                    showModal: true,
+                }));
+            }
+        }
     };
 
     const downloadExcel = () => {
@@ -353,8 +363,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
                 setModalValues(prev => ({
                     ...prev,
-                    message: `Form təsdiqləndi. Excel olaraq yüklə!
-                    QEYD: Excel faylında dəyişiklik edib, onu word sənədində yadda saxlayın. Hazırlanmış Word sənədini əlavə edin!!!`,
+                    message: `✅ Form təsdiqləndi. Excel olaraq yüklə! 
+                    ⚠️ QEYD: Excel faylında dəyişiklik edib, onu word sənədində yadda saxlayın. Hazırlanmış Word sənədini əlavə edin!!!`,
                     showModal: true,
                     isQuestion: false,
                 }));
@@ -380,8 +390,15 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const handleAddOrEdit = () => {
         try {
             for (const [key, value] of Object.entries(formData)) {
-                if (key !== "unitId" && value === '' && showFlash) {
-                    throw new Error(`❌ ${initialFormKey[key]} boş saxlanıla bilməz!`);
+                if (key !== "unitId" && value === '') {
+                    if (showFlash) {
+                        throw new Error(`❌ ${initialFormKey[key]} boş saxlanıla bilməz!`);
+                    }
+                    else {
+                        if (key !== "mark" && key !== "capacity" && key !== "serialNumber") {
+                            throw new Error(`❌ ${initialFormKey[key]} boş saxlanıla bilməz!`);
+                        }
+                    }
                 }
             }
 
@@ -551,28 +568,25 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     useEffect(() => {
         const load = async () => {
             await chooseType();
-
-            if (fromDocDetail.length > 0) {
+            if (fromDocDetail?.length > 0) {
                 setAddedEntries(fromDocDetail);
                 setMainForm(fromDocDetail);
                 setDisabled(true);
                 if (
-                    chapter?.title.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                    chapter?.title?.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
                 ) {
                     setShowFileArea('show-file-area')
                     setShowButton("show-button")
-                    setAddedEntries([])
                     setTotalDisabled(true)
                     setShowSendButton('')
                 }
             }
             else {
                 if (
-                    item?.title.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                    item?.title?.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
                 ) {
                     setShowFileArea('show-file-area')
                     setShowButton("show-button")
-                    setAddedEntries([])
                     setTotalDisabled(true)
                     setShowSendButton('')
                 }
@@ -582,7 +596,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     }, []);
 
     useEffect(() => {
-        if (typeOfAccounts && fromDocDetail.length > 0) {
+        if (typeOfAccounts && fromDocDetail?.length > 0) {
             changeTypeOfAccount(fromDocDetail[0].accountTypeId);
         }
     }, [typeOfAccounts, fromDocDetail]);
@@ -639,11 +653,11 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 <h2 className="form-title">
                     Sənəd növü:
                     <span style={{ color: 'var(--color-pale-teal)', padding: '0px 10px' }}>
-                        {item?.title}
+                        {item?.title || chapter?.title}
                     </span>
 
                     {
-                        (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                        (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                             <select
                                 className="select"
                                 disabled={disabled}
@@ -663,7 +677,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     }
                 </h2>
 
-                {addedEntries.length > 0 && (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                {addedEntries.length > 0 && (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                     <div className="added-entries">
                         {addedEntries.map((entry, idx) => (
                             <div key={idx} className="entry-card">
@@ -692,7 +706,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                         (!showExcelData ? (
                             <div className="form-fields">
                                 {
-                                    (item?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                                    (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                                         <>
                                             <input name="name" value={formData.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
                                             <input name="surname" value={formData.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />

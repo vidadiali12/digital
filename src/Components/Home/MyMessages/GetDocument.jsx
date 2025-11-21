@@ -33,12 +33,8 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
       const hdrs = {
         Authorization: `Bearer ${tokenGet}`
       }
-      const [rsp, docsList] = await Promise.all([
-        api.get(`/doc/getDocumentDetails/${choosenDoc.id}`, { headers: hdrs }),
-        api.get(`/doc/form/getDocForm/${choosenDoc?.id}`, { headers: hdrs })
-      ]);
+      const rsp = await api.get(`/doc/getDocumentDetails/${choosenDoc.id}`, { headers: hdrs })
       const element = rsp.data.data;
-      const docsListRes = docsList.data.data;
       setDocElements(element);
 
       const importedServerPrivateKeyB64 = localStorage.getItem("privateKeyLast");
@@ -76,31 +72,41 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
       );
       setPdfBase64(base64String);
 
-      const importedServerPrivateKeyB64PK = localStorage.getItem("clientPrivateKey");
-      if (!importedServerPrivateKeyB64PK) throw new Error("Private key tapılmadı");
+      if (element.hasForum) {
+        try {
+          const docsList = await api.get(`/doc/form/getDocForm/${choosenDoc?.id}`, { headers: hdrs })
+          const docsListRes = docsList.data.data;
+          console.log("docs", docsList)
+          const importedServerPrivateKeyB64PK = localStorage.getItem("clientPrivateKey");
+          if (!importedServerPrivateKeyB64PK) throw new Error("Private key tapılmadı");
 
-      const pkcs8ArrayBufferPK = Uint8Array.from(
-        atob(importedServerPrivateKeyB64PK),
-        c => c.charCodeAt(0)
-      );
+          const pkcs8ArrayBufferPK = Uint8Array.from(
+            atob(importedServerPrivateKeyB64PK),
+            c => c.charCodeAt(0)
+          );
 
-      const importedPrivateKeyPK = await window.crypto.subtle.importKey(
-        "pkcs8",
-        pkcs8ArrayBufferPK,
-        { name: "RSA-OAEP", hash: "SHA-256" },
-        false,
-        ["decrypt"]
-      );
+          const importedPrivateKeyPK = await window.crypto.subtle.importKey(
+            "pkcs8",
+            pkcs8ArrayBufferPK,
+            { name: "RSA-OAEP", hash: "SHA-256" },
+            false,
+            ["decrypt"]
+          );
 
 
-      const decryptedDocList = await decryptKeyWithRsa(docsListRes.key, importedPrivateKeyPK);
-      const decryptedList = await decryptDataWithAes(
-        docsListRes.cipherText,
-        docsListRes.iv,
-        decryptedDocList
-      );
+          const decryptedDocList = await decryptKeyWithRsa(docsListRes.key, importedPrivateKeyPK);
+          const decryptedList = await decryptDataWithAes(
+            docsListRes.cipherText,
+            docsListRes.iv,
+            decryptedDocList
+          );
 
-      setDocList(JSON.parse(decryptedList))
+          setDocList(JSON.parse(decryptedList))
+        } catch (err) {
+          console.log(err)
+        }
+      }
+
 
       try {
         const token = localStorage.getItem("myUserDocumentToken");
@@ -146,8 +152,11 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
 
   const closeDetails = () => {
+    console.log(docElements)
     setShowDocument(false)
-    window.location.reload()
+    if (whoIs === "getDoc" && !docElements.read) {
+      window.location.reload()
+    }
   }
 
   const shareDoc = () => {
@@ -295,7 +304,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
       {
         showForm && (
-          <Form userObj={JSON.parse(localStorage.getItem("userObj"))} item={item} setShowForm={setShowForm} setModalValues={setModalValues} fromDocDetail={docList.forms} chapter={docElements.chapter} />
+          <Form userObj={JSON.parse(localStorage.getItem("userObj"))} item={item} setShowForm={setShowForm} setModalValues={setModalValues} fromDocDetail={docList?.forms} chapter={docElements?.chapter} />
         )
       }
     </div >
