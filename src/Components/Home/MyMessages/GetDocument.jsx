@@ -12,6 +12,7 @@ import { signDoc } from "../Form/signDocument";
 import Loading from "../../Modals/Loading";
 import Form from "../Form/Form";
 
+
 const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item }) => {
   const [docElements, setDocElements] = useState(null);
   const [signDetail, setSignDetail] = useState([]);
@@ -48,6 +49,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
       const binary = atob(decryptedBase64);
       const byteArray = Uint8Array.from(binary, c => c.charCodeAt(0));
+      setArrayBuffer(byteArray)
       const blob = new Blob([byteArray], { type: "application/pdf" });
       setPdfUrl(URL.createObjectURL(blob));
       const base64String = btoa(new Uint8Array(byteArray).reduce((data, byte) => data + String.fromCharCode(byte), ""));
@@ -63,11 +65,16 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
           const pkcs8ArrayBufferPK = Uint8Array.from(atob(importedPrivateKeyB64PK), c => c.charCodeAt(0));
           const importedPrivateKeyPK = await window.crypto.subtle.importKey("pkcs8", pkcs8ArrayBufferPK, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["decrypt"]);
 
-          const decryptedDocList = await decryptKeyWithRsa(docsListRes.key, importedPrivateKeyPK);
-          const decryptedList = await decryptDataWithAes(docsListRes.cipherText, docsListRes.iv, decryptedDocList);
+          const decryptedDocList = await decryptKeyWithRsa(docsListRes?.key, importedPrivateKeyPK);
+          const decryptedList = await decryptDataWithAes(docsListRes?.cipherText, docsListRes?.iv, decryptedDocList);
           setDocList(JSON.parse(decryptedList));
         } catch (err) {
-          console.log(err);
+          setModalValues(prev => ({
+            ...prev,
+            message: '❌ İstifadəçilər alınarkən xəta baş verdi. Yenidən yoxlayın!',
+            isQuestion: false,
+            showModal: true
+          }))
         }
       }
 
@@ -79,7 +86,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
         const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
 
         const sigRsp = await api.post("/doc/verifyDoc", { cipherText, key: encryptedKey, iv }, { headers: { Authorization: `Bearer ${tokenGet}` } });
-        setSignDetail(sigRsp.data?.data || []);
+        setSignDetail(sigRsp?.data?.data || []);
 
         if (whoIs === "getDoc") {
           try {
@@ -89,11 +96,21 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
           }
         }
       } catch (err) {
-        console.error(err);
+        setModalValues(prev => ({
+          ...prev,
+          message: '❌ PDF məlumatları alınarkən xəta baş verdi. Yenidən yoxlayın!',
+          isQuestion: false,
+          showModal: true
+        }))
       }
 
     } catch (err) {
-      console.error(err);
+      setModalValues(prev => ({
+        ...prev,
+        message: '❌ Sənəd məlumatları alınarkən xəta baş verdi. Yenidən yoxlayın!',
+        isQuestion: false,
+        showModal: true
+      }))
     } finally {
       setLoading(false);
     }
@@ -102,9 +119,8 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
 
   const closeDetails = () => {
-    console.log(docElements)
     setShowDocument(false)
-    if (whoIs === "getDoc" && !docElements.read) {
+    if (whoIs === "getDoc" && !docElements?.read) {
       window.location.reload()
     }
   }
@@ -118,23 +134,19 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
   }, [choosenDoc]);
 
   const sendDocumend = async (receiver, description) => {
-    try {
-      const mainForm = docList.forms;
-      await sendDoc({
-        description,
-        receiver,
-        setLoading,
-        itemId: docElements.chapter?.id,
-        dcryptdStrng,
-        mainForm,
-        setShowForm,
-        setModalValues,
-        setReceiver,
-        setShowDocument
-      });
-    } catch (err) {
-
-    }
+    const mainForm = docList?.forms;
+    await sendDoc({
+      description,
+      receiver,
+      setLoading,
+      itemId: docElements?.chapter?.id,
+      dcryptdStrng,
+      mainForm,
+      setShowForm,
+      setModalValues,
+      setReceiver,
+      setShowDocument
+    });
   }
 
   const signDocument = async (pwd) => {
@@ -170,7 +182,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
           <div className="pdf-wrapper">
             <embed
-              src={`${pdfUrl}#navpanes=0`}
+              src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
               type="application/pdf"
               width="100%"
               height="100%"
@@ -182,24 +194,24 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
               <div className="doc-info">
 
                 <h4 className="info-title">Sənəd məlumatları</h4>
-                <p><span className="label">Sənəd No:</span> {docElements.documentNo}</p>
-                <p><span className="label">Tarix:</span> {docElements.date}</p>
+                <p><span className="label">Sənəd No:</span> {docElements?.documentNo}</p>
+                <p><span className="label">Tarix:</span> {docElements?.date}</p>
 
                 <div className="info-box">
                   <div className="info-title-box">
                     <h4 className="info-title">Göndərən</h4>
-                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements.sender.name} {docElements.sender.surname} {docElements.sender.father}</p>
-                    <p><span className="label">Vəzifə:</span> {docElements.sender.position}</p>
-                    <p><span className="label">İdarə:</span> {docElements.sender.management?.name}</p>
-                    <p><span className="label">Rütbə:</span> {docElements.sender.rank?.description}</p>
+                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements?.sender.name} {docElements?.sender?.surname} {docElements?.sender?.father}</p>
+                    <p><span className="label">Vəzifə:</span> {docElements?.sender?.position}</p>
+                    <p><span className="label">İdarə:</span> {docElements?.sender?.management?.name}</p>
+                    <p><span className="label">Rütbə:</span> {docElements?.sender?.rank?.description}</p>
                   </div>
 
                   <div className="info-title-box">
                     <h4 className="info-title">Qəbul edən</h4>
-                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements.receiver.name} {docElements.receiver.surname} {docElements.receiver.father}</p>
-                    <p><span className="label">Vəzifə:</span> {docElements.receiver.position}</p>
-                    <p><span className="label">İdarə:</span> {docElements.receiver.management?.name}</p>
-                    <p><span className="label">Rütbə:</span> {docElements.receiver.rank?.description}</p>
+                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements?.receiver?.name} {docElements?.receiver?.surname} {docElements?.receiver?.father}</p>
+                    <p><span className="label">Vəzifə:</span> {docElements?.receiver?.position}</p>
+                    <p><span className="label">İdarə:</span> {docElements?.receiver?.management?.name}</p>
+                    <p><span className="label">Rütbə:</span> {docElements?.receiver?.rank?.description}</p>
                   </div>
                 </div>
 
@@ -211,7 +223,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
         <div className="right-panel">
           <h3 className="section-title">İmzalar</h3>
           {signDetail?.map((sig, index) => {
-            const ok = sig.verified && sig.timestampVerified;
+            const ok = sig?.verified && sig?.timestampVerified;
             return (
               <div key={index} className={`sign-card ${ok ? "ok" : "error"}`}>
                 <div className="sign-header">
@@ -219,15 +231,15 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
                   <span className="sign-status">{ok ? "✔" : "✖"}</span>
                 </div>
 
-                <p><span className="label">Ad / Soyad / Ata / Fin:</span> {sig.signerName.commonName}</p>
-                <p><span className="label">Tarix:</span> {sig.date}</p>
-                <p><span className="label">Səbəb:</span> {sig.reason}</p>
-                <p><span className="label">Yer:</span> {sig.location}</p>
+                <p><span className="label">Ad / Soyad / Ata / Fin:</span> {sig?.signerName?.commonName}</p>
+                <p><span className="label">Tarix:</span> {sig?.date}</p>
+                <p><span className="label">Səbəb:</span> {sig?.reason}</p>
+                <p><span className="label">Yer:</span> {sig?.location}</p>
 
                 {!ok && (
                   <div className="error-msg">
-                    {!sig.verified && "İmza etibarsızdır. "}
-                    {!sig.timestampVerified && "Timestamp təsdiqlənmədi. "}
+                    {!sig?.verified && "İmza etibarsızdır. "}
+                    {!sig?.timestampVerified && "Timestamp təsdiqlənmədi. "}
                   </div>
                 )}
               </div>

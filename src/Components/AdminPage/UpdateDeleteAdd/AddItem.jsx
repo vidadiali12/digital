@@ -9,7 +9,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
 
     const navigate = useNavigate();
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        if (userObj && userObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
@@ -75,20 +75,20 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
         const payload =
             typeOfItem === 'department'
                 ? {
-                    departmentName: formData.name,
-                    departmentDesc: formData.desc,
+                    departmentName: formData?.name,
+                    departmentDesc: formData?.desc,
                     headDepartmentId: selectedSection,
                 }
                 : typeOfItem === 'headUnit'
                     ? {
-                        name: formData.name,
-                        description: formData.desc,
+                        name: formData?.name,
+                        description: formData?.desc,
                         departmentId: selectedSection,
-                        hasUnit: formData.hasUnit,
+                        hasUnit: formData?.hasUnit,
                     }
                     : {
-                        name: formData.name,
-                        description: formData.desc,
+                        name: formData?.name,
+                        description: formData?.desc,
                         headUnitId: selectedSection,
                     };
 
@@ -184,19 +184,19 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
                                             : 'Baş bölmə'} {' '}
                                     seçin
                                 </option>
-                                {sections.map((sec) => {
-                                    if (sec.hasUnit && typeOfItem === "unit") {
-                                        return <option key={sec.id} value={sec.id}>
+                                {sections?.map((sec) => {
+                                    if (sec?.hasUnit && typeOfItem === "unit") {
+                                        return <option key={sec?.id} value={sec?.id}>
                                             {sec.name}
                                         </option>
                                     }
                                     else if (typeOfItem !== "unit") {
-                                        return <option key={sec.id} value={sec.id}>
+                                        return <option key={sec?.id} value={sec?.id}>
                                             {typeOfItem === 'department'
-                                                ? sec.name
+                                                ? sec?.name
                                                 : typeOfItem === 'headUnit'
-                                                    ? sec.departmentName
-                                                    : sec.name}
+                                                    ? sec?.departmentName
+                                                    : sec?.name}
                                         </option>
                                     }
                                 })}
@@ -215,7 +215,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
                             <input
                                 type="text"
                                 name="name"
-                                value={formData.name}
+                                value={formData?.name}
                                 onChange={handleChange}
                                 placeholder="Ad daxil edin"
                                 required
@@ -235,7 +235,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
                             <input
                                 type="text"
                                 name="desc"
-                                value={formData.desc}
+                                value={formData?.desc}
                                 onChange={handleChange}
                                 placeholder="Təsviri daxil edin"
                                 required
@@ -249,7 +249,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
                                     className='check-box'
                                     type="checkbox"
                                     name="hasUnit"
-                                    checked={formData.hasUnit}
+                                    checked={formData?.hasUnit}
                                     onChange={handleCheckboxChange}
                                 />
                                 <label>Baş bölməyə bağlı bölmələr olacaq</label>

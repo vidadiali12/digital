@@ -10,7 +10,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        if (userObj && userObj?.admin === false) {
             navigate("/");
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
@@ -33,7 +33,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
         const token = localStorage.getItem("myUserDocumentToken");
         if (!token) return;
 
-        const titleData = { title: titleValue.trim() };
+        const titleData = { title: titleValue?.trim() };
 
         if (!titleData.title) {
             alert("⚠ Başlıq boş ola bilməz");
@@ -45,7 +45,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
             const url =
                 typeOfOperation === "createTitle"
                     ? '/admin/chapter/createChapter'
-                    : `/admin/chapter/updateChapter/${item.id}`;
+                    : `/admin/chapter/updateChapter/${item?.id}`;
 
             const hdrs = {
                 headers: {

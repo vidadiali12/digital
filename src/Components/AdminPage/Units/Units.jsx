@@ -39,8 +39,8 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
                 }),
             ]);
 
-            setHeadUnits(headRes.data.data || []);
-            setUnits(allRes.data.data || []);
+            setHeadUnits(headRes?.data?.data || []);
+            setUnits(allRes?.data?.data || []);
         } catch (err) {
             console.error('❌ Məlumat alınmadı:', err);
             setModalValues(prev => ({
@@ -72,19 +72,19 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
 
 
     const editHeadUnit = (id) => {
-        setItem(headUnits.find(e => e.id === id))
+        setItem(headUnits.find(e => e?.id === id))
         setTypeOfItem("headUnit")
         setUpdateItem(true)
     }
 
     const editUnit = (id) => {
-        setItem(units.find(e => e.id === id))
+        setItem(units.find(e => e?.id === id))
         setTypeOfItem("unit")
         setUpdateItem(true)
     }
 
     const deleteHeadUnit = (id) => {
-        setItem(headUnits.find(e => e.id === id))
+        setItem(headUnits.find(e => e?.id === id))
         setModalValues(prev => ({
             ...prev,
             message: `Bu Baş Bölməni silməyə əminsiz?`,
@@ -95,7 +95,7 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
     };
 
     const deleteUnit = (id) => {
-        setItem(units.find(e => e.id === id))
+        setItem(units.find(e => e?.id === id))
         setModalValues(prev => ({
             ...prev,
             message: `Bu Bölməni silməyə əminsiz?`,
@@ -124,21 +124,21 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
                 </div>
 
                 <div className="units-list">
-                    {headUnits.map((head, index) => (
-                        <div key={head.id} className="unit-card">
+                    {headUnits?.map((head, index) => (
+                        <div key={head?.id} className="unit-card">
                             <div className="unit-card-header">
                                 <div>
-                                    <span className="dep-name">{index + 1}. İdarə: {head.departmentName}</span>
+                                    <span className="dep-name">{index + 1}. İdarə: {head?.departmentName}</span>
                                     <div>
                                         <span className='head-unit-name'>
-                                            Baş Bölmə: {head.name}
+                                            Baş Bölmə: {head?.name}
                                         </span>
-                                        <p className="desc">({head.description})</p>
+                                        <p className="desc">({head?.description})</p>
                                         <div className="actions">
-                                            <button className="edit-btn" onClick={() => editHeadUnit(head.id)}>
+                                            <button className="edit-btn" onClick={() => editHeadUnit(head?.id)}>
                                                 <FaEdit />
                                             </button>
-                                            <button className="delete-btn" onClick={() => deleteHeadUnit(head.id)}>
+                                            <button className="delete-btn" onClick={() => deleteHeadUnit(head?.id)}>
                                                 <FaTrash />
                                             </button>
                                         </div>
@@ -146,8 +146,7 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
                                 </div>
                             </div>
 
-                            {/* Əlaqəli bölmələr */}
-                            {units.filter((u) => u.headUnitName === head.name).length > 0 ? (
+                            {units.filter((u) => u?.headUnitName === head?.name).length > 0 ? (
                                 <table className="inner-units-table">
                                     <thead>
                                         <tr>
@@ -159,17 +158,17 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
                                     </thead>
                                     <tbody>
                                         {units
-                                            .filter((u) => u.headUnitName === head.name)
+                                            .filter((u) => u?.headUnitName === head?.name)
                                             .map((unit, i) => (
-                                                <tr key={unit.id}>
+                                                <tr key={unit?.id}>
                                                     <td>{i + 1}</td>
-                                                    <td>{unit.name}</td>
-                                                    <td>{unit.description}</td>
+                                                    <td>{unit?.name}</td>
+                                                    <td>{unit?.description}</td>
                                                     <td className="actions">
-                                                        <button className="edit-btn" onClick={() => editUnit(unit.id)}>
+                                                        <button className="edit-btn" onClick={() => editUnit(unit?.id)}>
                                                             <FaEdit />
                                                         </button>
-                                                        <button className="delete-btn" onClick={() => deleteUnit(unit.id)}>
+                                                        <button className="delete-btn" onClick={() => deleteUnit(unit?.id)}>
                                                             <FaTrash />
                                                         </button>
                                                     </td>
@@ -179,7 +178,7 @@ const Units = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTypeOfIt
                                 </table>
                             ) : <span>
                                 {
-                                    head.name
+                                    head?.name
                                 } Baş bölməsinə bağlı alt bölmələr mövcud deyil.
                             </span>}
                         </div>

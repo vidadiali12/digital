@@ -80,7 +80,7 @@ function App() {
 
 
     try {
-      await api.delete(`${url}${item.id}`, {
+      await api.delete(`${url}${item?.id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -115,7 +115,7 @@ function App() {
 
   useEffect(() => {
     const exitAccount = async () => {
-      if (modalValues.answer && modalValues.type === "exitAccount") {
+      if (modalValues.answer && modalValues?.type === "exitAccount") {
         const token = localStorage.getItem("myUserDocumentToken")
 
         if (!token) return;
@@ -151,28 +151,28 @@ function App() {
           })
         }
       }
-      else if (modalValues.answer && modalValues.type === "deleteDepartment") {
+      else if (modalValues?.answer && modalValues?.type === "deleteDepartment") {
         deleteItem('deleteDepartment')
       }
-      else if (modalValues.answer && modalValues.type === "deleteUnit") {
+      else if (modalValues?.answer && modalValues?.type === "deleteUnit") {
         deleteItem('deleteUnit')
       }
-      else if (modalValues.answer && modalValues.type === "deleteHeadUnit") {
+      else if (modalValues?.answer && modalValues?.type === "deleteHeadUnit") {
         deleteItem('deleteHeadUnit')
       }
-      else if (modalValues.answer && modalValues.type === "deleteUser") {
+      else if (modalValues?.answer && modalValues?.type === "deleteUser") {
         deleteItem('deleteUser')
       }
-      else if (modalValues.answer && modalValues.type === "deleteTitle") {
+      else if (modalValues?.answer && modalValues?.type === "deleteTitle") {
         deleteItem('deleteTitle')
       }
-      else if (modalValues.answer && modalValues.type === "deleteDoc") {
+      else if (modalValues?.answer && modalValues?.type === "deleteDoc") {
         deleteItem('deleteDoc')
       }
     }
 
     exitAccount()
-  }, [modalValues.answer])
+  }, [modalValues?.answer])
 
   return (
     loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> : <div className='main-element'>

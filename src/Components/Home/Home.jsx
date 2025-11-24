@@ -39,11 +39,11 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
     const handleEdit = (id) => {
         setTypeOfOperation("editTitle")
         setShowTitle(true)
-        setItem(titles.find(title => title.id === id))
+        setItem(titles?.find(title => title?.id === id))
     }
 
     const handleDelete = (id) => {
-        setItem(titles.find(title => title.id === id))
+        setItem(titles?.find(title => title?.id === id))
         setModalValues(prev => ({
             ...prev,
             message: "Bu başlığı silməyə əminsiniz?",
@@ -54,7 +54,7 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
     }
 
     const goForm = (titleId) => {
-        setItem(titles.find(title => title.id === titleId));
+        setItem(titles?.find(title => title?.id === titleId));
         setShowForm(true)
     }
 
@@ -80,10 +80,10 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
         <div className="home" onClick={handleReset}>
             <ul className='ul-down' onClick={(e) => e.stopPropagation()}>
                 {
-                    titles.map((title, index) => (
-                        <li key={title.id} onClick={() => goTitle(title.id, index)}>
+                    titles?.map((title, index) => (
+                        <li key={title?.id} onClick={() => goTitle(title?.id, index)}>
                             <NavLink to="/">
-                                {title.title}
+                                {title?.title}
                                 <FiPlus className="plus-icon" />
                             </NavLink>
                             {
@@ -91,21 +91,21 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
                                     <div className={`${showTitleActions === index && ('show-title-actions')} actions`}>
                                         <button
                                             className="edit-btn"
-                                            onClick={() => handleEdit(title.id)}
+                                            onClick={() => handleEdit(title?.id)}
                                             title="Redaktə et"
                                         >
                                             <FaEdit />
                                         </button>
                                         <button
                                             className="delete-btn"
-                                            onClick={() => handleDelete(title.id)}
+                                            onClick={() => handleDelete(title?.id)}
                                             title="Sil"
                                         >
                                             <FaTrashAlt />
                                         </button>
                                         <button
                                             className="delete-btn"
-                                            onClick={() => createForm(title.id)}
+                                            onClick={() => createForm(title?.id)}
                                             title="Davam et"
                                         >
                                             <FaArrowRight />

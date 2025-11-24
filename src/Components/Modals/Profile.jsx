@@ -142,7 +142,7 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
     } catch (error) {
       console.error("❌ Password update error:", error);
       if (error?.response?.data) {
-        console.error("🔴 Server response data:", error.response.data);
+        console.error("🔴 Server response data:", error?.response?.data);
       }
 
       setModalValues(prev => ({

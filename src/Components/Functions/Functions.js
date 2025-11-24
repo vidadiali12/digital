@@ -1,10 +1,10 @@
 
 export const base64ToArrayBuffer = (base64) => {
     const binaryString = atob(base64);
-    const len = binaryString.length;
+    const len = binaryString?.length;
     const bytes = new Uint8Array(len);
     for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+        bytes[i] = binaryString?.charCodeAt(i);
     }
     return bytes.buffer;
 };
@@ -21,7 +21,7 @@ export const arrayBufferToBase64 = (buffer) => {
 
 export function byteArrayToBase64(wordBytes) {
     let binary = '';
-    for (let i = 0; i < wordBytes.length; i++) {
+    for (let i = 0; i < wordBytes?.length; i++) {
         binary += String.fromCharCode(wordBytes[i]);
     }
     return btoa(binary);
@@ -78,7 +78,7 @@ export const decryptDataWithAes = async (cipherTextBase64, ivBase64, decryptedKe
 
 export const decryptEncryptedPrivateKeyMethod = async (encryptedPrivateKeyBase64, secretKeyObject) => {
     const encryptedPrivateKeyBuffer = base64ToArrayBuffer(encryptedPrivateKeyBase64);
-    return await window.crypto.subtle.decrypt({ name: "AES-CBC", iv: secretKeyObject.iv }, secretKeyObject.aesKey, encryptedPrivateKeyBuffer);
+    return await window.crypto.subtle.decrypt({ name: "AES-CBC", iv: secretKeyObject?.iv }, secretKeyObject?.aesKey, encryptedPrivateKeyBuffer);
 };
 
 export const restorePrivateKeyBytesMethod = async (decryptedPrivateKeyBytes) => JSON.parse(new TextDecoder().decode(decryptedPrivateKeyBytes));

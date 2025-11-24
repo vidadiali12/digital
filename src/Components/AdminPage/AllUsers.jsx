@@ -45,8 +45,8 @@ const AllUsers = ({ setItem, setModalValues }) => {
                     headers: { Authorization: `Bearer ${token}` },
                     params: { page, pageSize },
                 });
-                setAllUsers(resUsers.data.data.data || []);
-                setCountOfUsers(resUsers.data.data.totalItem);
+                setAllUsers(resUsers?.data?.data?.data || []);
+                setCountOfUsers(resUsers?.data?.data?.totalItem);
                 setLoading(false)
             } catch (err) {
                 setLoading(false)
@@ -62,8 +62,8 @@ const AllUsers = ({ setItem, setModalValues }) => {
         getAllUsers();
     }, [page, pageSize]);
 
-    const filteredUsers = allUsers.filter((u) => {
-        const text = `${u.name} ${u.surname} ${u.father} ${u.position} ${u.management?.name}`.toLowerCase();
+    const filteredUsers = allUsers?.filter((u) => {
+        const text = `${u?.name} ${u?.surname} ${u?.father} ${u?.position} ${u?.management?.name}`.toLowerCase();
         return text.includes(searchTerm.toLowerCase());
     });
 
@@ -95,19 +95,19 @@ const AllUsers = ({ setItem, setModalValues }) => {
                     Authorization: `Beare ${token}`
                 }
             })
-            const user = resUser.data.data;
+            const user = resUser?.data?.data;
 
             setFormData({
-                name: user.name,
-                surname: user.surname,
-                fatherName: user.father,
-                position: user.position,
-                username: user.username,
+                name: user?.name,
+                surname: user?.surname,
+                fatherName: user?.father,
+                position: user?.position,
+                username: user?.username,
                 password: "",
                 passwordOld: "",
                 rankId: user?.rank?.id,
                 csr: "",
-                fin: user.fin
+                fin: user?.fin
             })
 
             setEp(`/admin/updateUser/${id}`)
@@ -115,8 +115,8 @@ const AllUsers = ({ setItem, setModalValues }) => {
             setLoading(false)
 
             setMng({
-                managementId: user.management?.id,
-                managementRankId: user.managementRank?.id
+                managementId: user?.management?.id,
+                managementRankId: user?.managementRank?.id
             });
         } catch (err) {
             setLoading(false)
@@ -140,7 +140,7 @@ const AllUsers = ({ setItem, setModalValues }) => {
                             type="text"
                             placeholder="Axtar..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => setSearchTerm(e?.target?.value)}
                         />
                     </div>
                 </div>
@@ -160,25 +160,25 @@ const AllUsers = ({ setItem, setModalValues }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredUsers.length > 0 ? (
-                            filteredUsers.map((u, index) => (
-                                <tr key={u.id} className={u.admin ? "admin-row  all-users-tr" : " all-users-tr"}>
+                        {filteredUsers?.length > 0 ? (
+                            filteredUsers?.map((u, index) => (
+                                <tr key={u.id} className={u?.admin ? "admin-row  all-users-tr" : " all-users-tr"}>
                                     <td>{(page - 1) * pageSize + index + 1}</td>
                                     <td>
-                                        {u.name}{" "}
-                                        {u.admin && <FaCrown title="Admin" className="admin-icon" />}
+                                        {u?.name}{" "}
+                                        {u?.admin && <FaCrown title="Admin" className="admin-icon" />}
                                     </td>
-                                    <td>{u.surname}</td>
-                                    <td>{u.father}</td>
-                                    <td>{u.position}</td>
-                                    <td>{u.management?.name || "-"}</td>
-                                    <td>{u.rank?.name || "-"}</td>
-                                    <td>{u.managementRank?.desc || "-"}</td>
+                                    <td>{u?.surname}</td>
+                                    <td>{u?.father}</td>
+                                    <td>{u?.position}</td>
+                                    <td>{u?.management?.name || "-"}</td>
+                                    <td>{u?.rank?.name || "-"}</td>
+                                    <td>{u?.managementRank?.desc || "-"}</td>
                                     <td className="actions">
-                                        <button className="edit-btn" title="Düzəliş et" onClick={() => editUser(u.id)}>
+                                        <button className="edit-btn" title="Düzəliş et" onClick={() => editUser(u?.id)}>
                                             <FaEdit />
                                         </button>
-                                        <button className="delete-btn" title="Sil" onClick={() => deleteUser(u.id)}>
+                                        <button className="delete-btn" title="Sil" onClick={() => deleteUser(u?.id)}>
                                             <FaTrash />
                                         </button>
                                     </td>

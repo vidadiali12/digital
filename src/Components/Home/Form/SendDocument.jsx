@@ -28,7 +28,7 @@ export const sendDoc = async ({
         );
         const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
 
-        // if (itemId == null || mainForm.length == 0) throw new Error("Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
+        if (itemId == null || mainForm.length == 0) throw new Error("hi Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
 
         const requestDataJson = {
             pdfBase64: dcryptdStrng,
@@ -64,7 +64,7 @@ export const sendDoc = async ({
         setShowForm(false)
         setShowDocument(false)
         setReceiver(false)
-        const responseData = response.data.data;
+        const responseData = response?.data?.data;
 
         setModalValues(prev => (
             {
@@ -86,8 +86,7 @@ export const sendDoc = async ({
                 isQuestion: false,
                 showModal: true
             }
-        ))
-
+        ));
         setLoading(false);
     }
 }

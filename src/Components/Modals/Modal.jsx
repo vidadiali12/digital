@@ -27,16 +27,16 @@ const Modal = ({ modalValues, setModalValues }) => {
             <div className='modal'>
                 <p>
                     {
-                        modalValues.message
+                        modalValues?.message
                     }
                 </p>
                 <div>
-                    <button onClick={reject} style={modalValues.isQuestion ? { backgroundColor: 'red' } : { backgroundColor: 'gray' }}>
+                    <button onClick={reject} style={modalValues?.isQuestion ? { backgroundColor: 'red' } : { backgroundColor: 'gray' }}>
                         {
-                            !modalValues.isQuestion ? 'Bağla' : 'Xeyr'
+                            !modalValues?.isQuestion ? 'Bağla' : 'Xeyr'
                         }
                     </button>
-                    <button onClick={accept} style={modalValues.isQuestion ? { display: 'inline-block' } : { display: 'none' }}>
+                    <button onClick={accept} style={modalValues?.isQuestion ? { display: 'inline-block' } : { display: 'none' }}>
                         Bəli
                     </button>
                 </div>

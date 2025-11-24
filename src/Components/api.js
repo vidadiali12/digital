@@ -92,16 +92,16 @@ api.interceptors.request.use(async (config) => {
               ["decrypt"]
             );
 
-            const decryptedKeyBuffer = await decryptKeyWithRsa(response.data.data.key, importedPrivateKey);
+            const decryptedKeyBuffer = await decryptKeyWithRsa(response?.data?.data?.key, importedPrivateKey);
 
-            const decryptedString = await decryptDataWithAes(response.data.data.cipherText, response.data.data.iv, decryptedKeyBuffer);
+            const decryptedString = await decryptDataWithAes(response?.data?.data?.cipherText, response?.data?.data?.iv, decryptedKeyBuffer);
 
             const responseModel = JSON.parse(decryptedString);
 
-            localStorage.setItem("myUserDocumentToken", responseModel.accessToken);
-            localStorage.setItem("tokenExpiration", responseModel.tokenExpiresIn);
+            localStorage.setItem("myUserDocumentToken", responseModel?.accessToken);
+            localStorage.setItem("tokenExpiration", responseModel?.tokenExpiresIn);
 
-            console.log("✅ Token yeniləndi:", responseModel.tokenExpiresIn);
+            console.log("✅ Token yeniləndi:", responseModel?.tokenExpiresIn);
 
           } catch (err) {
             console.error("❌ Token refresh error:", err);

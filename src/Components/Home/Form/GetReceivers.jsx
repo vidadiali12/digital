@@ -103,17 +103,17 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
 
           {error && <div className="error">{error}</div>}
 
-          {!loading && users.length > 0 && (
+          {!loading && users?.length > 0 && (
             <div className="receivers-grid">
-              {users.map((u) => {
-                if (userObj.username !== u.username) {
+              {users?.map((u) => {
+                if (userObj?.username !== u?.username) {
                   return <div
-                    key={u.id}
+                    key={u?.id}
                     className="receiver-card"
                     onClick={() => handleUserClick(u)}
                   >
                     <div className="receiver-icon">
-                      {u.rank?.name?.toLowerCase()?.includes("rəhbər") ? (
+                      {u?.rank?.name?.toLowerCase()?.includes("rəhbər") ? (
                         <IoIosShareAlt size={36} color="#007b83" />
                       ) : (
                         <IoIosShareAlt size={36} color="#007b83" />
@@ -121,16 +121,11 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
                     </div>
                     <div className="receiver-info">
                       <h3>
-                        {u.name} {u.surname} {u.father}
+                        {u?.name} {u?.surname} {u?.father}
                       </h3>
-                      <p><strong>Rütbə: </strong>{u.rank?.description || "—"}</p>
+                      <p><strong>Rütbə: </strong>{u?.rank?.description || "—"}</p>
 
-                      <p><strong>İdarə (Bölmə): </strong>{u.management?.name || "—"}</p>
-                      {/* <p>
-                        {
-                          users.find(e => e.username == userObj.username).managementRank?.id > u.managementRank?.id ? "üst idarə(bölmə)": "alt idarə(bölmə)"
-                        }
-                      </p> */}
+                      <p><strong>İdarə (Bölmə): </strong>{u?.management?.name || "—"}</p>
                     </div>
                   </div>
                 }
@@ -145,13 +140,13 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
             </button>
           )}
 
-          {loading && users.length > 0 && <Loading loadingMessage={"İstifadəçilər alınır..."} />}
+          {loading && users?.length > 0 && <Loading loadingMessage={"İstifadəçilər alınır..."} />}
         </div>
 
         <div className="receivers-right">
           {pdf ? (
             <embed
-              src={`${pdf}#navpanes=0`}
+              src={`${pdf}#toolbar=0&navpanes=0&scrollbar=0`}
               type="application/pdf"
               width="100%"
               height="100%"

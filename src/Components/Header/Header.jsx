@@ -41,12 +41,11 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
 
     const makeActiveNavigate = (e) => {
         const navigateArr = document.getElementsByClassName("passiv-navigate");
-        for (let i = 0; i < navigateArr.length; i++) {
+        for (let i = 0; i < navigateArr?.length; i++) {
             navigateArr[i].classList.remove("active-navigate")
         }
 
-        e.target.classList.add("active-navigate")
-        console.log(e.target)
+        e?.target?.classList.add("active-navigate")
     }
 
     const callUnRead = async () => {

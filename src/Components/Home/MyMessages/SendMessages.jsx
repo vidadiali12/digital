@@ -90,34 +90,34 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
                 <span className="header-delete">Sil</span>
             </div>
 
-            {messages.length === 0 ? (
+            {messages?.length === 0 ? (
                 <div className="all-messages-empty">Məlumat yoxdur</div>
             ) : (
-                messages.map((msg, index) => (
-                    <div key={msg.id} className="all-messages-row">
-                        <span className={`index-cell ${msg.read ? "" : unReadStyle}`}>{(page - 1) * pageSize + index + 1}</span>
+                messages?.map((msg, index) => (
+                    <div key={msg?.id} className="all-messages-row">
+                        <span className={`index-cell ${msg?.read ? "" : unReadStyle}`}>{(page - 1) * pageSize + index + 1}</span>
 
-                        <span className="pdf-cell full-width" onClick={() => goDocument(msg.id)}>
+                        <span className="pdf-cell full-width" onClick={() => goDocument(msg?.id)}>
                             <FaFilePdf className="pdf-icon" />
-                            <span className={`see-text  ${msg.read ? "" : unReadStyle}`}>Sənədi gör</span>
+                            <span className={`see-text  ${msg?.read ? "" : unReadStyle}`}>Sənədi gör</span>
                         </span>
 
-                        <span className={`receiver-cell full-width-3  ${msg.read ? "" : unReadStyle}`}>
-                            {msg.receiver?.rank?.description} {msg.receiver?.name} {msg.receiver?.surname}
+                        <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle}`}>
+                            {msg?.receiver?.rank?.description} {msg?.receiver?.name} {msg?.receiver?.surname}
                         </span>
-                        <span className={`management-cell  ${msg.read ? "" : unReadStyle}`}>{msg.receiver?.management?.name}</span>
-                        <span className={`title-cell full-width  ${msg.read ? "" : unReadStyle}`}>{msg.description}</span>
-                        <span className={`chapter-cell full-width  ${msg.read ? "" : unReadStyle}`}>{msg.chapter || "—"}</span>
-                        <span className={`date-cell  ${msg.read ? "" : unReadStyle}`}>{msg.date}</span>
+                        <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.receiver?.management?.name}</span>
+                        <span className={`title-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.description}</span>
+                        <span className={`chapter-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.chapter || "—"}</span>
+                        <span className={`date-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.date}</span>
 
                         <span className="status-cell">
-                            {msg.read ? (
+                            {msg?.read ? (
                                 <FaCheckCircle className="status-read" />
                             ) : (
                                 <FaRegCircle className="status-unread" />
                             )}
                         </span>
-                        <span className="delete-cell" onClick={() => deleteDoc(msg.id)}>
+                        <span className="delete-cell" onClick={() => deleteDoc(msg?.id)}>
                             <FiTrash size={20} className="delete-icon-delete" />
                         </span>
                     </div>

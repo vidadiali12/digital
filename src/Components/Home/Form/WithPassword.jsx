@@ -8,7 +8,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (visible && inputRef.current) {
+    if (visible && inputRef?.current) {
       inputRef.current.focus();
     }
   }, [visible]);
@@ -16,7 +16,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
   if (!visible) return null;
 
   const handleSend = () => {
-    if (!password || password.trim().length === 0) {
+    if (!password || password?.trim().length === 0) {
       setError("Parol boş ola bilməz");
       return;
     }
@@ -123,7 +123,6 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
               }}
             />
 
-            {/* 👁 Xətgöz ikonu (FaEye / FaEyeSlash) */}
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}

@@ -62,7 +62,7 @@ const Login = ({ setToken, setItem }) => {
             function arrayBufferToBase64(buffer) {
                 const bytes = new Uint8Array(buffer);
                 let binary = '';
-                for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+                for (let i = 0; i < bytes?.length; i++) binary += String.fromCharCode(bytes[i]);
                 return btoa(binary);
             }
 
@@ -81,7 +81,7 @@ const Login = ({ setToken, setItem }) => {
             const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
 
             const response = await api.put("/auth/signIn", { cipherText, key: encryptedKey, iv }, { headers: { 'Content-Type': 'application/json' } });
-            if (!response.data.data?.cipherText) return setErrMsg("Cavab formatı doğru deyil");
+            if (!response?.data?.data?.cipherText) return setErrMsg("❌ Cavab formatı doğru deyil");
 
             function base64ToArrayBuffer(b64) {
                 const binary = atob(b64);
@@ -99,20 +99,20 @@ const Login = ({ setToken, setItem }) => {
                 ["decrypt"]
             );
 
-            const decryptedKeyBuffer = await decryptKeyWithRsa(response.data.data.key, importedPrivateKey);
-            const decryptedString = await decryptDataWithAes(response.data.data.cipherText, response.data.data.iv, decryptedKeyBuffer);
+            const decryptedKeyBuffer = await decryptKeyWithRsa(response?.data?.data?.key, importedPrivateKey);
+            const decryptedString = await decryptDataWithAes(response?.data?.data?.cipherText, response?.data?.data?.iv, decryptedKeyBuffer);
             const responseModel = JSON.parse(decryptedString);
 
-            localStorage.setItem("salt", responseModel.salt);
-            localStorage.setItem("iv", responseModel.iv);
-            localStorage.setItem("privateKeyRslt", responseModel.privateKey)
-            localStorage.setItem("myUserDocumentToken", responseModel.accessToken);
-            localStorage.setItem("tokenExpiration", responseModel.tokenExpiration);
+            localStorage.setItem("salt", responseModel?.salt);
+            localStorage.setItem("iv", responseModel?.iv);
+            localStorage.setItem("privateKeyRslt", responseModel?.privateKey)
+            localStorage.setItem("myUserDocumentToken", responseModel?.accessToken);
+            localStorage.setItem("tokenExpiration", responseModel?.tokenExpiration);
             localStorage.setItem("firstLogin", 1);
 
             setItem({ pswd: password })
 
-            const token = responseModel.accessToken
+            const token = responseModel?.accessToken
             if (!token) return;
 
             const fetchUserData = async () => {
@@ -124,9 +124,9 @@ const Login = ({ setToken, setItem }) => {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
-                    console.log("✅ User Data:", response.data.data);
+                    console.log("✅ User Data:", response?.data?.data);
 
-                    localStorage.setItem("userObj", JSON.stringify(response.data.data));
+                    localStorage.setItem("userObj", JSON.stringify(response?.data?.data));
 
                     function base64UrlToBase64(base64Url) {
                         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -135,10 +135,10 @@ const Login = ({ setToken, setItem }) => {
                     }
 
                     const csr = await generateCsr({
-                        name: response.data?.data?.name,
-                        surname: response.data?.data?.surname,
-                        father: response.data?.data?.father,
-                        fin: response.data?.data?.fin,
+                        name: response?.data?.data?.name,
+                        surname: response?.data?.data?.surname,
+                        father: response?.data?.data?.father,
+                        fin: response?.data?.data?.fin,
                         password: password
                     });
 
@@ -173,7 +173,7 @@ const Login = ({ setToken, setItem }) => {
             };
 
             fetchUserData();
-            setToken(responseModel.accessToken);
+            setToken(responseModel?.accessToken);
             navigate("/");
 
         } catch (error) {

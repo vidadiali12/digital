@@ -9,7 +9,7 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
 
     const navigate = useNavigate();
     useEffect(() => {
-        if (userObj && userObj.admin === false) {
+        if (userObj && userObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
@@ -20,15 +20,15 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
     const [section, setSection] = useState([])
     const [selectedId, setSelectedId] = useState(
         typeOfItem === "department"
-            ? item.headDepartmentId
+            ? item?.headDepartmentId
             : typeOfItem === "headUnit"
-                ? item.departmentId
-                : item.headUnitId)
+                ? item?.departmentId
+                : item?.headUnitId)
 
     const [formData, setFormData] = useState({
-        name: item.name || item.departmentName || '',
-        desc: item.description || item.departmentDesc || '',
-        hasUnit: item.hasUnit || false
+        name: item?.name || item?.departmentName || '',
+        desc: item?.description || item?.departmentDesc || '',
+        hasUnit: item?.hasUnit || false
     });
 
     const handleChange = (e) => {
@@ -37,10 +37,10 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
     }
 
     const changeSection = (e) => {
-        setSelectedId(e.target.value)
+        setSelectedId(e?.target?.value)
     }
     const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
+        const { name, checked } = e?.target;
         setFormData((prev) => ({ ...prev, [name]: checked }));
     };
 
@@ -54,22 +54,22 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
         const url = typeOfItem === "department" ? "/manage/updateDepartment/" : typeOfItem === "headUnit" ? "/manage/updateHeadUnit/" : "/manage/updateUnit/"
 
         const payload = typeOfItem === "department" ? {
-            departmentName: formData.name,
-            departmentDesc: formData.desc,
+            departmentName: formData?.name,
+            departmentDesc: formData?.desc,
             headDepartmentId: selectedId
         } : typeOfItem === "headUnit" ? {
-            name: formData.name,
-            description: formData.desc,
+            name: formData?.name,
+            description: formData?.desc,
             departmentId: selectedId,
-            hasUnit: formData.hasUnit
+            hasUnit: formData?.hasUnit
         } : {
-            name: formData.name,
-            description: formData.desc,
+            name: formData?.name,
+            description: formData?.desc,
             headUnitId: selectedId
         };
 
         try {
-            const response = await api.put(`${url}${item.id}`, payload, {
+            const response = await api.put(`${url}${item?.id}`, payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setModalValues(prev => ({
@@ -119,9 +119,9 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                 const url = typeOfItem === "department" ? "/manage/getHeadDepartments" : typeOfItem === "headUnit" ? "/manage/getDepartments" : "/manage/getAllHeadUnits"
 
                 const resSection = await api.get(url, { headers: hdrs });
-                console.log("data::: ", resSection.data.data)
+                console.log("data::: ", resSection?.data?.data)
 
-                setSection(resSection.data.data);
+                setSection(resSection?.data?.data);
                 setLoading(false)
 
             } catch (err) {
@@ -152,7 +152,7 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                                 <input
                                     type="text"
                                     name="name"
-                                    value={formData.name}
+                                    value={formData?.name}
                                     onChange={handleChange}
                                     placeholder="Ad daxil edin"
                                     required
@@ -163,7 +163,7 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                                 <input
                                     type="text"
                                     name="desc"
-                                    value={formData.desc}
+                                    value={formData?.desc}
                                     onChange={handleChange}
                                     placeholder="Təsviri daxil edin"
                                     required
@@ -182,8 +182,8 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                                     </option>
 
                                     {section.map((sec) => (
-                                        <option value={sec.id} key={sec.id}>
-                                            {typeOfItem === "headUnit" ? sec.departmentName : sec.name}
+                                        <option value={sec?.id} key={sec?.id}>
+                                            {typeOfItem === "headUnit" ? sec?.departmentName : sec?.name}
                                         </option>
                                     ))}
                                 </select>
@@ -194,7 +194,7 @@ const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) =>
                                         className='check-box-update'
                                         type="checkbox"
                                         name="hasUnit"
-                                        checked={formData.hasUnit}
+                                        checked={formData?.hasUnit}
                                         onChange={handleCheckboxChange}
                                     />
                                     <label>Baş bölməyə bağlı bölmələr olacaq</label>

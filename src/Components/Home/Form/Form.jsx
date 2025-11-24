@@ -5,7 +5,7 @@ import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import { FiPlus } from 'react-icons/fi';
 import api from '../../api';
 import Loading from '../../Modals/Loading';
-import { arrayBufferToBase64, decryptDataWithAes, decryptKeyWithRsa, encryptDataWithAes, encryptKeyWithRsa, generateCsr } from '../../Functions/Functions';
+import { arrayBufferToBase64, decryptDataWithAes, decryptKeyWithRsa, encryptDataWithAes, encryptKeyWithRsa } from '../../Functions/Functions';
 import WithPassword from './WithPassword';
 import GetReceivers from './GetReceivers';
 import { sendDoc } from './SendDocument';
@@ -96,7 +96,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         else {
             setTotalDisabled(true);
         }
-        const typeObj = typeOfAccounts?.find(t => Number(t.id) === Number(id));
+        const typeObj = typeOfAccounts?.find(t => Number(t?.id) === Number(id));
         if (!typeObj) {
             console.warn("Account type not found:", id);
             return;
@@ -110,7 +110,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     };
 
     const handleChange = async (e) => {
-        const { name, value } = e.target;
+        const { name, value } = e?.target;
 
         if (name === 'departmentId') {
             if (value === 'load_more') {
@@ -134,7 +134,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
         setLoading(true)
 
-        const file = e.target.files[0];
+        const file = e?.target?.files[0];
         if (!file) return;
 
         setFileData({ ...fileData, file });
@@ -172,8 +172,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
                 function base64ToArrayBuffer(b64) {
                     const binary = atob(b64);
-                    const bytes = new Uint8Array(binary.length);
-                    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    const bytes = new Uint8Array(binary?.length);
+                    for (let i = 0; i < binary?.length; i++) bytes[i] = binary?.charCodeAt(i);
                     return bytes.buffer;
                 }
 
@@ -188,14 +188,14 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 );
 
 
-                const decryptedKeyBuffer = await decryptKeyWithRsa(responseData.key, importedPrivateKey);
-                const decryptedString = await decryptDataWithAes(responseData.cipherText, responseData.iv, decryptedKeyBuffer);
+                const decryptedKeyBuffer = await decryptKeyWithRsa(responseData?.key, importedPrivateKey);
+                const decryptedString = await decryptDataWithAes(responseData?.cipherText, responseData?.iv, decryptedKeyBuffer);
 
 
                 const byteCharacters = atob(decryptedString);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                const byteNumbers = new Array(byteCharacters?.length);
+                for (let i = 0; i < byteCharacters?.length; i++) {
+                    byteNumbers[i] = byteCharacters?.charCodeAt(i);
                 }
 
                 const byteArray = new Uint8Array(byteNumbers);
@@ -229,7 +229,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             ||
             chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()
         ) {
-            if (mainExcelData.length > 0) {
+            if (mainExcelData?.length > 0) {
                 setShowExcelData(true);
             } else {
                 setModalValues((prev) => ({
@@ -245,12 +245,12 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
     const downloadExcel = () => {
         const a = document.createElement('a');
-        a.href = excelFileValues.url;
-        a.download = `${excelFileValues.exportName ? excelFileValues.exportName : ''} - export.xlsx`;
+        a.href = excelFileValues?.url;
+        a.download = `${excelFileValues?.exportName ? excelFileValues?.exportName : ''} - export.xlsx`;
         a.click();
         a.style.border = "none"
 
-        URL.revokeObjectURL(excelFileValues.url);
+        URL.revokeObjectURL(excelFileValues?.url);
     }
 
     const createExcell = async () => {
@@ -262,7 +262,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         if (!serverPublicKeyBase64) throw new Error("Server public key tapılmadı");
 
         try {
-            if (addedEntries.length > 0 && typeOfAccountId) {
+            if (addedEntries?.length > 0 && typeOfAccountId) {
 
                 const requestDataJson = { forms: mainForm };
 
@@ -295,8 +295,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
                 function base64ToArrayBuffer(b64) {
                     const binary = atob(b64);
-                    const bytes = new Uint8Array(binary.length);
-                    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                    const bytes = new Uint8Array(binary?.length);
+                    for (let i = 0; i < binary.length; i++) bytes[i] = binary?.charCodeAt(i);
                     return bytes.buffer;
                 }
 
@@ -311,8 +311,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 );
 
 
-                const decryptedKeyBuffer = await decryptKeyWithRsa(responseData.key, importedPrivateKey);
-                const decryptedString = await decryptDataWithAes(responseData.cipherText, responseData.iv, decryptedKeyBuffer);
+                const decryptedKeyBuffer = await decryptKeyWithRsa(responseData?.key, importedPrivateKey);
+                const decryptedString = await decryptDataWithAes(responseData?.cipherText, responseData?.iv, decryptedKeyBuffer);
 
                 const excelArrayBuffer = base64ToArrayBuffer(decryptedString);
 
@@ -320,23 +320,22 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
 
-                //const excelData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
                 const rawData = XLSX.utils.sheet_to_json(worksheet, { defval: null });
 
                 const excelData = rawData.map(item => ({
-                    name: item.Name || "",
-                    surname: item.Surname || "",
-                    fatherName: item.Father || item.FatherName || "",
-                    fin: item.Fin || "",
-                    rankId: item.Rank || "",
-                    position: item.Position || "",
-                    phoneNumber: item.Phone || item.PhoneNumber || "",
-                    departmentId: item.DepartmentId || "",
-                    unitId: item.Unit || "",
-                    mark: item.mark || '',
-                    capacity: item.capacity || '',
-                    serialNumber: item.serialNumber || '',
-                    accountTypeId: item.AccountTypeId || typeOfAccountId
+                    name: item?.Name || "",
+                    surname: item?.Surname || "",
+                    fatherName: item?.Father || item?.FatherName || "",
+                    fin: item?.Fin || "",
+                    rankId: item?.Rank || "",
+                    position: item?.Position || "",
+                    phoneNumber: item?.Phone || item?.PhoneNumber || "",
+                    departmentId: item?.DepartmentId || "",
+                    unitId: item?.Unit || "",
+                    mark: item?.mark || '',
+                    capacity: item?.capacity || '',
+                    serialNumber: item?.serialNumber || '',
+                    accountTypeId: item?.AccountTypeId || typeOfAccountId
                 }));
 
                 const blob = new Blob([excelArrayBuffer], {
@@ -345,7 +344,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 const url = URL.createObjectURL(blob);
 
                 const exportName = typeOfAccounts?.find(
-                    type => type.id === Number(requestDataJson.forms[0].accountTypeId)
+                    type => type?.id === Number(requestDataJson?.forms[0]?.accountTypeId)
                 )?.name;
 
                 const a = document.createElement('a');
@@ -418,7 +417,6 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 setEditingIndex(null);
 
             } else {
-                // add new entry
                 setAddedEntries(prev => [...prev, { ...formData }]);
                 setMainForm(prev => [
                     ...prev,
@@ -498,12 +496,12 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 }),
             ]);
 
-            setTypeOfAccounts(resType.data.data.data);
-            setRanks(resRank.data.data);
-            setDepartments(resDepartments.data.data.data);
-            setUnits(resUnits.data.data.data);
-            setCountOfDepartments(resDepartments.data.data.totalItem);
-            setCountOfUnits(resUnits.data.data.totalItem);
+            setTypeOfAccounts(resType?.data?.data?.data);
+            setRanks(resRank?.data?.data);
+            setDepartments(resDepartments?.data?.data?.data);
+            setUnits(resUnits?.data?.data?.data);
+            setCountOfDepartments(resDepartments?.data?.data?.totalItem);
+            setCountOfUnits(resUnits?.data?.data?.totalItem);
             setLoading(null);
         } catch (err) {
             setModalValues(prev => ({
@@ -524,8 +522,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 headers: { Authorization: `Bearer ${token}` },
                 params: { page: nextPage, pageSize },
             });
-            const newData = res.data.data.data;
-            if (newData.length > 0) {
+            const newData = res?.data?.data?.data;
+            if (newData?.length > 0) {
                 setDepartments(prev => [...prev, ...newData]);
                 setDepPage(nextPage);
             }
@@ -549,8 +547,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 headers: { Authorization: `Bearer ${token}` },
                 params: { page: nextPage, pageSize },
             });
-            const newData = res.data.data.data;
-            if (newData.length > 0) {
+            const newData = res?.data?.data?.data;
+            if (newData?.length > 0) {
                 setUnits(prev => [...prev, ...newData]);
                 setUnitPage(nextPage);
             }
@@ -680,14 +678,14 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     }
                 </h2>
 
-                {addedEntries.length > 0 && (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                {addedEntries?.length > 0 && (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                     <div className="added-entries">
-                        {addedEntries.map((entry, idx) => (
+                        {addedEntries?.map((entry, idx) => (
                             <div key={idx} className="entry-card">
                                 <p>
                                     <b>{idx + 1}.</b>{' '}
                                     <i>
-                                        {ranks?.find(rank => Number(rank?.id) == Number(entry.rankId))?.name} {entry?.name} {entry?.surname} {entry?.fatherName}
+                                        {ranks?.find(rank => Number(rank?.id) == Number(entry?.rankId))?.name} {entry?.name} {entry?.surname} {entry?.fatherName}
                                     </i>
                                 </p>
                                 <div className="entry-actions">
@@ -711,43 +709,43 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                 {
                                     (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
                                         <>
-                                            <input name="name" value={formData.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
-                                            <input name="surname" value={formData.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
-                                            <input name="fatherName" value={formData.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
-                                            <input name="fin" value={formData.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
-                                            <select name="rankId" value={formData.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
+                                            <input name="name" value={formData?.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
+                                            <input name="surname" value={formData?.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
+                                            <input name="fatherName" value={formData?.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
+                                            <input name="fin" value={formData?.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
+                                            <select name="rankId" value={formData?.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
                                                 <option value="">Rütbə seç</option>
                                                 {
-                                                    ranks.map((rank) => (
-                                                        <option value={rank.id}>
-                                                            {rank.description}
+                                                    ranks?.map((rank) => (
+                                                        <option value={rank?.id}>
+                                                            {rank?.description}
                                                         </option>
                                                     ))
                                                 }
                                             </select>
-                                            <input name="position" value={formData.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
-                                            <input name="phoneNumber" value={formData.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
+                                            <input name="position" value={formData?.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
+                                            <input name="phoneNumber" value={formData?.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
 
                                             {showFlash && (<>
-                                                <input name="mark" value={formData.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" />
-                                                <input name="capacity" value={formData.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" />
-                                                <input name="serialNumber" value={formData.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" />
+                                                <input name="mark" value={formData?.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" />
+                                                <input name="capacity" value={formData?.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" />
+                                                <input name="serialNumber" value={formData?.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" />
                                             </>)}
 
-                                            <select name="departmentId" value={formData.departmentId} disabled={totalDisabled} onChange={handleChange} className="select">
+                                            <select name="departmentId" value={formData?.departmentId} disabled={totalDisabled} onChange={handleChange} className="select">
                                                 <option value="">İdarə seç</option>
                                                 {departments?.map((d, i) => (
-                                                    <option key={i} value={d.id}>{d.tag}</option>
+                                                    <option key={i} value={d?.id}>{d?.tag}</option>
                                                 ))}
                                                 {departments.length < countOfDepartments && <option value="load_more">...</option>}
                                             </select>
 
-                                            <select name="unitId" value={formData.unitId} disabled={totalDisabled} onChange={handleChange} className="select">
+                                            <select name="unitId" value={formData?.unitId} disabled={totalDisabled} onChange={handleChange} className="select">
                                                 <option value="">Bölmə seç</option>
                                                 {units
-                                                    ?.filter(u => u.departmentId == formData.departmentId)
+                                                    ?.filter(u => u.departmentId == formData?.departmentId)
                                                     .map((u, i) => (
-                                                        <option key={i} value={u.id}>{u.tag}</option>
+                                                        <option key={i} value={u?.id}>{u?.tag}</option>
                                                     ))}
                                                 {units.length < countOfUnits && <option value="load_more">...</option>}
                                             </select>
@@ -767,7 +765,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
 
                                 <label className={`file-input-label ${showFileArea} ${classForWord}`}>
-                                    {fileData.file ? fileData.file.name : 'Word faylını seçin'}
+                                    {fileData?.file ? fileData?.file?.name : 'Word faylını seçin'}
                                     <input type="file" name="file" accept=".doc,.docx" onChange={handleChangeFile} />
                                 </label>
                             </div>
@@ -777,12 +775,12 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                 showSendButton === "" ?
                                     <div className='added-users'>
                                         {
-                                            mainExcelData.length > 0 && (
+                                            mainExcelData?.length > 0 && (
                                                 mainExcelData?.map((data, dataIndex) => {
                                                     return <div key={dataIndex}>
                                                         <span>{dataIndex + 1}. </span>
                                                         <span>
-                                                            {data.name} {data.surname}
+                                                            {data?.name} {data?.surname}
                                                         </span>
                                                     </div>
                                                 })
@@ -811,7 +809,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                     overflow: "hidden",
                                 }}>
                                     <embed
-                                        src={`${pdfUrl}#navpanes=0`}
+                                        src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                                         type="application/pdf"
                                         width="100%"
                                         height="100%"

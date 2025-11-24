@@ -35,8 +35,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     fin: "Fin ",
     rankId: "Rütbə",
     managementRankId: "Kateqoriya",
-    managementId: `${formData.managementRankId === 1 ? "Baş İdarə" : formData.managementRankId === 2 ? "İdarə"
-      : formData.managementRankId === 3 ? "Baş Bölmə" : "Bölmə"}`
+    managementId: `${formData?.managementRankId == 1 ? "Baş İdarə" : formData?.managementRankId == 2 ? "İdarə"
+      : formData?.managementRankId == 3 ? "Baş Bölmə" : "Bölmə"}`
   };
 
 
@@ -75,13 +75,13 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   };
 
   const changeRank = (e) => {
-    const value = Number(e.target.value);
+    const value = Number(e?.target?.value);
     setRankValue(value);
     setFormData(prev => ({ ...prev, rankId: value }));
   };
 
   const changeManageRank = (e) => {
-    const value = Number(e.target.value);
+    const value = Number(e?.target?.value);
     setManageRankValue(value);
     setFormData(prev => ({ ...prev, managementRankId: value }));
     setHeadDepartmentsId(null);
@@ -100,7 +100,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
   const changeDepartment = (e) => {
 
-    const value = e.target.value;
+    const value = e?.target?.value;
     if (!value) {
       setDepartmentsId(null);
       setHeadUnits([]);
@@ -119,8 +119,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
           const response = await api.get(`/manage/getHeadUnits/${numericValue}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          setHeadUnits(response.data.data);
-          if (response.data.data.length === 0) {
+          setHeadUnits(response?.data?.data);
+          if (response?.data?.data.length === 0) {
             throw new Error("❌ Seçilən İdarəyə uyğun Baş Bölmə mövcud deyil!")
           }
         } catch (err) {
@@ -149,7 +149,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     const token = localStorage.getItem('myUserDocumentToken');
     if (!token) return;
 
-    const value = Number(e.target.value);
+    const value = Number(e?.target?.value);
     setHeadUnitsId(value);
 
     const getUnits = async () => {
@@ -157,8 +157,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         const response = await api.get(`/manage/getUnitsByHeadUnit/${value}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setUnits(response.data.data);
-        if (response.data.data.length === 0) {
+        setUnits(response?.data?.data);
+        if (response?.data?.data.length === 0) {
           throw new Error("❌ Seçilən Baş Bölməyə uyğun Baş Bölmə mövcud deyil!")
         }
       } catch (err) {
@@ -192,7 +192,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         setLoading(true);
 
         const ranksRes = await api.get('/manage/getRanks')
-        setRanks(ranksRes.data.data);
+        setRanks(ranksRes?.data?.data);
 
         if (!isAdmin) {
           const token = localStorage.getItem("myUserDocumentToken");
@@ -207,9 +207,9 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             api.get('/manage/getHeadDepartments', { headers: hdrs })
           ]);
 
-          setManagmentRanks(managementRes.data.data);
-          setDepartments(departmentsRes.data.data);
-          setHeadDepartments(headDepartmentsRes.data.data);
+          setManagmentRanks(managementRes?.data?.data);
+          setDepartments(departmentsRes?.data?.data);
+          setHeadDepartments(headDepartmentsRes?.data?.data);
         }
 
         setLoading(false)
@@ -250,11 +250,11 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       }
 
       const csr = await generateCsr({
-        name: formData.name,
-        surname: formData.surname,
-        father: formData.fatherName,
-        fin: formData.fin,
-        password: formData.password
+        name: formData?.name,
+        surname: formData?.surname,
+        father: formData?.fatherName,
+        fin: formData?.fin,
+        password: formData?.password
       });
 
       if (!csr) {
@@ -265,19 +265,19 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       let updatedFormData = { ...formData, csr };
 
       console.log(formData)
-      if (ep.includes("/admin/updateUser/")) {
+      if (ep?.includes("/admin/updateUser/")) {
         updatedFormData = {
-          changePassword: formData.password,
-          name: formData.name,
-          surname: formData.surname,
-          fatherName: formData.father,
-          position: formData.position,
-          username: formData.username,
-          password: formData.password,
-          managementRankId: mng.managementRankId,
-          managementId: mng.managementId,
-          rankId: formData.rankId,
-          fin: formData.fin,
+          changePassword: formData?.password,
+          name: formData?.name,
+          surname: formData?.surname,
+          fatherName: formData?.father,
+          position: formData?.position,
+          username: formData?.username,
+          password: formData?.password,
+          managementRankId: mng?.managementRankId,
+          managementId: mng?.managementId,
+          rankId: formData?.rankId,
+          fin: formData?.fin,
           csr: csr
         }
       }
@@ -400,8 +400,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                       {iconMap[key]}
                       <select value={rankValue || ""} onChange={changeRank}>
                         <option value="">{keyPlaceholder[key]}</option>
-                        {ranks.map(rank => (
-                          <option key={rank.id} value={rank.id}>{rank.description}</option>
+                        {ranks?.map(rank => (
+                          <option key={rank?.id} value={rank?.id}>{rank?.description}</option>
                         ))}
                       </select>
                     </div>
@@ -432,8 +432,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               !isAdmin && (<div className="form-group" >
                 <select value={manageRankValue || ""} onChange={changeManageRank}>
                   <option value="">Kateqoriya Seç</option>
-                  {managmentRanks.map((rank, index) => (
-                    <option key={index} value={rank.id}>{rank.desc}</option>
+                  {managmentRanks?.map((rank, index) => (
+                    <option key={index} value={rank?.id}>{rank?.desc}</option>
                   ))}
                 </select>
               </div>)
@@ -443,9 +443,9 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               <div className="form-group" >
                 <select value={headDepartmentsId || ""} onChange={changeHeadDepartment}>
                   <option value="">Baş İdarə Seç</option>
-                  {headDepartments.map(headDepartment => (
-                    <option key={headDepartment.id} value={headDepartment.id}>
-                      {headDepartment.name}
+                  {headDepartments?.map(headDepartment => (
+                    <option key={headDepartment?.id} value={headDepartment?.id}>
+                      {headDepartment?.name}
                     </option>
                   ))}
                 </select>
@@ -457,8 +457,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                 <select value={departmentsId || ""} onChange={changeDepartment}>
                   <option value="">İdarə Seç</option>
                   {departments.map(department => (
-                    <option key={department.id} value={department.id}>
-                      {department.departmentName}
+                    <option key={department?.id} value={department?.id}>
+                      {department?.departmentName}
                     </option>
                   ))}
                 </select>
@@ -470,9 +470,9 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                 <div className="form-group">
                   <select value={headUnitsId || ""} onChange={changeHeadUnit}>
                     <option value="">Baş Bölmə Seç</option>
-                    {headUnits.map(headUnit => (
-                      <option key={headUnit.id} value={headUnit.id}>
-                        {headUnit.name}
+                    {headUnits?.map(headUnit => (
+                      <option key={headUnit?.id} value={headUnit?.id}>
+                        {headUnit?.name}
                       </option>
                     ))}
                   </select>
@@ -485,9 +485,9 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                 <div className="form-group">
                   <select value={unitsId || ""} onChange={changeUnit}>
                     <option value="">Bölmə Seç</option>
-                    {units.map(unit => (
-                      <option key={unit.id} value={unit.id}>
-                        {unit.name}
+                    {units?.map(unit => (
+                      <option key={unit?.id} value={unit?.id}>
+                        {unit?.name}
                       </option>
                     ))}
                   </select>
@@ -498,7 +498,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
 
             <div className="form-actions">
-              <button type="button" className="submit-btn" onClick={createUser}>{ep.includes("/admin/updateUser/") ? "Yadda saxla" : "Yarat"}</button>
+              <button type="button" className="submit-btn" onClick={createUser}>{ep?.includes("/admin/updateUser/") ? "Yadda saxla" : "Yarat"}</button>
               <button type="button" className="cancel-btn" onClick={handleClose}>Bağla</button>
             </div>
           </form>

@@ -29,7 +29,7 @@ const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTy
     };
 
     const handleDelete = (id) => {
-        setItem(departments.find(e => e.id === id))
+        setItem(departments.find(e => e?.id === id))
         setModalValues(prev => ({
             ...prev,
             message: `Bu İdarəni silməyə əminsiz?`,
@@ -40,7 +40,7 @@ const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTy
     };
 
     const handleEdit = (id) => {
-        setItem(departments.find(e => e.id === id))
+        setItem(departments.find(e => e?.id === id))
         setTypeOfItem("department")
         setUpdateItem(true)
     };
@@ -60,8 +60,8 @@ const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTy
                 }
 
                 const departmentsRes = await api.get('/manage/getDepartments', { headers: hdrs })
-                setDepartments(departmentsRes.data.data)
-                console.log(departmentsRes.data.data)
+                setDepartments(departmentsRes?.data?.data)
+                console.log(departmentsRes?.data?.data)
                 setLoading(false)
             } catch (err) {
                 console.error("Error fetching data:", err);
@@ -101,22 +101,22 @@ const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTy
                         </thead>
                         <tbody>
                             {departments.map((dept, i) => (
-                                <tr key={dept.id}>
+                                <tr key={dept?.id}>
                                     <td>{i + 1}</td>
                                     <td>MN</td>
-                                    <td>{dept.departmentName}</td>
-                                    <td>{dept.departmentDesc}</td>
+                                    <td>{dept?.departmentName}</td>
+                                    <td>{dept?.departmentDesc}</td>
                                     <td className="actions">
                                         <button
                                             className="edit-btn"
-                                            onClick={() => handleEdit(dept.id)}
+                                            onClick={() => handleEdit(dept?.id)}
                                             title="Redaktə et"
                                         >
                                             <FaEdit />
                                         </button>
                                         <button
                                             className="delete-btn"
-                                            onClick={() => handleDelete(dept.id)}
+                                            onClick={() => handleDelete(dept?.id)}
                                             title="Sil"
                                         >
                                             <FaTrashAlt />
