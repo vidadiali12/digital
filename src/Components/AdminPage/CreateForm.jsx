@@ -562,7 +562,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             }
 
 
-            {manageRankValue != null && !isNaN(manageRankValue) && manageRankValue == 1 && (
+            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue == 1 ) || layerIds == 1)&& (
               <div className="form-group" >
                 <select value={headDepartmentsId || ""} onChange={(e) => changeHeadDepartment(e?.target?.value)}>
                   <option value="">Baş İdarə Seç</option>
@@ -575,18 +575,19 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               </div>
             )}
 
-            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1) || layerIds != 1) && (
-              <div className="form-group" >
-                <select value={departmentsId || ""} onChange={(e) => changeDepartment(e?.target?.value)}>
-                  <option value="">İdarə Seç</option>
-                  {departments?.map(department => (
-                    <option key={department?.id} value={department?.id}>
-                      {department?.departmentName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1) || layerIds != 1) && ((!ep?.includes("/admin/updateUser/") && !isAdmin) ||
+              (ep?.includes("/admin/updateUser/") && !changePassword)) && (
+                <div className="form-group" >
+                  <select value={departmentsId || ""} onChange={(e) => changeDepartment(e?.target?.value)}>
+                    <option value="">İdarə Seç</option>
+                    {departments?.map(department => (
+                      <option key={department?.id} value={department?.id}>
+                        {department?.departmentName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
             {((manageRankValue != null && !isNaN(manageRankValue) && (manageRankValue == 3 || manageRankValue == 4) &&
               departmentsId != null && !isNaN(departmentsId)) || (layerIds == 3 || layerIds == 4)) && (
