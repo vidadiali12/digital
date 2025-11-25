@@ -21,9 +21,9 @@ const iconMap = {
 
 
 
-const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalValues, mng }) => {
+const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalValues, changePassword, user }) => {
 
-  const keyPlaceholder = {
+  let keyPlaceholder = {
     name: "Ad",
     surname: "Soyad",
     fatherName: "Ata adı",
@@ -38,6 +38,28 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     managementId: `${formData?.managementRankId == 1 ? "Baş İdarə" : formData?.managementRankId == 2 ? "İdarə"
       : formData?.managementRankId == 3 ? "Baş Bölmə" : "Bölmə"}`
   };
+
+  if (changePassword && ep?.includes("/admin/updateUser/")) {
+    keyPlaceholder = {
+      name: "Ad",
+      surname: "Soyad",
+      fatherName: "Ata adı",
+      password: "Parol",
+      fin: "Fin"
+    };
+  }
+  else if (!changePassword && ep?.includes("/admin/updateUser/")) {
+    keyPlaceholder = {
+      position: "Vəzifə",
+      username: "İstifadəçi adı",
+      adminUsername: "Admin - [İstifadəçi adı]:",
+      adminPassword: "Admin - [Parol]: ",
+      rankId: "Rütbə",
+      managementRankId: "Kateqoriya",
+      managementId: `${formData?.managementRankId == 1 ? "Baş İdarə" : formData?.managementRankId == 2 ? "İdarə"
+        : formData?.managementRankId == 3 ? "Baş Bölmə" : "Bölmə"}`
+    };
+  }
 
 
   const [loading, setLoading] = useState(false);
@@ -54,6 +76,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
   const [headDepartmentsId, setHeadDepartmentsId] = useState(null);
   const [headUnitsId, setHeadUnitsId] = useState(null);
   const [unitsId, setUnitsId] = useState(null);
+  const [layerIds, setLayerIds] = useState(null)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,14 +97,14 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     setShowForm(null)
   };
 
-  const changeRank = (e) => {
-    const value = Number(e?.target?.value);
+  const changeRank = (id) => {
+    const value = Number(id);
     setRankValue(value);
     setFormData(prev => ({ ...prev, rankId: value }));
   };
 
-  const changeManageRank = (e) => {
-    const value = Number(e?.target?.value);
+  const changeManageRank = (id) => {
+    const value = Number(id);
     setManageRankValue(value);
     setFormData(prev => ({ ...prev, managementRankId: value }));
     setHeadDepartmentsId(null);
@@ -92,15 +115,14 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     setFormData(prev => ({ ...prev, managementId: "" }));
   };
 
-  const changeHeadDepartment = (e) => {
-    const value = Number(e.target.value);
+  const changeHeadDepartment = (id) => {
+    const value = Number(id);
     setHeadDepartmentsId(value);
     setFormData(prev => ({ ...prev, managementId: value }));
   }
 
-  const changeDepartment = (e) => {
-
-    const value = e?.target?.value;
+  const changeDepartment = (id) => {
+    const value = Number(id);
     if (!value) {
       setDepartmentsId(null);
       setHeadUnits([]);
@@ -120,6 +142,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             headers: { Authorization: `Bearer ${token}` }
           });
           setHeadUnits(response?.data?.data);
+          console.log(response?.data?.data)
           if (response?.data?.data.length === 0) {
             throw new Error("❌ Seçilən İdarəyə uyğun Baş Bölmə mövcud deyil!")
           }
@@ -145,11 +168,11 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     setUnitsId(null)
   }
 
-  const changeHeadUnit = (e) => {
+  const changeHeadUnit = (id) => {
     const token = localStorage.getItem('myUserDocumentToken');
     if (!token) return;
 
-    const value = Number(e?.target?.value);
+    const value = Number(id);
     setHeadUnitsId(value);
 
     const getUnits = async () => {
@@ -158,11 +181,11 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
           headers: { Authorization: `Bearer ${token}` }
         });
         setUnits(response?.data?.data);
+
         if (response?.data?.data.length === 0) {
-          throw new Error("❌ Seçilən Baş Bölməyə uyğun Baş Bölmə mövcud deyil!")
+          throw new Error("❌ Seçilən Baş Bölməyə uyğun Bölmə mövcud deyil!")
         }
       } catch (err) {
-        console.log(err);
         setModalValues(prev => ({
           ...prev,
           message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
@@ -180,8 +203,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     }
   };
 
-  const changeUnit = (e) => {
-    const value = Number(e.target.value);
+  const changeUnit = (id) => {
+    const value = Number(id);
     setUnitsId(value);
     setFormData(prev => ({ ...prev, managementId: value }));
   };
@@ -194,7 +217,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         const ranksRes = await api.get('/manage/getRanks')
         setRanks(ranksRes?.data?.data);
 
-        if (!isAdmin) {
+        if (!isAdmin || ep?.includes("/admin/updateUser/")) {
           const token = localStorage.getItem("myUserDocumentToken");
           if (!token) throw new Error("Token tapılmadı");
           const hdrs = {
@@ -211,10 +234,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
           setDepartments(departmentsRes?.data?.data);
           setHeadDepartments(headDepartmentsRes?.data?.data);
         }
-
         setLoading(false)
       } catch (err) {
-        console.error("Error fetching data:", err);
         setLoading(false)
         setModalValues(prev => ({
           ...prev,
@@ -227,6 +248,26 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
     fetchAllData();
 
+
+    if (ep?.includes("/admin/updateUser/")) {
+      const layerId = formData?.managementRankId
+      setManageRankValue(layerId)
+      changeRank(formData?.rankId)
+
+      if (layerId == 1) {
+        changeHeadDepartment(formData?.managementId)
+      }
+      else if (layerId == 2) {
+        changeDepartment(formData?.managementId)
+      }
+      else if (layerId == 3) {
+        changeHeadUnit(formData?.managementId)
+      }
+      else if (layerId == 4) {
+        changeUnit(formData?.managementId)
+      }
+      setLayerIds(layerId);
+    }
   }, []);
 
 
@@ -249,43 +290,47 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         }
       }
 
-      const csr = await generateCsr({
-        name: formData?.name,
-        surname: formData?.surname,
-        father: formData?.fatherName,
-        fin: formData?.fin,
-        password: formData?.password
-      });
-
-      if (!csr) {
-        throw new Error('❌ "CSR yaradıla bilmədi"');
-      }
-
-
-      let updatedFormData = { ...formData, csr };
-
-      console.log(formData)
-      if (ep?.includes("/admin/updateUser/")) {
-        updatedFormData = {
-          changePassword: formData?.password,
+      let updatedFormData = null
+      if (changePassword) {
+        const csr = await generateCsr({
           name: formData?.name,
           surname: formData?.surname,
-          fatherName: formData?.father,
-          position: formData?.position,
-          username: formData?.username,
-          password: formData?.password,
-          managementRankId: mng?.managementRankId,
-          managementId: mng?.managementId,
-          rankId: formData?.rankId,
+          father: formData?.fatherName,
           fin: formData?.fin,
-          csr: csr
+          password: formData?.password
+        });
+
+        if (!csr) {
+          throw new Error('❌ "CSR yaradıla bilmədi"');
+        }
+
+        updatedFormData = { ...formData, csr };
+
+        if (ep?.includes("/admin/updateUser/")) {
+          updatedFormData = {
+            ...formData, changePassword, csr,
+            position: user?.position,
+            username: user?.username,
+            rankId: user?.rank?.id,
+            managementRankId: user?.managementRank?.id,
+            managementId: user?.management?.id
+          }
+        }
+      }
+      else {
+        if (ep?.includes("/admin/updateUser/")) {
+          updatedFormData = {
+            ...formData, changePassword, csr: "",
+            name: user?.name,
+            surname: user?.surname,
+            fatherName: user?.father,
+            password: "",
+            fin: user?.fin
+          }
         }
       }
 
-
-
       setFormData(updatedFormData);
-
 
       const requestDataJson = updatedFormData;
 
@@ -344,7 +389,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         }
       }
 
-      let response = null;
+      let response = "";
 
       if (ep.includes("/admin/updateUser/")) {
         const token = localStorage.getItem("myUserDocumentToken");
@@ -365,12 +410,11 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       setLoading(false);
       setModalValues(prev => ({
         ...prev,
-        message: `İstifadəçi uğurla yaradıldı ✅`,
+        message: `${ep.includes("/admin/updateUser/") ? "İstifadəçi məlumatları uğurla dəyişdirildi ✅" : "İstifadəçi uğurla yaradıldı ✅"}`,
         showModal: true,
         isQuestion: false,
       }))
     } catch (err) {
-      console.error("Error in createUser:", err);
       setLoading(false);
       setModalValues(prev => ({
         ...prev,
@@ -398,7 +442,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                   return (
                     <div className="form-group" key={key}>
                       {iconMap[key]}
-                      <select value={rankValue || ""} onChange={changeRank}>
+                      <select value={rankValue || ""} onChange={(e) => changeRank(e?.target?.value)}>
                         <option value="">{keyPlaceholder[key]}</option>
                         {ranks?.map(rank => (
                           <option key={rank?.id} value={rank?.id}>{rank?.description}</option>
@@ -429,19 +473,23 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             })}
 
             {
-              !isAdmin && (<div className="form-group" >
-                <select value={manageRankValue || ""} onChange={changeManageRank}>
-                  <option value="">Kateqoriya Seç</option>
-                  {managmentRanks?.map((rank, index) => (
-                    <option key={index} value={rank?.id}>{rank?.desc}</option>
-                  ))}
-                </select>
-              </div>)
+              ((!ep?.includes("/admin/updateUser/") && !isAdmin) ||
+                (ep?.includes("/admin/updateUser/") && !changePassword)) && (
+                <div className="form-group">
+                  <select value={manageRankValue || ""} onChange={(e) => changeManageRank(e.target.value)}>
+                    <option value="">Kateqoriya Seç</option>
+                    {managmentRanks?.map((rank, index) => (
+                      <option key={index} value={rank?.id}>{rank?.desc}</option>
+                    ))}
+                  </select>
+                </div>
+              )
             }
+
 
             {manageRankValue != null && !isNaN(manageRankValue) && manageRankValue == 1 && (
               <div className="form-group" >
-                <select value={headDepartmentsId || ""} onChange={changeHeadDepartment}>
+                <select value={headDepartmentsId || ""} onChange={(e) => changeHeadDepartment(e?.target?.value)}>
                   <option value="">Baş İdarə Seç</option>
                   {headDepartments?.map(headDepartment => (
                     <option key={headDepartment?.id} value={headDepartment?.id}>
@@ -452,11 +500,11 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               </div>
             )}
 
-            {manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1 && (
+            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1) || layerIds == 2) && (
               <div className="form-group" >
-                <select value={departmentsId || ""} onChange={changeDepartment}>
+                <select value={departmentsId || ""} onChange={(e) => changeDepartment(e?.target?.value)}>
                   <option value="">İdarə Seç</option>
-                  {departments.map(department => (
+                  {departments?.map(department => (
                     <option key={department?.id} value={department?.id}>
                       {department?.departmentName}
                     </option>
@@ -465,10 +513,10 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               </div>
             )}
 
-            {manageRankValue != null && !isNaN(manageRankValue) && (manageRankValue == 3 || manageRankValue == 4) &&
-              departmentsId != null && !isNaN(departmentsId) && (
+            {((manageRankValue != null && !isNaN(manageRankValue) && (manageRankValue == 3 || manageRankValue == 4) &&
+              departmentsId != null && !isNaN(departmentsId)) || layerIds == 3) && (
                 <div className="form-group">
-                  <select value={headUnitsId || ""} onChange={changeHeadUnit}>
+                  <select value={headUnitsId || ""} onChange={(e) => changeHeadUnit(e?.target?.value)}>
                     <option value="">Baş Bölmə Seç</option>
                     {headUnits?.map(headUnit => (
                       <option key={headUnit?.id} value={headUnit?.id}>
@@ -480,10 +528,10 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               )
             }
 
-            {manageRankValue != null && !isNaN(manageRankValue) && manageRankValue == 4 &&
-              departmentsId != null && !isNaN(departmentsId) && headUnitsId != null && !isNaN(headUnitsId) && (
+            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue == 4 &&
+              departmentsId != null && !isNaN(departmentsId) && headUnitsId != null && !isNaN(headUnitsId)) || layerIds == 4) && (
                 <div className="form-group">
-                  <select value={unitsId || ""} onChange={changeUnit}>
+                  <select value={unitsId || ""} onChange={(e) => changeUnit(e?.target?.value)}>
                     <option value="">Bölmə Seç</option>
                     {units?.map(unit => (
                       <option key={unit?.id} value={unit?.id}>

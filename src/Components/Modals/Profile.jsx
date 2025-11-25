@@ -1,9 +1,9 @@
 import './Profile.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaUserCircle, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { MdAdminPanelSettings } from 'react-icons/md'
 import api from '../api'
-import { encryptDataWithAes, encryptKeyWithRsa, generateCsr, repairSecretKey } from '../Functions/Functions'
+import { encryptDataWithAes, encryptKeyWithRsa, generateCsr } from '../Functions/Functions'
 import Loading from './Loading'
 
 const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
@@ -20,6 +20,7 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
   })
 
   const [loading, setLoading] = useState(null)
+  const [uObj, setUObj] = useState(null)
 
   const closeProfile = () => setProfile(null)
 
@@ -47,10 +48,6 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
 
     try {
       setLoading(true);
-      console.clear();
-      console.log("🟢 [STEP 1] Password update started...");
-
-      // --- TOKEN və AÇARLAR ---
       const token = localStorage.getItem("myUserDocumentToken");
       const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
       const clientPrivateKeyBase64 = localStorage.getItem("clientPrivateKey");
@@ -59,45 +56,36 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       if (!serverPublicKeyBase64) throw new Error("❌ Server public key tapılmadı");
       if (!clientPrivateKeyBase64) throw new Error("❌ Client private key tapılmadı");
 
-      const clientPrivateKeyJwk = JSON.parse(decodeURIComponent(atob(clientPrivateKeyBase64)));
+      if (!uObj) throw new Error("❌ User məlumatları tapılmadı");
 
-      console.log("✅ Token, public & private keys loaded.");
-      console.log("🔹 Server public key (base64):", serverPublicKeyBase64.slice(0, 50) + "...");
-
-      if (!userObj) throw new Error("❌ User məlumatları tapılmadı");
-      console.log("✅ User object:", userObj);
-
-      // === [STEP 2] CSR-ləri yarat ===
       const oldCsr = await generateCsr({
-        name: userObj.name,
-        surname: userObj.surname,
-        father: userObj.father,
-        fin: userObj.fin,
-        password: passwordData.oldPass
+        name: uObj?.name,
+        surname: uObj?.surname,
+        father: uObj?.father,
+        fin: uObj?.fin,
+        password: passwordData?.oldPass
       });
 
       const newCsr = await generateCsr({
-        name: userObj.name,
-        surname: userObj.surname,
-        father: userObj.father,
-        fin: userObj.fin,
-        password: passwordData.confirmPass
+        name: uObj?.name,
+        surname: uObj?.surname,
+        father: uObj?.father,
+        fin: uObj?.fin,
+        password: passwordData?.confirmPass
       });
 
       console.log("✅ oldCsr:", oldCsr);
       console.log("✅ newCsr:", newCsr);
 
       const requestDataJson = {
-        username: userObj.username,
-        oldPassword: passwordData.oldPass,
+        username: uObj?.username,
+        oldPassword: passwordData?.oldPass,
         oldCsr: oldCsr,
-        newPassword: passwordData.confirmPass,
+        newPassword: passwordData?.confirmPass,
         newCsr: newCsr
       };
 
-      console.log("✅ Request JSON (plain):", requestDataJson);
 
-      // === [STEP 4] AES açar yarat və şifrələ ===
       const aesKey = await window.crypto.subtle.generateKey(
         { name: "AES-CBC", length: 256 },
         true,
@@ -105,20 +93,11 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       );
       const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
 
-      console.log("✅ AES key yaradıldı (length):", rawAesKeyBuffer.byteLength);
 
       const { cipherText, iv } = await encryptDataWithAes(requestDataJson, aesKey);
 
-      console.log("✅ AES encryption successful.");
-      console.log("🔹 CipherText length:", cipherText.length);
-      console.log("🔹 IV:", iv);
-
-      // === [STEP 5] RSA ilə AES açarını şifrələ ===
       const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
-      console.log("✅ RSA encryption successful.");
-      console.log("🔹 Encrypted AES key (base64):", encryptedKey.slice(0, 50) + "...");
 
-      // === [STEP 6] Serverə göndər ===
       const requestBody = { cipherText, key: encryptedKey, iv };
       console.log("✅ Final request body (to backend):", requestBody);
 
@@ -128,9 +107,7 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
 
-      console.log("✅ Server response:", response.data);
 
-      // success modal
       setModalValues(prev => ({
         ...prev,
         showModal: true,
@@ -140,11 +117,6 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       setLoading(false);
 
     } catch (error) {
-      console.error("❌ Password update error:", error);
-      if (error?.response?.data) {
-        console.error("🔴 Server response data:", error?.response?.data);
-      }
-
       setModalValues(prev => ({
         ...prev,
         showModal: true,
@@ -156,6 +128,13 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
   };
 
 
+  const callUser = () => {
+    setUObj(JSON.parse(localStorage.getItem("userObj")))
+  }
+
+  useEffect(() => {
+    callUser()
+  }, [])
 
 
   return (
@@ -163,25 +142,23 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       {loading ? <Loading loadingMessage="Məlumatlar dəyişdirilir..." /> :
         <div className="profile-page">
           <div className="profile-card-row">
-            {/* Sol tərəf */}
             <div className="profile-info-card">
               <button className="close-btn-profile" onClick={closeProfile}>✖</button>
               <div className="avatar"><FaUserCircle className="avatar-icon" /></div>
-              <h2 className="username">{userObj.name} {userObj.surname}</h2>
-              <p className="position">{userObj.position}</p>
+              <h2 className="username">{uObj?.name} {uObj?.surname}</h2>
+              <p className="position">{uObj?.position}</p>
 
               <div className="info-section">
-                <div><strong>FIN:</strong> {userObj.fin}</div>
-                <div><strong>Rütbə:</strong> {userObj.rank?.description}</div>
-                <div><strong>Təşkilat:</strong> {userObj.management?.name}</div>
-                <div><strong>Vəzifə:</strong> {userObj.managementRank?.desc}</div>
-                <div><strong>Qoşulma tarixi:</strong> {new Date(userObj.joinedDate).toLocaleDateString()}</div>
+                <div><strong>FIN:</strong> {uObj?.fin}</div>
+                <div><strong>Rütbə:</strong> {uObj?.rank?.description}</div>
+                <div><strong>Təşkilat:</strong> {uObj?.management?.name}</div>
+                <div><strong>Vəzifə:</strong> {uObj?.managementRank?.desc}</div>
+                <div><strong>Qoşulma tarixi:</strong> {new Date(uObj?.joinedDate).toLocaleDateString()}</div>
               </div>
 
-              {userObj.admin && <div className="admin-badge"><MdAdminPanelSettings /> Admin</div>}
+              {uObj?.admin && <div className="admin-badge"><MdAdminPanelSettings /> Admin</div>}
             </div>
 
-            {/* Sağ tərəf */}
             <form className="password-section-card" onSubmit={handlePasswordSubmit}>
               <h3>Parolu yenilə</h3>
 

@@ -635,7 +635,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             description,
             receiver,
             setLoading,
-            itemId: chapter ? Number(chapter?.id) : item?.id,
+            mainItem: chapter ? chapter : item,
             dcryptdStrng,
             mainForm,
             setShowForm,

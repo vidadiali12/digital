@@ -185,14 +185,17 @@ function App() {
       <Routes>
         {!token ? (
           <>
-            <Route path="/login" element={<Login setToken={setToken} setItem={setItem} />} />
+            <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} />} />
             {showForm && (
               <Route path='/create-admin-page' element={<CreateForm
                 formData={formData}
                 setFormData={setFormData}
                 setShowForm={setShowForm}
                 ep={"/admin/createAdmin"} isAdmin={true}
-                setModalValues={setModalValues} />
+                setModalValues={setModalValues}
+                changePassword={true}
+                user={null}
+              />
               } />
             )}
             <Route path="*" element={<Navigate to="/login" replace />} />
@@ -242,7 +245,6 @@ function App() {
       {modalValues.showModal && <Modal modalValues={modalValues} setModalValues={setModalValues} />}
 
       {updateItem && (<Update
-        userObj={userObj}
         setModalValues={setModalValues}
         setUpdateItem={setUpdateItem}
         item={item}
@@ -251,7 +253,6 @@ function App() {
 
       {addItem && (
         <AddItem
-          userObj={userObj}
           setModalValues={setModalValues}
           setAddItem={setAddItem}
           typeOfItem={typeOfItem} />

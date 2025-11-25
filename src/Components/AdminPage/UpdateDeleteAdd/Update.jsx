@@ -5,19 +5,24 @@ import api from '../../api';
 import Loading from '../../Modals/Loading';
 import { useNavigate } from 'react-router-dom';
 
-const Update = ({ userObj, setModalValues, setUpdateItem, item, typeOfItem }) => {
+const Update = ({ setModalValues, setUpdateItem, item, typeOfItem }) => {
+
+    const [userObj, setUserObj] = useState({})
 
     const navigate = useNavigate();
     useEffect(() => {
-        if (userObj && userObj?.admin === false) {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate])
+    }, [navigate])
 
     const [loading, setLoading] = useState(null);
-    const [section, setSection] = useState([])
+    const [section, setSection] = useState([]);
+
     const [selectedId, setSelectedId] = useState(
         typeOfItem === "department"
             ? item?.headDepartmentId

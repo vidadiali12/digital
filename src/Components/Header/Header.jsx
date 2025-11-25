@@ -114,22 +114,22 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
                 <div className='main-page-ul'>
                     <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
                         <NavLink to="/">
-                            <AiFillHome className='menu-icon' /> Əsas Səhifə
+                            <AiFillHome className='menu-icon' />Əsas Səhifə
                         </NavLink>
                     </span>
 
                     <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
                         <NavLink to="/inbox-all-messages">
                             {
-                                unReadCount && (<span className='un-read-count'>{unReadCount}</span>)
+                                unReadCount != 0 && (<span className='un-read-count'>{unReadCount}</span>)
                             }
-                            <HiOutlineInbox className='menu-icon' /> Gələn mesajlar
+                            <HiOutlineInbox className='menu-icon' />Gələn mesajlar
                         </NavLink>
                     </span>
 
                     <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
                         <NavLink to="/sent-all-messages">
-                            <FiSend className='menu-icon' /> Göndərdiklərim
+                            <FiSend className='menu-icon' />Göndərdiklərim
                         </NavLink>
                     </span>
                 </div>

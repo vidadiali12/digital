@@ -35,61 +35,14 @@ export const signDoc = async ({
             password: pwd
         });
 
-        if (!csr) throw new Error('❌ "CSR yaradıla bilmədi"');
+        if (!csr) throw new Error('❌ CSR yaradıla bilmədi');
 
         const requestDataJson = {
             pdfBase64,
-            csr,
+            csr
         };
 
-        const { cipherText, iv } = await encryptDataWithAes(
-            requestDataJson,
-            aesKey
-        );
-
-        const encryptedKey = await encryptKeyWithRsa(
-            rawAesKeyBuffer,
-            serverPublicKeyBase64
-        );
-
-        const response = await api.post(
-            '/doc/signDoc',
-            { cipherText, key: encryptedKey, iv },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        const responseData = response.data.data;
-
-        const importedServerPrivateKeyB64 = localStorage.getItem("clientPrivateKey");
-        if (!importedServerPrivateKeyB64) throw new Error("❌ Private key tapılmadı!");
-
-        function base64ToArrayBuffer(b64) {
-            const binary = atob(b64);
-            const bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            return bytes.buffer;
-        }
-
-        const pkcs8ArrayBuffer = base64ToArrayBuffer(importedServerPrivateKeyB64);
-
-        const importedPrivateKey = await window.crypto.subtle.importKey(
-            "pkcs8",
-            pkcs8ArrayBuffer,
-            { name: "RSA-OAEP", hash: "SHA-256" },
-            false,
-            ["decrypt"]
-        );
-
-
-        const decryptedKeyBuffer = await decryptKeyWithRsa(responseData.key, importedPrivateKey);
-        const decryptedString = await decryptDataWithAes(responseData.cipherText, responseData.iv, decryptedKeyBuffer);
-
-        setDcryptdStrng(decryptedString)
+        setDcryptdStrng(requestDataJson)
 
         setReceiver(true)
 
@@ -97,7 +50,8 @@ export const signDoc = async ({
         setModalValues(prev => (
             {
                 ...prev,
-                message: `❌ Sənəd göndərilərkən xəta baş verdi. Yenidən yoxlayın (İmza problemi) ${err}`,
+                message: `❌ Sənəd göndərilərkən xəta baş verdi. Yenidən yoxlayın (İmza problemi) 
+                ${err?.response?.data?.errorDescription === "Tag mismatch" ? "⚠️ Parol Yanlışdır!" : err?.response?.data?.errorDescription}`,
                 isQuestion: false,
                 showModal: true
             }

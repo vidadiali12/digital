@@ -3,8 +3,8 @@ import { FaTrash, FaEdit, FaCrown, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "./AllUsers.css";
-import CreateForm from "./CreateForm";
 import Loading from "../Modals/Loading";
+import IsChangePassoword from "./IsChangePassoword";
 
 const AllUsers = ({ setItem, setModalValues }) => {
     const [allUsers, setAllUsers] = useState([]);
@@ -12,11 +12,10 @@ const AllUsers = ({ setItem, setModalValues }) => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState("");
-    const [showForm, setShowForm] = useState(null);
-    const [formData, setFormData] = useState({});
     const [ep, setEp] = useState(null);
     const [loading, setLoading] = useState(null)
-    const [mng, setMng] = useState(null)
+    const [showSelect, setShowSelect] = useState(null)
+    const [user, setUser] = useState({})
 
     const navigate = useNavigate();
 
@@ -96,28 +95,10 @@ const AllUsers = ({ setItem, setModalValues }) => {
                 }
             })
             const user = resUser?.data?.data;
-
-            setFormData({
-                name: user?.name,
-                surname: user?.surname,
-                fatherName: user?.father,
-                position: user?.position,
-                username: user?.username,
-                password: "",
-                passwordOld: "",
-                rankId: user?.rank?.id,
-                csr: "",
-                fin: user?.fin
-            })
-
+            setUser(user)
             setEp(`/admin/updateUser/${id}`)
-            setShowForm(true)
+            setShowSelect(true)
             setLoading(false)
-
-            setMng({
-                managementId: user?.management?.id,
-                managementRankId: user?.managementRank?.id
-            });
         } catch (err) {
             setLoading(false)
             setModalValues(prev => ({
@@ -255,14 +236,12 @@ const AllUsers = ({ setItem, setModalValues }) => {
                 </div> */}
 
                 {
-                    showForm && (
-                        <CreateForm
-                            formData={formData}
-                            setFormData={setFormData}
-                            setShowForm={setShowForm}
-                            ep={ep} isAdmin={true}
+                    showSelect && (
+                        <IsChangePassoword
+                            user={user}
+                            ep={ep}
                             setModalValues={setModalValues}
-                            mng={mng} />
+                            setShowSelect={setShowSelect} />
                     )
                 }
             </div>

@@ -90,7 +90,9 @@ const CreateUser = ({ modalValues, setModalValues }) => {
                             setFormData={setFormData}
                             setShowForm={setShowForm}
                             ep={ep} isAdmin={isAdmin}
-                            setModalValues={setModalValues} />
+                            setModalValues={setModalValues}
+                            changePassword={true}
+                            user={null} />
                     )
                 }
             </div>

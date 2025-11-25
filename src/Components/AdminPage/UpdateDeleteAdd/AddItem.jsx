@@ -5,23 +5,26 @@ import api from '../../api';
 import Loading from '../../Modals/Loading';
 import { useNavigate } from 'react-router-dom';
 
-const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
+const AddItem = ({ setModalValues, setAddItem, typeOfItem }) => {
+
+    const [userObj, setUserObj] = useState({})
 
     const navigate = useNavigate();
     useEffect(() => {
-        if (userObj && userObj?.admin === false) {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
             navigate("/")
             localStorage.removeItem("myUserDocumentToken");
             localStorage.removeItem("tokenExpiration");
         }
-    }, [userObj, navigate])
+    }, [navigate])
 
     const [loading, setLoading] = useState(false);
     const [sections, setSections] = useState([]);
     const [selectedSection, setSelectedSection] = useState('');
     const [formData, setFormData] = useState({ name: '', desc: '', hasUnit: false });
 
-    console.log("🔹 typeOfItem:", typeOfItem);
 
     useEffect(() => {
         const fetchSection = async () => {
@@ -127,7 +130,7 @@ const AddItem = ({ userObj, setModalValues, setAddItem, typeOfItem }) => {
             setLoading(false);
             setModalValues((prev) => ({
                 ...prev,
-                message: `❌ Xəta baş verdi \n${err.response?.data?.errorDescription || err
+                message: `❌ Xəta baş verdi \n${err?.response?.data?.errorDescription || err
                     }`,
                 showModal: true,
                 isQuestion: false,

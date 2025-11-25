@@ -89,7 +89,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
         </header>
 
         <p style={{ margin: 0, color: "var(--color-gray-dark, #2a2d3e)" }}>
-          Parolu daxil edib <strong>Send</strong> düyməsinə bas.
+          Parolu daxil edib <strong>İmzala</strong> düyməsinə bas.
         </p>
 
         <div
@@ -161,7 +161,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
               boxShadow: "0 6px 18px rgba(59,46,133,0.25)",
             }}
           >
-            Send
+            İmzala
           </button>
         </div>
 

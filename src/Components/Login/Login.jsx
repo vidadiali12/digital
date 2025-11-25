@@ -17,7 +17,7 @@ import {
 import api from '../api';
 import Loading from '../Modals/Loading';
 
-const Login = ({ setToken, setItem }) => {
+const Login = ({ setToken, setItem, setModalValues }) => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [errMsg, setErrMsg] = useState(null);
@@ -30,7 +30,14 @@ const Login = ({ setToken, setItem }) => {
             localStorage.setItem("serverPublicKey", keyBase64);
             return keyBase64;
         } catch (error) {
-            console.error("Server Public Key-i yükləmə xətası:", error);
+            setModalValues(prev => (
+                {
+                    ...prev,
+                    message: `❌ Server Public Key-i yükləmə xətası: ${error}`,
+                    isQuestion: false,
+                    showModal: true
+                }
+            ))
             return null;
         }
     };
@@ -68,7 +75,6 @@ const Login = ({ setToken, setItem }) => {
 
             const privateKeyBase64 = arrayBufferToBase64(pkcs8Buffer);
             localStorage.setItem("clientPrivateKey", privateKeyBase64);
-            console.log("clientpk", privateKeyBase64)
 
             const exportedPublicKey = await window.crypto.subtle.exportKey("spki", clientKey.publicKey);
             const clientPublicKeyBase64 = arrayBufferToBase64(exportedPublicKey);
@@ -124,8 +130,6 @@ const Login = ({ setToken, setItem }) => {
                         headers: { Authorization: `Bearer ${token}` }
                     });
 
-                    console.log("✅ User Data:", response?.data?.data);
-
                     localStorage.setItem("userObj", JSON.stringify(response?.data?.data));
 
                     function base64UrlToBase64(base64Url) {
@@ -164,7 +168,6 @@ const Login = ({ setToken, setItem }) => {
                     localStorage.setItem("privateKeyLast", btoa(bin));
                     navigate("/")
                 } catch (err) {
-                    console.error("❌ Error fetching user data:", err);
                     setError("İstifadəçi məlumatları alınarkən xəta baş verdi.");
                     navigate("/login", { replace: true });
                 } finally {
@@ -175,9 +178,7 @@ const Login = ({ setToken, setItem }) => {
             fetchUserData();
             setToken(responseModel?.accessToken);
             navigate("/");
-
         } catch (error) {
-            console.error("Login xətası:", error);
             setErrMsg("Daxilolma zamanı xəta baş verdi");
         }
     };

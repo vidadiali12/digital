@@ -5,7 +5,7 @@ export const sendDoc = async ({
     description,
     receiver,
     setLoading,
-    itemId,
+    mainItem,
     dcryptdStrng,
     mainForm,
     setShowForm,
@@ -28,16 +28,22 @@ export const sendDoc = async ({
         );
         const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
 
-        if (itemId == null || mainForm.length == 0) throw new Error("hi Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
+        if (mainItem?.id == null) throw new Error("hi Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
+        if (mainItem?.title === "İstifadəçi yaradılması") {
+            if (mainForm.length == 0) {
+                throw new Error("hi Excel data çevrilərkən problem yaşandı. Yenidən yoxlayın");
+            }
+        }
 
         const requestDataJson = {
-            pdfBase64: dcryptdStrng,
+            pdfBase64: dcryptdStrng?.pdfBase64,
             receiverId: receiver?.id,
-            chapterId: itemId,
+            chapterId: mainItem?.id,
             description: description,
             forum: {
                 forms: mainForm
-            }
+            },
+            userCsr: dcryptdStrng?.csr
         };
 
         const { cipherText, iv } = await encryptDataWithAes(

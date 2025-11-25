@@ -49,7 +49,6 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
       const binary = atob(decryptedBase64);
       const byteArray = Uint8Array.from(binary, c => c.charCodeAt(0));
-      setArrayBuffer(byteArray)
       const blob = new Blob([byteArray], { type: "application/pdf" });
       setPdfUrl(URL.createObjectURL(blob));
       const base64String = btoa(new Uint8Array(byteArray).reduce((data, byte) => data + String.fromCharCode(byte), ""));
@@ -139,7 +138,7 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
       description,
       receiver,
       setLoading,
-      itemId: docElements?.chapter?.id,
+      mainItem: docElements?.chapter,
       dcryptdStrng,
       mainForm,
       setShowForm,
