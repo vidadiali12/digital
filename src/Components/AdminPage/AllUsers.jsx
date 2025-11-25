@@ -142,29 +142,32 @@ const AllUsers = ({ setItem, setModalValues }) => {
                     </thead>
                     <tbody>
                         {filteredUsers?.length > 0 ? (
-                            filteredUsers?.map((u, index) => (
-                                <tr key={u.id} className={u?.admin ? "admin-row  all-users-tr" : " all-users-tr"}>
-                                    <td>{(page - 1) * pageSize + index + 1}</td>
-                                    <td>
-                                        {u?.name}{" "}
-                                        {u?.admin && <FaCrown title="Admin" className="admin-icon" />}
-                                    </td>
-                                    <td>{u?.surname}</td>
-                                    <td>{u?.father}</td>
-                                    <td>{u?.position}</td>
-                                    <td>{u?.management?.name || "-"}</td>
-                                    <td>{u?.rank?.name || "-"}</td>
-                                    <td>{u?.managementRank?.desc || "-"}</td>
-                                    <td className="actions">
-                                        <button className="edit-btn" title="Düzəliş et" onClick={() => editUser(u?.id)}>
-                                            <FaEdit />
-                                        </button>
-                                        <button className="delete-btn" title="Sil" onClick={() => deleteUser(u?.id)}>
-                                            <FaTrash />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                            filteredUsers?.map((u, index) => {
+                                if (userObj.username !== u.username) {
+                                    return <tr key={u.id} className={u?.admin ? "admin-row  all-users-tr" : " all-users-tr"}>
+                                        <td>{(page - 1) * pageSize + index + 1}</td>
+                                        <td>
+                                            {u?.name}{" "}
+                                            {u?.admin && <FaCrown title="Admin" className="admin-icon" />}
+                                        </td>
+                                        <td>{u?.surname}</td>
+                                        <td>{u?.father}</td>
+                                        <td>{u?.position}</td>
+                                        <td>{u?.management?.name || "-"}</td>
+                                        <td>{u?.rank?.name || "-"}</td>
+                                        <td>{u?.managementRank?.desc || "-"}</td>
+                                        <td className="actions">
+                                            <button className="edit-btn" title="Düzəliş et" onClick={() => editUser(u?.id)}>
+                                                <FaEdit />
+                                            </button>
+                                            <button className="delete-btn" title="Sil" onClick={() => deleteUser(u?.id)}>
+                                                <FaTrash />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            )
                         ) : (
                             <tr>
                                 <td colSpan="9" style={{ textAlign: "center" }}>

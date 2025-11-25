@@ -75,75 +75,77 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
     }, [])
 
     return (
-        <div className='header'>
-            <ul className='ul-up'>
-                <li>
-                    <Link to="/">
-                        <img src={logo} alt="logo of duty system" />
-                        <span>Elektron Sənəd Dövriyyəsi</span>
-                    </Link>
-                </li>
+        !uObj?.shouldChangePassword && (
+            <div className='header'>
+                <ul className='ul-up'>
+                    <li>
+                        <Link to="/">
+                            <img src={logo} alt="logo of duty system" />
+                            <span>Elektron Sənəd Dövriyyəsi</span>
+                        </Link>
+                    </li>
 
-                {uObj?.admin && (
-                    <NavLink to="/adminpage" className="admin-link">
-                        <IoShieldCheckmarkOutline className="admin-icon" />
-                        <span>Admin Səhifə</span>
-                    </NavLink>
-                )}
-                <li style={{ padding: '5px 0' }}>
-                    <IoPersonOutline className='user-icon' />
-                    <span>{uObj && (`${uObj?.rank?.name} ${uObj?.name} ${uObj?.surname}`)}</span>
-                    <AiFillCaretDown style={{ fontSize: 15, color: 'black' }} />
-                    <ul>
-                        <li>
-                            <button onClick={showProfile}>
-                                <IoPersonOutline className='account-icons' />
-                                <span>Profil</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button onClick={goLogout}>
-                                <CiLogout className='account-icons' />
-                                <span>Çıxış</span>
-                            </button>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-            <ul className='ul-down'>
-                <div className='main-page-ul'>
-                    <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
-                        <NavLink to="/">
-                            <AiFillHome className='menu-icon' />Əsas Səhifə
+                    {uObj?.admin && (
+                        <NavLink to="/adminpage" className="admin-link">
+                            <IoShieldCheckmarkOutline className="admin-icon" />
+                            <span>Admin Səhifə</span>
                         </NavLink>
-                    </span>
+                    )}
+                    <li style={{ padding: '5px 0' }}>
+                        <IoPersonOutline className='user-icon' />
+                        <span>{uObj && (`${uObj?.rank?.name} ${uObj?.name} ${uObj?.surname}`)}</span>
+                        <AiFillCaretDown style={{ fontSize: 15, color: 'black' }} />
+                        <ul>
+                            <li>
+                                <button onClick={showProfile}>
+                                    <IoPersonOutline className='account-icons' />
+                                    <span>Profil</span>
+                                </button>
+                            </li>
+                            <li>
+                                <button onClick={goLogout}>
+                                    <CiLogout className='account-icons' />
+                                    <span>Çıxış</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul className='ul-down'>
+                    <div className='main-page-ul'>
+                        <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
+                            <NavLink to="/">
+                                <AiFillHome className='menu-icon' />Əsas Səhifə
+                            </NavLink>
+                        </span>
 
-                    <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
-                        <NavLink to="/inbox-all-messages">
-                            {
-                                unReadCount != 0 && (<span className='un-read-count'>{unReadCount}</span>)
-                            }
-                            <HiOutlineInbox className='menu-icon' />Gələn mesajlar
-                        </NavLink>
-                    </span>
+                        <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
+                            <NavLink to="/inbox-all-messages">
+                                {
+                                    unReadCount != 0 && (<span className='un-read-count'>{unReadCount}</span>)
+                                }
+                                <HiOutlineInbox className='menu-icon' />Gələn mesajlar
+                            </NavLink>
+                        </span>
 
-                    <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
-                        <NavLink to="/sent-all-messages">
-                            <FiSend className='menu-icon' />Göndərdiklərim
-                        </NavLink>
-                    </span>
-                </div>
-            </ul>
+                        <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
+                            <NavLink to="/sent-all-messages">
+                                <FiSend className='menu-icon' />Göndərdiklərim
+                            </NavLink>
+                        </span>
+                    </div>
+                </ul>
 
-            {
-                profile && (
-                    <Profile userObj={userObj}
-                        setProfile={setProfile}
-                        modalValues={modalValues}
-                        setModalValues={setModalValues} />
-                )
-            }
-        </div>
+                {
+                    profile && (
+                        <Profile
+                            setProfile={setProfile}
+                            setModalValues={setModalValues}
+                            shouldChangePassword={false} />
+                    )
+                }
+            </div>
+        )
     );
 }
 

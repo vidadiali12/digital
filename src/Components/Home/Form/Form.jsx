@@ -170,10 +170,13 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 const importedServerPrivateKeyB64 = localStorage.getItem("clientPrivateKey");
                 if (!importedServerPrivateKeyB64) throw new Error("❌ Private key tapılmadı!");
 
-                function base64ToArrayBuffer(b64) {
-                    const binary = atob(b64);
-                    const bytes = new Uint8Array(binary?.length);
-                    for (let i = 0; i < binary?.length; i++) bytes[i] = binary?.charCodeAt(i);
+                function base64ToArrayBuffer(base64) {
+                    const binaryString = atob(base64);
+                    const len = binaryString?.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binaryString?.charCodeAt(i);
+                    }
                     return bytes.buffer;
                 }
 
@@ -186,30 +189,29 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     false,
                     ["decrypt"]
                 );
-
+                function cleanBase64(str) {
+                    return str
+                        ?.replace(/[\r\n\t ]+/g, "")  // bütün whitespace sil
+                        ?.replace(/^"+|"+$/g, "")     // baş və son dırnaqları sil
+                        ?.trim();
+                }
 
                 const decryptedKeyBuffer = await decryptKeyWithRsa(responseData?.key, importedPrivateKey);
                 const decryptedString = await decryptDataWithAes(responseData?.cipherText, responseData?.iv, decryptedKeyBuffer);
 
+                // FIXED LINE (tək dəyişiklik budur)
+                const cleanedBase64 = cleanBase64(decryptedString);
+                const pdfArrayBuffer = base64ToArrayBuffer(cleanedBase64);
 
-                const byteCharacters = atob(decryptedString);
-                const byteNumbers = new Array(byteCharacters?.length);
-                for (let i = 0; i < byteCharacters?.length; i++) {
-                    byteNumbers[i] = byteCharacters?.charCodeAt(i);
-                }
-
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: "application/pdf" });
+                const blob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
                 const url = URL.createObjectURL(blob);
 
                 setPdfUrl(url);
                 setLoading(false);
-                setShowSendButton('')
+                setShowSendButton("");
 
-                const base64String = btoa(
-                    new Uint8Array(byteArray).reduce((data, byte) => data + String.fromCharCode(byte), "")
-                );
-                setPdfBase64(base64String);
+                setPdfBase64(cleanedBase64);
+
 
             } catch (err) {
                 setModalValues((prev) => ({
@@ -293,11 +295,20 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 const importedServerPrivateKeyB64 = localStorage.getItem("clientPrivateKey");
                 if (!importedServerPrivateKeyB64) throw new Error("❌ Private key tapılmadı!");
 
-                function base64ToArrayBuffer(b64) {
-                    const binary = atob(b64);
-                    const bytes = new Uint8Array(binary?.length);
-                    for (let i = 0; i < binary.length; i++) bytes[i] = binary?.charCodeAt(i);
+                function base64ToArrayBuffer(base64) {
+                    const binaryString = atob(base64);
+                    const len = binaryString?.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binaryString?.charCodeAt(i);
+                    }
                     return bytes.buffer;
+                }
+                function cleanBase64(str) {
+                    return str
+                        ?.replace(/[\r\n\t ]+/g, "")  // bütün whitespace sil
+                        ?.replace(/^"+|"+$/g, "")     // baş və son dırnaqları sil
+                        ?.trim();
                 }
 
                 const pkcs8ArrayBuffer = base64ToArrayBuffer(importedServerPrivateKeyB64);
@@ -313,8 +324,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
                 const decryptedKeyBuffer = await decryptKeyWithRsa(responseData?.key, importedPrivateKey);
                 const decryptedString = await decryptDataWithAes(responseData?.cipherText, responseData?.iv, decryptedKeyBuffer);
-
-                const excelArrayBuffer = base64ToArrayBuffer(decryptedString);
+                const cleaned = cleanBase64(decryptedString);
+                const excelArrayBuffer = base64ToArrayBuffer(cleaned);
 
                 const workbook = XLSX.read(excelArrayBuffer, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];

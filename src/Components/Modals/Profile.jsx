@@ -6,7 +6,7 @@ import api from '../api'
 import { encryptDataWithAes, encryptKeyWithRsa, generateCsr } from '../Functions/Functions'
 import Loading from './Loading'
 
-const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
+const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
   const [passwordData, setPasswordData] = useState({
     oldPass: '',
     newPass: '',
@@ -36,15 +36,36 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    if (passwordData.newPass !== passwordData.confirmPass) {
+    if (passwordData.newPass.trim() == "" || passwordData.confirmPass.trim() == "" || passwordData.oldPass.trim() == "") {
       setModalValues(prev => ({
         ...prev,
         showModal: true,
-        message: "Yeni parollar uyğun gəlmir ❌",
+        message: "❌ Sahələr doldurulmaldıır",
         isQuestion: false
       }));
       return;
     }
+    if (passwordData.newPass !== passwordData.confirmPass) {
+      setModalValues(prev => ({
+        ...prev,
+        showModal: true,
+        message: "❌ Yeni parollar uyğun gəlmir",
+        isQuestion: false
+      }));
+      return;
+    }
+
+    if (
+      passwordData.confirmPass.trim().length < 8 ||
+      !/[a-z]/.test(passwordData.confirmPass.trim()) ||
+      !/[A-Z]/.test(passwordData.confirmPass.trim()) ||
+      !/[^A-Za-z0-9]/.test(passwordData.confirmPass.trim())
+    ) {
+      throw new Error(
+        `❌ "Şifrə tələblərə cavab vermir! Şifrə ən az 8 simvoldan ibarət olmalı, böyük, kiçik hərf və simvol daxil etməlidir."`
+      );
+    }
+
 
     try {
       setLoading(true);
@@ -74,9 +95,6 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
         password: passwordData?.confirmPass
       });
 
-      console.log("✅ oldCsr:", oldCsr);
-      console.log("✅ newCsr:", newCsr);
-
       const requestDataJson = {
         username: uObj?.username,
         oldPassword: passwordData?.oldPass,
@@ -99,7 +117,6 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
 
       const requestBody = { cipherText, key: encryptedKey, iv };
-      console.log("✅ Final request body (to backend):", requestBody);
 
       const response = await api.put(
         '/auth/updateMe',
@@ -115,6 +132,10 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
         isQuestion: false
       }));
       setLoading(false);
+
+      if (!uObj?.shouldChangePassword) {
+        localStorage.clear();
+      }
 
     } catch (error) {
       setModalValues(prev => ({
@@ -142,22 +163,26 @@ const Profile = ({ userObj, setProfile, modalValues, setModalValues }) => {
       {loading ? <Loading loadingMessage="Məlumatlar dəyişdirilir..." /> :
         <div className="profile-page">
           <div className="profile-card-row">
-            <div className="profile-info-card">
-              <button className="close-btn-profile" onClick={closeProfile}>✖</button>
-              <div className="avatar"><FaUserCircle className="avatar-icon" /></div>
-              <h2 className="username">{uObj?.name} {uObj?.surname}</h2>
-              <p className="position">{uObj?.position}</p>
+            {
+              !shouldChangePassword && (
+                <div className="profile-info-card">
+                  <button className="close-btn-profile" onClick={closeProfile}>✖</button>
+                  <div className="avatar"><FaUserCircle className="avatar-icon" /></div>
+                  <h2 className="username">{uObj?.name} {uObj?.surname}</h2>
+                  <p className="position">{uObj?.position}</p>
 
-              <div className="info-section">
-                <div><strong>FIN:</strong> {uObj?.fin}</div>
-                <div><strong>Rütbə:</strong> {uObj?.rank?.description}</div>
-                <div><strong>Təşkilat:</strong> {uObj?.management?.name}</div>
-                <div><strong>Vəzifə:</strong> {uObj?.managementRank?.desc}</div>
-                <div><strong>Qoşulma tarixi:</strong> {new Date(uObj?.joinedDate).toLocaleDateString()}</div>
-              </div>
+                  <div className="info-section">
+                    <div><strong>FIN:</strong> {uObj?.fin}</div>
+                    <div><strong>Rütbə:</strong> {uObj?.rank?.description}</div>
+                    <div><strong>Təşkilat:</strong> {uObj?.management?.name}</div>
+                    <div><strong>Vəzifə:</strong> {uObj?.managementRank?.desc}</div>
+                    <div><strong>Qoşulma tarixi:</strong> {new Date(uObj?.joinedDate).toLocaleDateString()}</div>
+                  </div>
 
-              {uObj?.admin && <div className="admin-badge"><MdAdminPanelSettings /> Admin</div>}
-            </div>
+                  {uObj?.admin && <div className="admin-badge"><MdAdminPanelSettings /> Admin</div>}
+                </div>
+              )
+            }
 
             <form className="password-section-card" onSubmit={handlePasswordSubmit}>
               <h3>Parolu yenilə</h3>

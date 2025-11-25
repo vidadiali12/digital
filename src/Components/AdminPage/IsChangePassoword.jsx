@@ -1,11 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import CreateForm from './CreateForm'
+import './IsChangePassword.css'
+import { useNavigate } from 'react-router-dom'
+
 
 const IsChangePassoword = ({ user, ep, setModalValues, setShowSelect }) => {
     const [showForm, setShowForm] = useState(null)
     const [changePassword, setChangePassword] = useState(null)
     const [formData, setFormData] = useState({})
-    
+
+    const navigate = useNavigate();
+
+
+    const [userObj, setUserObj] = useState({})
+
+    useEffect(() => {
+        const uObj = JSON.parse(localStorage.getItem("userObj"))
+        setUserObj(uObj)
+        if (uObj && uObj?.admin === false) {
+            navigate("/")
+            localStorage.removeItem("myUserDocumentToken");
+            localStorage.removeItem("tokenExpiration");
+        }
+    }, [navigate])
+
     const changePass = () => {
         setChangePassword(true)
         setShowForm(true)
@@ -29,24 +47,48 @@ const IsChangePassoword = ({ user, ep, setModalValues, setShowSelect }) => {
         })
     }
     return (
-        <div>
-            <div>
-                <button onClick={changePass}>Parolu dəyiş</button>
-                <button onClick={changeOthers}>Digər məlumatları dəyiş</button>
+        <div className="icp-overlay">
+            <div className="icp-modal">
+                <div className="icp-top">
+                    <div className="icp-title">Hesab məlumatlarını yenilə</div>
+                    <div className="icp-actions">
+                        <button className="icp-btn ghost" onClick={() => setShowSelect(false)}>Bağla</button>
+                    </div>
+                </div>
+
+                <div className="icp-content">
+                    <div className="icp-left">
+                        <div style={{ display: 'flex', gap: 8 }}>
+                            <button className="icp-btn primary" onClick={changePass}>Parol və əsas məlumatları dəyiş</button>
+                            <button className="icp-btn ghost" onClick={changeOthers}>Digər məlumatları dəyiş</button>
+                        </div>
+
+                        {showForm && (
+                            <div style={{ marginTop: 12 }}>
+                                <CreateForm
+                                    formData={formData}
+                                    setFormData={setFormData}
+                                    setShowForm={setShowForm}
+                                    ep={ep} isAdmin={false}
+                                    setModalValues={setModalValues}
+                                    changePassword={changePassword}
+                                    user={user}
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="icp-right">
+                        <div className="icp-hint">
+                            <b>{userObj?.name} {userObj?.surname}</b> <br /> <br />
+                            <b>{user?.name} {user?.surname}</b> <span>adlı istifadəçinin</span>
+                            <div style={{ marginTop: 6, fontSize: 13 }}>
+                                hesab məlumatlarını buradan tez dəyişə bilərsiz.
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {
-                showForm && (
-                    <CreateForm
-                        formData={formData}
-                        setFormData={setFormData}
-                        setShowForm={setShowForm}
-                        ep={ep} isAdmin={false}
-                        setModalValues={setModalValues}
-                        changePassword={changePassword}
-                        user={user}
-                    />
-                )
-            }
         </div>
     )
 }

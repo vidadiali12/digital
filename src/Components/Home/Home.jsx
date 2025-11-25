@@ -7,6 +7,7 @@ import api from '../api';
 import { useEffect, useState } from 'react';
 import AddTitle from './Title/AddTitle';
 import Form from './Form/Form';
+import Profile from '../Modals/Profile';
 
 
 const Home = ({ userObj, setModalValues, setItem, item }) => {
@@ -77,85 +78,86 @@ const Home = ({ userObj, setModalValues, setItem, item }) => {
     }, [])
 
     return (
-        <div className="home" onClick={handleReset}>
-            <ul className='ul-down' onClick={(e) => e.stopPropagation()}>
+        userObj?.shouldChangePassword ? <Profile   setProfile={true} setModalValues={setModalValues} shouldChangePassword={userObj?.shouldChangePassword}/> :
+            <div className="home" onClick={handleReset}>
+                <ul className='ul-down' onClick={(e) => e.stopPropagation()}>
+                    {
+                        titles?.map((title, index) => (
+                            <li key={title?.id} onClick={() => goTitle(title?.id, index)}>
+                                <NavLink to="/">
+                                    {title?.title}
+                                    <FiPlus className="plus-icon" />
+                                </NavLink>
+                                {
+                                    userObj?.admin && (
+                                        <div className={`${showTitleActions === index && ('show-title-actions')} actions`}>
+                                            <button
+                                                className="edit-btn"
+                                                onClick={() => handleEdit(title?.id)}
+                                                title="Redaktə et"
+                                            >
+                                                <FaEdit />
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() => handleDelete(title?.id)}
+                                                title="Sil"
+                                            >
+                                                <FaTrashAlt />
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() => createForm(title?.id)}
+                                                title="Davam et"
+                                            >
+                                                <FaArrowRight />
+                                            </button>
+                                        </div>
+                                    )
+                                }
+                            </li>
+                        ))
+                    }
+                    {
+                        userObj?.admin && (
+                            <li style={{
+                                display: 'flex',
+                                borderRadius: '100%',
+                                width: '60px',
+                                height: '60px',
+                                marginLeft: 'auto'
+                            }} onClick={showTitleAdding}>
+                                <NavLink to="/" >
+                                    <FiPlus className="plus-icon" />
+                                </NavLink>
+                            </li>
+                        )
+                    }
+                </ul>
+
                 {
-                    titles?.map((title, index) => (
-                        <li key={title?.id} onClick={() => goTitle(title?.id, index)}>
-                            <NavLink to="/">
-                                {title?.title}
-                                <FiPlus className="plus-icon" />
-                            </NavLink>
-                            {
-                                userObj?.admin && (
-                                    <div className={`${showTitleActions === index && ('show-title-actions')} actions`}>
-                                        <button
-                                            className="edit-btn"
-                                            onClick={() => handleEdit(title?.id)}
-                                            title="Redaktə et"
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                        <button
-                                            className="delete-btn"
-                                            onClick={() => handleDelete(title?.id)}
-                                            title="Sil"
-                                        >
-                                            <FaTrashAlt />
-                                        </button>
-                                        <button
-                                            className="delete-btn"
-                                            onClick={() => createForm(title?.id)}
-                                            title="Davam et"
-                                        >
-                                            <FaArrowRight />
-                                        </button>
-                                    </div>
-                                )
-                            }
-                        </li>
-                    ))
-                }
-                {
-                    userObj?.admin && (
-                        <li style={{
-                            display: 'flex',
-                            borderRadius: '100%',
-                            width: '60px',
-                            height: '60px',
-                            marginLeft: 'auto'
-                        }} onClick={showTitleAdding}>
-                            <NavLink to="/" >
-                                <FiPlus className="plus-icon" />
-                            </NavLink>
-                        </li>
+                    showTitle && (
+                        <AddTitle
+                            setShowTitle={setShowTitle}
+                            userObj={userObj}
+                            typeOfOperation={typeOfOperation}
+                            item={item}
+                            setModalValues={setModalValues} />
                     )
                 }
-            </ul>
 
-            {
-                showTitle && (
-                    <AddTitle
-                        setShowTitle={setShowTitle}
-                        userObj={userObj}
-                        typeOfOperation={typeOfOperation}
-                        item={item}
-                        setModalValues={setModalValues} />
-                )
-            }
-
-            {
-                showForm && (
-                    <Form
-                        userObj={userObj}
-                        setShowForm={setShowForm}
-                        setModalValues={setModalValues}
-                        item={item}
-                        fromDocDetail={[]}
-                        chapter={null} />
-                )
-            }
-        </div>
+                {
+                    showForm && (
+                        <Form
+                            userObj={userObj}
+                            setShowForm={setShowForm}
+                            setModalValues={setModalValues}
+                            item={item}
+                            fromDocDetail={[]}
+                            chapter={null} />
+                    )
+                }
+            </div>
     );
 };
 
