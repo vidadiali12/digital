@@ -105,9 +105,7 @@ api.interceptors.request.use(async (config) => {
 
           } catch (err) {
             console.error("❌ Token refresh error:", err);
-            localStorage.removeItem("myUserDocumentToken");
-            localStorage.removeItem("tokenExpiration");
-            localStorage.removeItem("userObj");
+            localStorage.clear()
           } finally {
             isRefreshing = false;
             refreshPromise = null;

@@ -133,7 +133,7 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
       }));
       setLoading(false);
 
-      if (!uObj?.shouldChangePassword) {
+      if (uObj?.shouldChangePassword) {
         localStorage.clear();
       }
 

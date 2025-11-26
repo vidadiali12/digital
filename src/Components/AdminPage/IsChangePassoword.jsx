@@ -19,8 +19,7 @@ const IsChangePassoword = ({ user, ep, setModalValues, setShowSelect }) => {
         setUserObj(uObj)
         if (uObj && uObj?.admin === false) {
             navigate("/")
-            localStorage.removeItem("myUserDocumentToken");
-            localStorage.removeItem("tokenExpiration");
+            localStorage.clear()
         }
     }, [navigate])
 

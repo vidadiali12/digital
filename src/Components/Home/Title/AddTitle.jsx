@@ -12,8 +12,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
     useEffect(() => {
         if (userObj && userObj?.admin === false) {
             navigate("/");
-            localStorage.removeItem("myUserDocumentToken");
-            localStorage.removeItem("tokenExpiration");
+            localStorage.clear()
         }
     }, [userObj, navigate]);
 

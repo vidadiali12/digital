@@ -128,9 +128,7 @@ function App() {
               Authorization: `Bearer ${token}`
             }
           })
-          localStorage.removeItem("myUserDocumentToken");
-          localStorage.removeItem("tokenExpiration");
-          localStorage.removeItem("userObj")
+          localStorage.clear()
           setToken(null);
           navigate("/login", { replace: true });
           setModalValues(prev => ({
