@@ -63,11 +63,20 @@
 
 .pdf-wrapper {
     width: 100%;
-    height: 60%;
-    border-radius: 14px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.17);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    background: #f3f3f3;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.pdf-canvas {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .doc-info {
@@ -156,6 +165,7 @@
     scale: 1;
     transition: .3s;
 }
+
 .share-box-icons:hover {
     scale: 1.1;
 }

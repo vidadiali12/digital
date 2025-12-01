@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import Profile from '../Modals/Profile';
 import api from '../api';
 
-const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
+const Header = ({ setUserObj, setModalValues }) => {
 
     const [profile, setProfile] = useState(null);
     const [unReadCount, setUnReadCount] = useState(null)
@@ -61,12 +61,21 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
 
             setUnReadCount(resUnRead.data.data)
         } catch (err) {
-            setModalValues(prev => ({
-                ...prev,
-                isQuestion: false,
-                showModal: true,
-                message: '❌ Məlumatlar çəkilərkən xəta baş verdi! Yenidən yoxlayın.'
-            }))
+            if (err?.response?.data?.errorDescription?.includes("User should reset password")
+                ||
+                err?.response?.data?.errorDescription?.toLowerCase().includes("parol".toLowerCase())) {
+                setUnReadCount(0)
+                return;
+            }
+            else {
+                setModalValues(prev => ({
+                    ...prev,
+                    isQuestion: false,
+                    showModal: true,
+                    message: `❌ Xəta baş verdi:\n⚠️"${err?.response?.data?.errorDescription || err
+                        }". \nYenidən yoxlayın!`
+                }))
+            }
         }
     }
 
@@ -75,8 +84,12 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
     }, [])
 
     return (
-        !uObj?.shouldChangePassword && (
-            <div className='header'>
+        uObj?.shouldChangePassword ?
+            <Profile setProfile={setProfile}
+                setModalValues={setModalValues}
+                shouldChangePassword={uObj?.shouldChangePassword}
+            />
+            : (<div className={`header`}>
                 <ul className='ul-up'>
                     <li>
                         <Link to="/">
@@ -122,7 +135,7 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
                         <span className='passiv-navigate' onClick={(e) => makeActiveNavigate(e)}>
                             <NavLink to="/inbox-all-messages">
                                 {
-                                    unReadCount != 0 && (<span className='un-read-count'>{unReadCount}</span>)
+                                    (unReadCount != 0 && unReadCount != null) && (<span className='un-read-count'>{unReadCount}</span>)
                                 }
                                 <HiOutlineInbox className='menu-icon' />Gələn mesajlar
                             </NavLink>
@@ -141,11 +154,10 @@ const Header = ({ setUserObj, userObj, modalValues, setModalValues }) => {
                         <Profile
                             setProfile={setProfile}
                             setModalValues={setModalValues}
-                            shouldChangePassword={false} />
+                            shouldChangePassword={uObj?.shouldChangePassword} />
                     )
                 }
-            </div>
-        )
+            </div>)
     );
 }
 

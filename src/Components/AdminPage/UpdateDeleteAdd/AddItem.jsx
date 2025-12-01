@@ -43,10 +43,11 @@ const AddItem = ({ setModalValues, setAddItem, typeOfItem }) => {
                 });
                 setSections(response.data.data || []);
             } catch (err) {
-                console.error("❌ Bölmələr alınmadı:", err);
                 setModalValues((prev) => ({
                     ...prev,
-                    message: `❌ ${typeOfItem} məlumatları alınarkən xəta baş verdi.`,
+                    message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                \n⚠️${typeOfItem || err
+                        }. \nYenidən yoxlayın!`,
                     showModal: true,
                     isQuestion: false,
                 }));
@@ -125,12 +126,12 @@ const AddItem = ({ setModalValues, setAddItem, typeOfItem }) => {
             setLoading(false);
             setTimeout(() => window.location.reload(), 1500);
         } catch (err) {
-            console.log(err);
             setLoading(false);
             setModalValues((prev) => ({
                 ...prev,
-                message: `❌ Xəta baş verdi \n${err?.response?.data?.errorDescription || err
-                    }`,
+                    message: `❌ Xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false,
             }));

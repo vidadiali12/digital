@@ -104,7 +104,7 @@ api.interceptors.request.use(async (config) => {
             console.log("✅ Token yeniləndi:", responseModel?.tokenExpiresIn);
 
           } catch (err) {
-            console.error("❌ Token refresh error:", err);
+            console.log("❌ Token yenilənmədi:", err);
             localStorage.clear()
           } finally {
             isRefreshing = false;

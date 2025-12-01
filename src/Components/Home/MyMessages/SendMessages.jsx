@@ -27,12 +27,14 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setMessages(res.data.data || []);
-            setTotalPages(res.data.totalPages || 1);
+            setMessages(res?.data?.data || []);
+            setTotalPages(res?.data?.totalPages || 1);
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: "❌ Sənədlər yüklənərkən xəta baş verdi...",
+                message: `❌ Sənədlər yüklənərkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 isQuestion: false,
                 showModal: true
             }))
@@ -103,7 +105,7 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
                         </span>
 
                         <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle}`}>
-                            {msg?.receiver?.rank?.description} {msg?.receiver?.name} {msg?.receiver?.surname}
+                            {msg?.receiver?.rank?.name} {msg?.receiver?.name} {msg?.receiver?.surname}
                         </span>
                         <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.receiver?.management?.name}</span>
                         <span className={`title-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.description}</span>

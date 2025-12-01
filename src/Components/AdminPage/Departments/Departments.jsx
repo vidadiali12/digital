@@ -67,7 +67,9 @@ const Departments = ({ setModalValues, setUpdateItem, setAddItem, setItem, setTy
                 setLoading(false)
                 setModalValues(prev => ({
                     ...prev,
-                    message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
+                    message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     showModal: true,
                     isQuestion: false,
                 }))

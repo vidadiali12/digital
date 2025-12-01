@@ -149,9 +149,10 @@
   border-radius: 10px !important;
 }
 
-.ul-down li a{
+.ul-down li a {
   background-color: var(--color-teal);
 }
+
 .main-page-ul span {
   border-radius: 10px !important;
 }
@@ -234,15 +235,15 @@
   transform: scale(1.1);
 }
 
-.active-navigate{
+.active-navigate {
   background-color: var(--color-dark-teal);
 }
 
-.passiv-navigate>a{
+.passiv-navigate>a {
   position: relative;
 }
 
-.passiv-navigate>a>.un-read-count{
+.passiv-navigate>a>.un-read-count {
   position: absolute;
   width: 30px !important;
   height: 30px !important;

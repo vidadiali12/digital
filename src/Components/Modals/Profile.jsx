@@ -49,7 +49,7 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
       setModalValues(prev => ({
         ...prev,
         showModal: true,
-        message: "❌ Yeni parollar uyğun gəlmir",
+        message: "❌ Parol və təkrarı uyğun gəlmir",
         isQuestion: false
       }));
       return;
@@ -131,7 +131,9 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
         message: "Parol uğurla yeniləndi ✅",
         isQuestion: false
       }));
+
       setLoading(false);
+      setProfile(null);
 
       if (uObj?.shouldChangePassword) {
         localStorage.clear();
@@ -161,7 +163,7 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
   return (
     <>
       {loading ? <Loading loadingMessage="Məlumatlar dəyişdirilir..." /> :
-        <div className="profile-page">
+        <div className={`profile-page ${shouldChangePassword ? 'dark-profile' : ''}`}>
           <div className="profile-card-row">
             {
               !shouldChangePassword && (
@@ -175,7 +177,8 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
                     <div><strong>FIN:</strong> {uObj?.fin}</div>
                     <div><strong>Rütbə:</strong> {uObj?.rank?.description}</div>
                     <div><strong>Təşkilat:</strong> {uObj?.management?.name}</div>
-                    <div><strong>Vəzifə:</strong> {uObj?.managementRank?.desc}</div>
+                    <div><strong>Təbəqə:</strong> {uObj?.managementRank?.desc}</div>
+                    <div><strong>Vəzifə:</strong> {uObj?.position}</div>
                     <div><strong>Qoşulma tarixi:</strong> {new Date(uObj?.joinedDate).toLocaleDateString()}</div>
                   </div>
 

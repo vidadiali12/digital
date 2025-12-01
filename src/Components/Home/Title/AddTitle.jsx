@@ -6,33 +6,41 @@ import { useNavigate } from 'react-router-dom'
 import { FaTimes } from 'react-icons/fa'
 
 const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues }) => {
-
     const navigate = useNavigate();
 
     useEffect(() => {
         if (userObj && userObj?.admin === false) {
             navigate("/");
-            localStorage.clear()
+            localStorage.clear();
         }
     }, [userObj, navigate]);
 
     const [loading, setLoading] = useState(false);
     const [titleValue, setTitleValue] = useState(item?.title || "");
-
-    const handleChange = (e) => {
-        setTitleValue(e.target.value);
-    };
+    const [containsForm, setContainsForm] = useState(item?.containsForm || false);
 
     const handleClose = () => {
         setShowTitle(null);
         setTitleValue("");
+        setContainsForm(false);
+    };
+
+    const handleChangeTitle = (e) => {
+        setTitleValue(e.target.value);
+    };
+
+    const handleChangeFormCheckbox = (e) => {
+        setContainsForm(e.target.checked);
     };
 
     const addTitle = async () => {
         const token = localStorage.getItem("myUserDocumentToken");
         if (!token) return;
 
-        const titleData = { title: titleValue?.trim() };
+        const titleData = { 
+            title: titleValue?.trim(),
+            containsForm
+        };
 
         if (!titleData.title) {
             alert("⚠ Başlıq boş ola bilməz");
@@ -58,26 +66,24 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                     ? await api.post(url, titleData, hdrs)
                     : await api.put(url, titleData, hdrs);
 
-            console.log(resTitle.data);
             setLoading(false);
             setShowTitle(null);
             setModalValues(prev => ({
                 ...prev,
                 message: `${typeOfOperation === "createTitle"
                     ? 'Başlıq uğurla əlavə edildi! ✅'
-                    : `Başlıq uğurla dəyişdirildi! ✅`}`,
+                    : 'Başlıq uğurla dəyişdirildi! ✅'}`,
                 isQuestion: false,
                 showModal: true
-            }))
+            }));
             setTimeout(() => window.location.reload(), 1500);
         } catch (err) {
-            console.log(err);
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Proses zamanı xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
+                message: `❌ Proses zamanı xəta baş verdi: \n⚠️ ${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
                 showModal: true,
                 isQuestion: false,
-            }))
+            }));
             setLoading(false);
         }
     };
@@ -94,7 +100,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                     }}
                 >
                     <div className="addtitle-card">
-                        <button className="close-btn" onClick={handleClose}>
+                        <button className="close-btn-title" onClick={handleClose}>
                             <FaTimes />
                         </button>
 
@@ -105,8 +111,16 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                                 id="titleElement"
                                 className="addtitle-input"
                                 value={titleValue}
-                                onChange={handleChange}
+                                onChange={handleChangeTitle}
                             />
+                            <label className="form-checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={containsForm}
+                                    onChange={handleChangeFormCheckbox}
+                                />
+                                Bu başlıqda form olacaq
+                            </label>
                             <button onClick={addTitle} className="addtitle-btn">
                                 {typeOfOperation === "createTitle"
                                     ? "Başlıq əlavə et"

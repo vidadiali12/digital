@@ -152,3 +152,7 @@
 .update-btn:hover {
   background: var(--color-light-teal);
 }
+
+.dark-profile{
+  background-color: var(--color-pale-teal);
+}

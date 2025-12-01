@@ -26,14 +26,16 @@ const Login = ({ setToken, setItem, setModalValues }) => {
 
     const fetchServerPublicKey = async () => {
         try {
-            const keyBase64 = "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAudBNAiJ5PUhsN1Y8SM3Tgyr8AuY6mqj18/YiCCB+dF3SZV1YEXuLHAj+nh+R0IrbzdF0eJLK9B2E4+uotSrs5DLCBMd7hYCpSIPw5axWPF8qENCMaGF11V5fa4GVYuscr18/kzUQRekejkLrP5euXNBknpHNUA/xvxG4E5lFHz1xfGnCdkpyftKVG/fvf86dJngZD+Nq9KaDx36rWIBbX9zfX2PAO/fkChvrJqkb5BWVtMO/QdDXp8Ask7TT6jF1mMUPOaX6YxZeBT2TzwBLvsaRD4FA8cpBINpWJRVoQGKEO2dblpGFjHnjqj9CSJyUrWa0KweaD/8xYv8G4uuOEWO/cKzMFY7zCcGOhkB8Kz/zA0hSJPmEJhGHPfMbwjTA4D6LgDM9BFuyHmwLUnxpqokqnMmlaoBFxIv3/gz02ym7DnnKAai5PIDBsA4uudMQra0zTkqVQxLxKJVOcJ2AcPwh17To2ztDTPR6m8zmuwYwsdyvV+vnUfwxHFoiwoe2Vk2bPgw/7kX2mlYxRjV0Yz746O3QU1lRMW7YeVVYsOF8Tq8WIu69HmOqisFJSCFcN7hD1efxpeYf0zY67CkfaIGUBKP8t8JqdjiC94rkG/w5ylufi8PCY75/9IX/KpWywOfPYyaR08le5PHOhygv0YhZcKtEYByL8aUlWrn30M8CAwEAAQ=="
-            localStorage.setItem("serverPublicKey", keyBase64);
-            return keyBase64;
-        } catch (error) {
+            const keyBase64 = await api.get('/pki/getServerPublicKey')
+            localStorage.setItem("serverPublicKey", keyBase64?.data);
+            return keyBase64?.data;
+        } catch (err) {
             setModalValues(prev => (
                 {
                     ...prev,
-                    message: `❌ Server Public Key-i yükləmə xətası: ${error}`,
+                    message: `❌ Server Public Key-i yükləmə xətası: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     isQuestion: false,
                     showModal: true
                 }
@@ -178,8 +180,12 @@ const Login = ({ setToken, setItem, setModalValues }) => {
             fetchUserData();
             setToken(responseModel?.accessToken);
             navigate("/");
-        } catch (error) {
-            setErrMsg("Daxilolma zamanı xəta baş verdi");
+        } catch (err) {
+            setErrMsg(`❌ Xəta baş verdi:
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                }. \n${err?.response?.data?.errorDescription.includes("hesab")
+                    || err?.response?.data?.errorDescription.includes("locked") ? "10 dəqiqə sonra" : ""
+                } Yenidən yoxlayın!`);
         }
     };
 

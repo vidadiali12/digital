@@ -94,7 +94,9 @@ const Update = ({ setModalValues, setUpdateItem, item, typeOfItem }) => {
             setLoading(false)
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Xəta baş verdi \n${err?.response?.data?.errorDescription || err}`,
+                message: `❌ Xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false,
             }))
@@ -132,7 +134,9 @@ const Update = ({ setModalValues, setUpdateItem, item, typeOfItem }) => {
                 setLoading(false)
                 setModalValues(prev => ({
                     ...prev,
-                    message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
+                    message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     showModal: true,
                     isQuestion: false,
                 }))

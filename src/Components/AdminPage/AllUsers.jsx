@@ -10,7 +10,7 @@ const AllUsers = ({ setItem, setModalValues }) => {
     const [allUsers, setAllUsers] = useState([]);
     const [countOfUsers, setCountOfUsers] = useState(0);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(2);
     const [searchTerm, setSearchTerm] = useState("");
     const [ep, setEp] = useState(null);
     const [loading, setLoading] = useState(null)
@@ -43,7 +43,7 @@ const AllUsers = ({ setItem, setModalValues }) => {
                     headers: { Authorization: `Bearer ${token}` },
                     params: { page, pageSize },
                 });
-                setAllUsers(resUsers?.data?.data?.data || []);
+                setAllUsers(resUsers?.data?.data || []);
                 setCountOfUsers(resUsers?.data?.data?.totalItem);
                 setLoading(false)
             } catch (err) {
@@ -51,7 +51,9 @@ const AllUsers = ({ setItem, setModalValues }) => {
                 console.log("İstifadəçilər alınmadı:", err);
                 setModalValues(prev => ({
                     ...prev,
-                    message: "❌ İstifadəçi məlumatları çağrılarkən problem yaşandı. Yenidən yoxlayın...",
+                    message: `❌ İstifadəçi məlumatları çağrılarkən problem yaşandı: 
+                \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     showModal: true,
                     isQuestion: false
                 }))
@@ -102,7 +104,9 @@ const AllUsers = ({ setItem, setModalValues }) => {
             setLoading(false)
             setModalValues(prev => ({
                 ...prev,
-                message: "❌ İstifadəçi məlumatları çağrılarkən problem yaşandı. Yenidən yoxlayın...",
+                message: `❌ İstifadəçi məlumatları çağrılarkən problem yaşandı: 
+                \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false,
             }))

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>STOMP WebSocket Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+  <h2>STOMP WebSocket Test</h2>
+  <button id="connectBtn">Connect</button>
+  <div id="status"></div>
+
+  <script>
+    const statusDiv = document.getElementById('status');
+    const connectBtn = document.getElementById('connectBtn');
+
+    connectBtn.addEventListener('click', () => {
+      statusDiv.innerText = 'Connecting...';
+
+      // STOMP client yarat
+      const client = new StompJs.Client({
+        brokerURL: 'https://localhost:9098/ws', // Backend wss:// tələb edir
+        connectHeaders: {
+          Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aWRhZGkuYWxpemFkZSIsImlhdCI6MTc2NDIyOTQ0MSwiZXhwIjoxNzY0MjMwMzQxfQ.9wh5Q2iUUaW56-I4p2RleDf9aYfOSlwC_x-n7zWBJgY' // token buraya
+        },
+        debug: (str) => console.log(str),
+        reconnectDelay: 5000
+      });
+
+      client.onConnect = () => {
+        console.log('STOMP connected');
+        statusDiv.innerText = 'Connected ✅';
+      };
+
+      client.onStompError = (frame) => {
+        console.error('STOMP error:', frame);
+        statusDiv.innerText = 'STOMP Error ❌ Check console';
+      };
+
+      client.onWebSocketClose = (event) => {
+        console.warn('WebSocket closed', event);
+        statusDiv.innerText = 'Connection closed';
+      };
+
+      client.activate();
+    });
+  </script>
+</body>
+</html>

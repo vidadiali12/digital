@@ -11,6 +11,11 @@ import GetReceivers from './GetReceivers';
 import { sendDoc } from './SendDocument';
 import { signDoc } from './signDocument';
 
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+import workerSrc from "pdfjs-dist/build/pdf.worker?url";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+
 const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapter }) => {
 
     const [selectedWord, setSelectedWord] = useState('');
@@ -50,6 +55,32 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const [showFlash, setShowFlash] = useState(null)
     const [classForWord, setClassForWord] = useState('')
 
+    const renderPdfToCanvas = async (pdfBase64) => {
+        if (!pdfBase64) return;
+
+        const pdfData = atob(pdfBase64);
+        const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+
+        const canvas = document.getElementById("pdf-canvas");
+        const context = canvas.getContext("2d");
+
+        const page = await pdf.getPage(1);
+
+        const wrapperWidth = document.querySelector(".pdf-wrapper").clientWidth;
+
+        const viewport = page.getViewport({ scale: 1 });
+
+        const scale = wrapperWidth / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
+
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+
+        await page.render({
+            canvasContext: context,
+            viewport: scaledViewport,
+        }).promise;
+    };
 
     const initialForm = {
         name: '',
@@ -88,7 +119,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
     const handleWordClick = (word) => setSelectedWord(word);
 
-    const changeTypeOfAccount = (id) => {
+    const changeTypeOfAccount = async (id) => {
         setTypeOfAccountId(id);
         if (id) {
             setTotalDisabled(false);
@@ -101,12 +132,30 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             console.warn("Account type not found:", id);
             return;
         }
-        if (typeObj?.name?.toUpperCase() === "Local istifadəçi".toUpperCase()) {
-            setShowFlash(true);
+        try {
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) return;
+
+            const isDevice = await api.get(`/form/getAccountTypeById/${Number(id)}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            if (isDevice?.data?.data?.data?.device) {
+                setShowFlash(true);
+            }
+            else {
+                setShowFlash(false);
+            }
+        } catch (err) {
+            setModalValues((prev => ({
+                ...prev,
+                message: `❌ İstifadəçi növü məlumatları alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
+                isQuestion: false,
+                showModal: true
+            })))
         }
-        else {
-            setShowFlash(false);
-        }
+
     };
 
     const handleChange = async (e) => {
@@ -130,120 +179,156 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             setFormData({ ...formData, [name]: value });
         }
     };
+
+    function cleanBase64(str) {
+        return str?.replace(/[\r\n\t ]+/g, "").replace(/^"+|"+$/g, "").trim();
+    }
+
+    function base64ToArrayBuffer(base64) {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    async function importPrivateKey() {
+        const privateB64 = localStorage.getItem("clientPrivateKey");
+        if (!privateB64) throw new Error("Private key tapılmadı!");
+
+        const pkcs8 = base64ToArrayBuffer(privateB64);
+
+        return await window.crypto.subtle.importKey(
+            "pkcs8",
+            pkcs8,
+            { name: "RSA-OAEP", hash: "SHA-256" },
+            false,
+            ["decrypt"]
+        );
+    }
+
+    async function firstDecrypt(responseData) {
+        const privateKey = await importPrivateKey();
+
+        const decryptedAES = await decryptKeyWithRsa(responseData.key, privateKey);
+        const decryptedText = await decryptDataWithAes(
+            responseData.cipherText,
+            responseData.iv,
+            decryptedAES
+        );
+
+        return cleanBase64(decryptedText);
+    }
+
+    async function encryptForSecondRequest(data, serverPublicKey) {
+        const aesKey = await window.crypto.subtle.generateKey(
+            { name: "AES-CBC", length: 256 },
+            true,
+            ["encrypt", "decrypt"]
+        );
+
+        const rawKey = await window.crypto.subtle.exportKey("raw", aesKey);
+
+        const { cipherText, iv } = await encryptDataWithAes(data, aesKey);
+        const encryptedKey = await encryptKeyWithRsa(rawKey, serverPublicKey);
+
+        return { cipherText, key: encryptedKey, iv };
+    }
+
+    async function secondDecrypt(responseData) {
+        const privateKey = await importPrivateKey();
+
+        const decryptedAES = await decryptKeyWithRsa(responseData.key, privateKey);
+        const decryptedText = await decryptDataWithAes(
+            responseData.cipherText,
+            responseData.iv,
+            decryptedAES
+        );
+
+        return cleanBase64(decryptedText);
+    }
+
     const handleChangeFile = async (e) => {
+        setLoading(true);
 
-        setLoading(true)
-
-        const file = e?.target?.files[0];
-        if (!file) return;
-
-        setFileData({ ...fileData, file });
+        const file = e?.target?.files?.[0];
+        if (!file) {
+            setLoading(false);
+            return;
+        }
 
         const token = localStorage.getItem("myUserDocumentToken");
-        const serverPublicKeyBase64 = localStorage.getItem("serverPublicKey");
-        if (!token || !serverPublicKeyBase64) return;
+        const serverPublicKey = localStorage.getItem("serverPublicKey");
+        if (!token || !serverPublicKey) {
+            setLoading(false);
+            return;
+        }
 
         const reader = new FileReader();
-        reader.onload = async () => {
-            const arrayBuffer = reader.result;
-            const base64Word = arrayBufferToBase64(arrayBuffer)
 
+        reader.onload = async () => {
             try {
-                const aesKey = await window.crypto.subtle.generateKey(
+                const arrayBuffer = reader.result;
+                const base64File = arrayBufferToBase64(arrayBuffer);
+
+                const aesKey1 = await window.crypto.subtle.generateKey(
                     { name: "AES-CBC", length: 256 },
                     true,
                     ["encrypt", "decrypt"]
                 );
-                const rawAesKeyBuffer = await window.crypto.subtle.exportKey("raw", aesKey);
+                const rawKey1 = await window.crypto.subtle.exportKey("raw", aesKey1);
+                const encrypted1 = await encryptDataWithAes(base64File, aesKey1);
+                const encryptedKey1 = await encryptKeyWithRsa(rawKey1, serverPublicKey);
 
-                const { cipherText, iv } = await encryptDataWithAes(base64Word, aesKey);
-
-                const encryptedKey = await encryptKeyWithRsa(rawAesKeyBuffer, serverPublicKeyBase64);
-
-
-                const response = await api.post('/doc/convertToPdf', { cipherText, key: encryptedKey, iv }, {
-                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
-
-                const responseData = response.data.data;
-
-                const importedServerPrivateKeyB64 = localStorage.getItem("clientPrivateKey");
-                if (!importedServerPrivateKeyB64) throw new Error("❌ Private key tapılmadı!");
-
-                function base64ToArrayBuffer(base64) {
-                    const binaryString = atob(base64);
-                    const len = binaryString?.length;
-                    const bytes = new Uint8Array(len);
-                    for (let i = 0; i < len; i++) {
-                        bytes[i] = binaryString?.charCodeAt(i);
-                    }
-                    return bytes.buffer;
-                }
-
-                const pkcs8ArrayBuffer = base64ToArrayBuffer(importedServerPrivateKeyB64);
-
-                const importedPrivateKey = await window.crypto.subtle.importKey(
-                    "pkcs8",
-                    pkcs8ArrayBuffer,
-                    { name: "RSA-OAEP", hash: "SHA-256" },
-                    false,
-                    ["decrypt"]
+                const convertResp = await api.post(
+                    "/doc/convertToPdf",
+                    {
+                        cipherText: encrypted1.cipherText,
+                        key: encryptedKey1,
+                        iv: encrypted1.iv,
+                    },
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
-                function cleanBase64(str) {
-                    return str
-                        ?.replace(/[\r\n\t ]+/g, "")  // bütün whitespace sil
-                        ?.replace(/^"+|"+$/g, "")     // baş və son dırnaqları sil
-                        ?.trim();
-                }
 
-                const decryptedKeyBuffer = await decryptKeyWithRsa(responseData?.key, importedPrivateKey);
-                const decryptedString = await decryptDataWithAes(responseData?.cipherText, responseData?.iv, decryptedKeyBuffer);
+                const decrypted1 = await firstDecrypt(convertResp.data.data);
 
-                // FIXED LINE (tək dəyişiklik budur)
-                const cleanedBase64 = cleanBase64(decryptedString);
-                const pdfArrayBuffer = base64ToArrayBuffer(cleanedBase64);
+                const encrypted2 = await encryptForSecondRequest(decrypted1, serverPublicKey);
 
-                const blob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
-                const url = URL.createObjectURL(blob);
+                const readableResp = await api.post(
+                    "/doc/getReadableContent",
+                    encrypted2,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
-                setPdfUrl(url);
-                setLoading(false);
+                const decryptedPdfB64 = await secondDecrypt(readableResp.data.data);
+
+                // const pdfBuffer = base64ToArrayBuffer(decryptedPdfB64);
+                // const blob = new Blob([pdfBuffer], { type: "application/pdf" });
+                // const url = URL.createObjectURL(blob);
+
+                renderPdfToCanvas(decryptedPdfB64);
+
+                setPdfUrl(decryptedPdfB64);
+                setPdfBase64(decrypted1);
                 setShowSendButton("");
-
-                setPdfBase64(cleanedBase64);
-
-
             } catch (err) {
-                setModalValues((prev) => ({
+                console.error("❌ Error in handleChangeFile:", err);
+                setModalValues(prev => ({
                     ...prev,
-                    message:
-                        '❌ PDF formatına çevrilərkən xəta baş verdi. Yenidən yoxlayın.',
+                    message: `❌ Məlumatlar alınarkən xəta baş verdi:\n⚠️${err}. Yenidən yoxlayın!`,
                     isQuestion: false,
                     showModal: true,
                 }));
+            } finally {
+                setLoading(false);
             }
         };
 
         reader.readAsArrayBuffer(file);
-
-        if (
-            item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()
-            ||
-            chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()
-        ) {
-            if (mainExcelData?.length > 0) {
-                setShowExcelData(true);
-            } else {
-                setModalValues((prev) => ({
-                    ...prev,
-                    message:
-                        '❌ Excel məlumatlarınız boşdur. Məlumatları yenidən doldurub, sənədləri yenidən hazırlayın!',
-                    isQuestion: false,
-                    showModal: true,
-                }));
-            }
-        }
     };
+
+
 
     const downloadExcel = () => {
         const a = document.createElement('a');
@@ -268,7 +353,6 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
                 const requestDataJson = { forms: mainForm };
 
-                console.log(requestDataJson)
                 const aesKey = await window.crypto.subtle.generateKey(
                     { name: "AES-CBC", length: 256 },
                     true,
@@ -306,8 +390,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 }
                 function cleanBase64(str) {
                     return str
-                        ?.replace(/[\r\n\t ]+/g, "")  // bütün whitespace sil
-                        ?.replace(/^"+|"+$/g, "")     // baş və son dırnaqları sil
+                        ?.replace(/[\r\n\t ]+/g, "")
+                        ?.replace(/^"+|"+$/g, "")
                         ?.trim();
                 }
 
@@ -391,7 +475,9 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: err.message,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false,
             }));
@@ -445,7 +531,9 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: err.message,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false
             }));
@@ -517,7 +605,9 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Məlumatlar alınarkən xəta baş verdi: \n${err}.\nYenidən yoxlayın`,
+                message: `❌ Məlumatlar alınarkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 showModal: true,
                 isQuestion: false,
             }));
@@ -542,7 +632,9 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             setModalValues(prev, (
                 {
                     ...prev,
-                    message: '❌ İdarələr yüklənərkən xəta baş verdi. Yenidən yoxlayın!',
+                    message: `❌ İdarələr yüklənərkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     isQuestion: false,
                     showModal: true
                 }
@@ -567,7 +659,9 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             setModalValues(prev, (
                 {
                     ...prev,
-                    message: '❌ Bölmələr yüklənərkən xəta baş verdi. Yenidən yoxlayın!',
+                    message: `❌ Bölmələr yüklənərkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                        }. \nYenidən yoxlayın!`,
                     isQuestion: false,
                     showModal: true
                 }
@@ -583,7 +677,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 setMainForm(fromDocDetail);
                 setDisabled(true);
                 if (
-                    chapter?.title?.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                    !chapter?.containsForm
                 ) {
                     setShowFileArea('show-file-area')
                     setShowButton("show-button")
@@ -594,7 +688,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             }
             else {
                 if (
-                    item?.title?.toUpperCase() != "İstifadəçi yaradılması".toUpperCase()
+                    !item?.containsForm
                 ) {
                     setShowFileArea('show-file-area')
                     setShowButton("show-button")
@@ -614,7 +708,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     }, [typeOfAccounts, fromDocDetail]);
 
     const handleSignClick = () => {
-        if (fileData.file) {
+        if (pdfUrl !== "") {
             setShowPasswordAlert(true);
         }
         else {
@@ -669,7 +763,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     </span>
 
                     {
-                        (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                        (item?.containsForm || chapter?.containsForm) && (
                             <select
                                 className="select"
                                 disabled={disabled}
@@ -689,7 +783,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     }
                 </h2>
 
-                {addedEntries?.length > 0 && (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                {addedEntries?.length > 0 && (item?.containsForm || chapter?.containsForm) && (
                     <div className="added-entries">
                         {addedEntries?.map((entry, idx) => (
                             <div key={idx} className="entry-card">
@@ -718,7 +812,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                         (!showExcelData ? (
                             <div className={`form-fields ${classForWord}`}>
                                 {
-                                    (item?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase() || chapter?.title?.toUpperCase() == "İstifadəçi yaradılması".toUpperCase()) && (
+                                    (item?.containsForm || chapter?.containsForm) && (
                                         <>
                                             <input name="name" value={formData?.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
                                             <input name="surname" value={formData?.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
@@ -809,26 +903,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                         <div className="doc-icon">DOC</div>
                         <div className="doc-text">
                             {pdfUrl ? (
-                                <div style={{
-                                    width: "100%",
-                                    height: "100vh",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    backgroundColor: "#f4f4f4",
-                                    borderRadius: "12px",
-                                    overflow: "hidden",
-                                }}>
-                                    <embed
-                                        src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                                        type="application/pdf"
-                                        width="100%"
-                                        height="100%"
-                                        style={{
-                                            border: "none",
-                                            objectFit: "cover",
-                                        }}
-                                    />
+                                <div className="pdf-wrapper">
+                                    <canvas id="pdf-canvas" className="pdf-canvas"></canvas>
                                 </div>
                             ) : (
                                 <span className={`word ${selectedWord === item?.title ? 'selected' : ''}`} onClick={() => handleWordClick(item?.title)}>

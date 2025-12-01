@@ -3,7 +3,7 @@ import './Modal.css'
 const Modal = ({ modalValues, setModalValues }) => {
 
     const accept = () => {
-        setModalValues(prev=>({
+        setModalValues(prev => ({
             ...prev,
             message: null,
             answer: true,
@@ -25,7 +25,7 @@ const Modal = ({ modalValues, setModalValues }) => {
     return (
         <div className='modal-back'>
             <div className='modal'>
-                <p>
+                <p style={{ whiteSpace: "pre-line" }}>
                     {
                         modalValues?.message
                     }

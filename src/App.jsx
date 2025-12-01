@@ -104,7 +104,9 @@ function App() {
     }
     catch (err) {
       setModalValues({
-        message: `❌ Məlumatlar yüklənərkən problem yaşandı...`,
+        message: `❌ Məlumatlar yüklənərkən problem yaşandı: 
+                \n⚠️${err?.response?.data?.errorDescription || err
+          }. \nYenidən yoxlayın!`,
         showModal: true,
         isQuestion: false,
         answer: null,
@@ -141,7 +143,9 @@ function App() {
         catch (err) {
           setLoading(false)
           setModalValues({
-            message: `❌ Hesabdan çıxarkən problem yaşandı...`,
+            message: `❌ Hesabdan çıxarkən problem yaşandı: 
+                \n⚠️${err?.response?.data?.errorDescription || err
+              }. \nYenidən yoxlayın!`,
             showModal: true,
             isQuestion: false,
             answer: null,
@@ -176,8 +180,6 @@ function App() {
     loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> : <div className='main-element'>
       {!noNavbar && <Header
         setUserObj={setUserObj}
-        userObj={userObj}
-        modalValues={modalValues}
         setModalValues={setModalValues}
       />}
       <Routes>
@@ -201,7 +203,6 @@ function App() {
         ) : (
           <>
             <Route path="/" element={<Home
-              userObj={userObj}
               setModalValues={setModalValues}
               setItem={setItem}
               item={item} />} />

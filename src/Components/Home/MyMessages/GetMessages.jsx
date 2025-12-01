@@ -27,12 +27,14 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setMessages(res.data.data || []);
-            setTotalPages(res.data.totalPages || 1);
+            setMessages(res?.data?.data || []);
+            setTotalPages(res?.data?.totalPages || 1);
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: "❌ Sənədlər yüklənərkən xəta baş verdi...",
+                message: `❌ Sənədlər yüklənərkən xəta baş verdi: 
+                    \n⚠️${err?.response?.data?.errorDescription || err
+                    }. \nYenidən yoxlayın!`,
                 isQuestion: false,
                 showModal: true
             }))
@@ -60,9 +62,9 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
         setShowDocument(true)
     }
 
-    const deleteDoc = (id)=>{
+    const deleteDoc = (id) => {
         setItem(messages?.find(doc => Number(doc?.id) === Number(id)))
-        setModalValues(prev=>({
+        setModalValues(prev => ({
             ...prev,
             isQuestion: true,
             type: 'deleteDoc',
@@ -103,7 +105,7 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
                         </span>
 
                         <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle}`}>
-                            {msg.sender?.rank?.description} {msg?.sender?.name} {msg?.sender?.surname}
+                            {msg.sender?.rank?.name} {msg?.sender?.name} {msg?.sender?.surname}
                         </span>
                         <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.sender?.management?.name}</span>
                         <span className={`title-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.description}</span>
@@ -117,7 +119,7 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
                                 <FaRegCircle className="status-unread" />
                             )}
                         </span>
-                        <span className="delete-cell" onClick={()=>deleteDoc(msg?.id)}>
+                        <span className="delete-cell" onClick={() => deleteDoc(msg?.id)}>
                             <FiTrash size={20} className="delete-icon-delete" />
                         </span>
                     </div>
