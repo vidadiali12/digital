@@ -128,6 +128,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
     setHeadUnitsId(null);
     setUnitsId(null);
 
+    console.log(layerIds)
     setFormData(prev => ({ ...prev, managementId: "" }));
   };
 
@@ -202,7 +203,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
         setUnits(response?.data?.data);
 
-        if (response?.data?.data.length === 0) {
+        if (response?.data?.data?.length === 0) {
           throw new Error("❌ Seçilən Baş Bölməyə uyğun Bölmə mövcud deyil!");
         }
       } catch (err) {
@@ -326,7 +327,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       const keyBase64 = await api.get('/pki/getServerPublicKey')
       localStorage.setItem("serverPublicKey", keyBase64?.data);
       const serverPublicKeyBase64 = keyBase64?.data;
-      
+
       if (!serverPublicKeyBase64) throw new Error("Server public key tapılmadı");
 
       for (const [key, value] of Object.entries(formData)) {
@@ -489,7 +490,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
         ...prev,
         message: `${err?.response?.data?.errorDescription?.includes("User csr is empty")
           ? `❌ Xəta baş verdi.\nZəhmət olmasa yenidən yoxlayın` :
-          `\n⚠️ ${err?.response?.data?.errorDescription || err}\nxətası baş verdi.\nDüzəliş edib, yenidən yoxlayın`
+          `\n⚠️ ${err?.response?.data?.errorDescription ? `❌ ${err?.response?.data?.errorDescription} xətası baş verdi.\nDüzəliş edib, yenidən yoxlayın` : err}`
           }`,
         showModal: true,
         isQuestion: false,
@@ -560,7 +561,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                 (ep?.includes("/admin/updateUser/") && !changePassword)) && (
                 <div className="form-group">
                   <select value={manageRankValue || ""} onChange={(e) => changeManageRank(e.target.value)}>
-                    <option value="">Kateqoriya Seç</option>
+                    <option value="">Təbəqə Seç</option>
                     {managmentRanks?.map((rank, index) => (
                       <option key={index} value={rank?.id}>{rank?.desc}</option>
                     ))}
@@ -583,7 +584,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
               </div>
             )}
 
-            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1) || layerIds != 1) && ((!ep?.includes("/admin/updateUser/") && !isAdmin) ||
+            {((manageRankValue != null && !isNaN(manageRankValue) && manageRankValue != 1) || (layerIds != 1 && layerIds != null)) && ((!ep?.includes("/admin/updateUser/") && !isAdmin) ||
               (ep?.includes("/admin/updateUser/") && !changePassword)) && (
                 <div className="form-group" >
                   <select value={departmentsId || ""} onChange={(e) => changeDepartment(e?.target?.value)}>

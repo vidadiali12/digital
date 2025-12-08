@@ -184,7 +184,7 @@ const Login = ({ setToken, setItem, setModalValues }) => {
             setErrMsg(`❌ Xəta baş verdi:
                     \n⚠️${err?.response?.data?.errorDescription || err
                 }. \n${err?.response?.data?.errorDescription.includes("hesab")
-                    || err?.response?.data?.errorDescription.includes("locked") ? "10 dəqiqə sonra" : ""
+                    || err?.response?.data?.errorDescription.includes("locked") ? "" : ""
                 } Yenidən yoxlayın!`);
         }
     };

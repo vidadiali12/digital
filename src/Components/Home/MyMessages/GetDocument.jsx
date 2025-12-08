@@ -20,7 +20,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 
 
-const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item }) => {
+const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc, whoIs, item }) => {
   const [docElements, setDocElements] = useState(null);
   const [signDetail, setSignDetail] = useState([]);
   const [pdfUrl, setPdfUrl] = useState("");
@@ -43,7 +43,8 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
 
     const page = await pdf.getPage(1);
 
-    const wrapperWidth = document.querySelector(".pdf-wrapper").clientWidth;
+    const wrapper = document.querySelector(".pdf-wrapper")
+    const wrapperWidth = wrapper ? wrapper.offsetWidth : 600
 
     const viewport = page.getViewport({ scale: 1 });
 
@@ -176,10 +177,8 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
       const encrypted2 = await encryptForSecondRequest(decryptedBase64, serverPublicKeyBase64);
       const readableResp = await api.post("/doc/getReadableContent", encrypted2, { headers: hdrs });
       const decryptedPdfB64 = await secondDecrypt(readableResp.data.data);
-      
-      setPdfUrl(decryptedPdfB64);
 
-      renderPdfToCanvas(decryptedPdfB64);
+      setPdfUrl(decryptedPdfB64);
 
       if (element.hasForum) {
         try {
@@ -238,6 +237,13 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
     callDoc();
   }, [choosenDoc]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (!pdfUrl) return
+      renderPdfToCanvas(pdfUrl)
+    }, 200);
+  }, [pdfUrl, showDocument])
+
   const sendDocumend = async (receiver, description) => {
     const mainForm = docList?.forms;
     await sendDoc({
@@ -295,17 +301,19 @@ const GetDocument = ({ setShowDocument, setModalValues, choosenDoc, whoIs, item 
                 <div className="info-box">
                   <div className="info-title-box">
                     <h4 className="info-title">Göndərən</h4>
-                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements?.sender.name} {docElements?.sender?.surname} {docElements?.sender?.father}</p>
-                    <p><span className="label">Vəzifə:</span> {docElements?.sender?.position}</p>
-                    <p><span className="label">İdarə:</span> {docElements?.sender?.management?.name}</p>
-                    <p><span className="label">Rütbə:</span> {docElements?.sender?.rank?.description}</p>
+                    <p className={`${!docElements?.sender?.name && 'deleted-user'}`}><span className={`label`}>Ad Soyad Ata adı: </span>
+                      {docElements?.sender?.name ? docElements?.sender?.name : "Bu istifadəçi silinib"} {docElements?.sender?.surname} {docElements?.sender?.father}</p>
+                    <p><span className="label">Vəzifə: </span> {docElements?.sender?.position}</p>
+                    <p><span className="label">İdarə: </span> {docElements?.sender?.management?.name}</p>
+                    <p><span className="label">Rütbə: </span> {docElements?.sender?.rank?.description}</p>
                   </div>
                   <div className="info-title-box">
                     <h4 className="info-title">Qəbul edən</h4>
-                    <p><span className="label">Ad Soyad Ata adı:</span> {docElements?.receiver?.name} {docElements?.receiver?.surname} {docElements?.receiver?.father}</p>
-                    <p><span className="label">Vəzifə:</span> {docElements?.receiver?.position}</p>
-                    <p><span className="label">İdarə:</span> {docElements?.receiver?.management?.name}</p>
-                    <p><span className="label">Rütbə:</span> {docElements?.receiver?.rank?.description}</p>
+                    <p className={`${!docElements?.receiver?.name && 'deleted-user'}`}><span className={`label`}>Ad Soyad Ata adı: </span>
+                      {docElements?.receiver?.name ? docElements?.receiver?.name : "Bu istifadəçi silinib"} {docElements?.receiver?.surname} {docElements?.receiver?.father}</p>
+                    <p><span className="label">Vəzifə: </span> {docElements?.receiver?.position}</p>
+                    <p><span className="label">İdarə: </span> {docElements?.receiver?.management?.name}</p>
+                    <p><span className="label">Rütbə: </span> {docElements?.receiver?.rank?.description}</p>
                   </div>
                 </div>
               </div>

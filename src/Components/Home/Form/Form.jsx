@@ -102,7 +102,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         surname: 'Soyad',
         fatherName: 'Ata adı',
         fin: 'Fin',
-        rank: 'Rütbə',
+        rankId: 'Rütbə',
         position: 'Vəzifə',
         phoneNumber: 'Telefon nömrəsi',
         departmentId: 'İdarə',
@@ -531,15 +531,15 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
-                message: `❌ Məlumatlar alınarkən xəta baş verdi: 
-                    \n⚠️${err?.response?.data?.errorDescription || err
-                    }. \nYenidən yoxlayın!`,
+                message: `\n⚠️${err?.response?.data?.errorDescription ?
+                    `❌ Məlumatlar alınarkən xəta baş verdi: ${err?.response?.data?.errorDescription}. \nYenidən yoxlayın!`
+                    : err
+                    }`,
                 showModal: true,
                 isQuestion: false
             }));
         }
     };
-
 
     const handleEdit = (index) => {
         setFormData(addedEntries[index]);

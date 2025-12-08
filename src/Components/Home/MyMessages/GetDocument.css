@@ -99,6 +99,7 @@
 .label {
     font-weight: bold;
     color: rgb(190, 190, 190);
+    font-style: normal;
 }
 
 .sign-card {
@@ -172,4 +173,9 @@
 
 .share-box-icons:first-child {
     font-size: 30px;
+}
+
+.deleted-user {
+    color: rgb(191, 191, 191);
+    font-style: italic;
 }

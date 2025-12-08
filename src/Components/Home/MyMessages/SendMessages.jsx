@@ -104,8 +104,8 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
                             <span className={`see-text  ${msg?.read ? "" : unReadStyle}`}>Sənədi gör</span>
                         </span>
 
-                        <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle}`}>
-                            {msg?.receiver?.rank?.name} {msg?.receiver?.name} {msg?.receiver?.surname}
+                        <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle} ${!msg?.receiver?.rank?.name && 'deleted-user'}`}>
+                            {msg?.receiver?.rank?.name ? msg?.receiver?.rank?.name : "Bu istifadəçi silinib"} {msg?.receiver?.name} {msg?.receiver?.surname}
                         </span>
                         <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.receiver?.management?.name}</span>
                         <span className={`title-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.description}</span>
@@ -140,7 +140,7 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
 
             {
                 showDocument && (
-                    <GetDocument setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} whoIs={"sendDoc"} item={item} />
+                    <GetDocument showDocument={showDocument} setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} whoIs={"sendDoc"} item={item} />
                 )
             }
 
