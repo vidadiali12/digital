@@ -77,7 +77,7 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
         {
           searchText: searchTerm || null,
           rankIds: selectedRanks,
-          managementRankId: managementMap
+          managementRankIds: managementMap
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +85,7 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
         }
       );
 
-      const newUsers = response.data?.data || [];
+      const newUsers = (response?.data?.data || []).filter(u => u?.username !== userObj?.username)
       if (reset) setUsers(newUsers);
       else setUsers(prev => [...prev, ...newUsers]);
       if (newUsers.length < pageSize) setHasMore(false);
@@ -205,20 +205,18 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
           {!loading && users?.length > 0 && (
             <div className="receivers-grid">
               {users.map(u => {
-                if (userObj?.username !== u?.username) {
-                  return (
-                    <div key={u.id} className="receiver-card" onClick={() => handleUserClick(u)}>
-                      <div className="receiver-icon">
-                        <IoIosShareAlt size={36} color="#007b83" />
-                      </div>
-                      <div className="receiver-info">
-                        <h3>{u.name} {u.surname} {u.father}</h3>
-                        <p><strong>Rütbə: </strong>{u?.rank?.description || "—"}</p>
-                        <p><strong>İdarə (Bölmə): </strong>{u?.management?.name || "—"}</p>
-                      </div>
+                return (
+                  <div key={u.id} className="receiver-card" onClick={() => handleUserClick(u)}>
+                    <div className="receiver-icon">
+                      <IoIosShareAlt size={36} color="#007b83" />
                     </div>
-                  );
-                }
+                    <div className="receiver-info">
+                      <h3>{u.name} {u.surname} {u.father}</h3>
+                      <p><strong>Rütbə: </strong>{u?.rank?.description || "—"}</p>
+                      <p><strong>İdarə (Bölmə): </strong>{u?.management?.name || "—"}</p>
+                    </div>
+                  </div>
+                );
               })}
             </div>
           )}
