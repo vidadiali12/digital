@@ -545,6 +545,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
                       placeholder={keyPlaceholder[key]}
                       value={formData[key] || ""}
                       onChange={handleChange}
+                      autoComplete={isPassword && "off"}
                     />
                     {isPassword && (
                       <span className="password-toggle" onClick={() => togglePassword(key)}>

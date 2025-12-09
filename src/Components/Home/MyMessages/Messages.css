@@ -159,6 +159,6 @@
 
 .deleted-user {
     font-weight: 100;
-    color: gray;
+    color: rgb(140, 140, 140) !important;
     font-style: italic;
 }
