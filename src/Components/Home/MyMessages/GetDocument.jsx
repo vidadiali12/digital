@@ -20,7 +20,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 
 
-const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc, whoIs, item }) => {
+const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc, whoIs, item, connectNow, setConnectNow }) => {
   const [docElements, setDocElements] = useState(null);
   const [signDetail, setSignDetail] = useState([]);
   const [pdfUrl, setPdfUrl] = useState("");
@@ -31,6 +31,8 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
   const [receiver, setReceiver] = useState(false);
   const [pdfBase64, setPdfBase64] = useState("");
   const [docList, setDocList] = useState(null);
+
+  const [userItem, setUserItem] = useState(null)
 
   const renderPdfToCanvas = async (pdfBase64) => {
     if (!pdfBase64) return;
@@ -187,6 +189,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
           const importedPrivateKeyPK = await importPrivateKey();
           const decryptedDocList = await decryptKeyWithRsa(docsListRes?.key, importedPrivateKeyPK);
           const decryptedList = await decryptDataWithAes(docsListRes?.cipherText, docsListRes?.iv, decryptedDocList);
+          console.log(JSON.parse(decryptedList))
           setDocList(JSON.parse(decryptedList));
         } catch {
           setModalValues(prev => ({
@@ -233,8 +236,15 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
 
   const shareDoc = () => setShowPasswordAlert(true);
 
+  const callUserInfo = () => {
+    const uItem = localStorage.getItem("userObj");
+    if (!uItem) return;
+    setUserItem(JSON.parse(uItem));
+  }
+
   useEffect(() => {
     callDoc();
+    callUserInfo();
   }, [choosenDoc]);
 
   useEffect(() => {
@@ -242,7 +252,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
       if (!pdfUrl) return
       renderPdfToCanvas(pdfUrl)
     }, 200);
-  }, [pdfUrl, showDocument])
+  }, [pdfUrl, showDocument, userItem, docElements])
 
   const sendDocumend = async (receiver, description) => {
     const mainForm = docList?.forms;
@@ -272,6 +282,47 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
     });
   };
 
+  const toDutySystem = async () => {
+    if (connectNow) {
+      try {
+        const token = localStorage.getItem("myUserDocumentToken");
+        if (!token) return;
+        const hdrs = { Authorization: `Bearer ${token}` };
+
+        await api.post(`/form/redirectDocForm/${choosenDoc?.id}`, hdrs);
+        setModalValues(prev => (
+          {
+            ...prev,
+            isQuestion: false,
+            showModal: true,
+            message: 'Sənəd Növbətçi sisteminə uğurla yönləndirildi! ✅'
+          }
+        ))
+        setShowDocument(false)
+      } catch (err) {
+        setModalValues(prev => (
+          {
+            ...prev,
+            isQuestion: false,
+            showModal: true,
+            message: `❌ Xəta baş verdi: ${err?.response?.data?.errorDescription || err
+              }`
+          }
+        ))
+      }
+    }
+    else {
+      setModalValues(prev => (
+        {
+          ...prev,
+          isQuestion: false,
+          showModal: true,
+          message: '⚠️ Bağlantı mövcud deyil! Bərpa et və yenidən yoxla!'
+        }
+      ))
+    }
+  }
+
   const editAndShareDoc = () => setShowForm(true);
 
   return (
@@ -286,6 +337,15 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
               <IoIosShareAlt className="share-box-icons" onClick={shareDoc} />
               <FaEdit className="share-box-icons" onClick={editAndShareDoc} />
               <FiDownload className="share-box-icons" onClick={downloadPdf} />
+              {
+                userItem?.admin &&
+                docElements?.hasForum &&
+                [2, 3, 4].includes(docElements?.chapter?.eventId) && (
+                  <span onClick={toDutySystem} style={{ color: "white", cursor: "pointer" }}>
+                    NS yönləndir
+                  </span>
+                )
+              }
             </div>
 
             <div className="pdf-wrapper">

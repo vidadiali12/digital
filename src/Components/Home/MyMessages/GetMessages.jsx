@@ -6,7 +6,7 @@ import { FiTrash } from "react-icons/fi";
 import "./Messages.css";
 import GetDocument from "./GetDocument";
 
-const GetMessages = ({ setModalValues, setItem, item }) => {
+const GetMessages = ({ setModalValues, setItem, item, connectNow, setConnectNow }) => {
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
     const [loading, setLoading] = useState(false);
@@ -104,7 +104,7 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
                             <span className={`see-text  ${msg?.read ? "" : unReadStyle}`}>Sənədi gör</span>
                         </span>
 
-                         <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle} ${!msg?.sender?.rank?.name && 'deleted-user'}`}>
+                        <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle} ${!msg?.sender?.rank?.name && 'deleted-user'}`}>
                             {msg?.sender?.rank?.name ? msg?.sender?.rank?.name : "Bu istifadəçi silinib"} {msg?.sender?.name} {msg?.sender?.surname}
                         </span>
                         <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.sender?.management?.name}</span>
@@ -140,7 +140,12 @@ const GetMessages = ({ setModalValues, setItem, item }) => {
 
             {
                 showDocument && (
-                    <GetDocument showDocument={showDocument} setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} whoIs={"getDoc"} item={item} />
+                    <GetDocument showDocument={showDocument} setShowDocument={setShowDocument}
+                        setModalValues={setModalValues} choosenDoc={choosenDoc}
+                        whoIs={"getDoc"} item={item}
+                        connectNow={connectNow}
+                        setConnectNow={setConnectNow}
+                    />
                 )
             }
 

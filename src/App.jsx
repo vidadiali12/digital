@@ -26,6 +26,7 @@ function App() {
   const [typeOfItem, setTypeOfItem] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(true)
+  const [connectNow, setConnectNow] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     surname: "",
@@ -181,6 +182,8 @@ function App() {
       {!noNavbar && <Header
         setUserObj={setUserObj}
         setModalValues={setModalValues}
+        connectNow={connectNow}
+        setConnectNow={setConnectNow}
       />}
       <Routes>
         {!token ? (
@@ -231,9 +234,13 @@ function App() {
               setItem={setItem}
               setTypeOfItem={setTypeOfItem} />} />
 
-            <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item} />} />
+            <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
+              connectNow={connectNow}
+              setConnectNow={setConnectNow} />} />
 
-            <Route path='/sent-all-messages' element={<SendMessages setModalValues={setModalValues} setItem={setItem} item={item} />} />
+            <Route path='/sent-all-messages' element={<SendMessages setModalValues={setModalValues} setItem={setItem} item={item}
+              connectNow={connectNow}
+              setConnectNow={setConnectNow} />} />
 
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />

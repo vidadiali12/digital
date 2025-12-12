@@ -6,7 +6,7 @@ import { FiTrash } from "react-icons/fi";
 import "./Messages.css";
 import GetDocument from "./GetDocument";
 
-const SendMessages = ({ setModalValues, setItem, item }) => {
+const SendMessages = ({ setModalValues, setItem, item, connectNow, setConnectNow }) => {
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
     const [loading, setLoading] = useState(false);
@@ -140,7 +140,11 @@ const SendMessages = ({ setModalValues, setItem, item }) => {
 
             {
                 showDocument && (
-                    <GetDocument showDocument={showDocument} setShowDocument={setShowDocument} setModalValues={setModalValues} choosenDoc={choosenDoc} whoIs={"sendDoc"} item={item} />
+                    <GetDocument showDocument={showDocument} setShowDocument={setShowDocument}
+                        setModalValues={setModalValues} choosenDoc={choosenDoc}
+                        whoIs={"sendDoc"} item={item}
+                        connectNow={connectNow}
+                        setConnectNow={setConnectNow} />
                 )
             }
 

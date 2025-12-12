@@ -176,7 +176,7 @@ const Profile = ({ setProfile, setModalValues, shouldChangePassword }) => {
                   <div className="info-section">
                     <div><strong>FIN:</strong> {uObj?.fin}</div>
                     <div><strong>Rütbə:</strong> {uObj?.rank?.description}</div>
-                    <div><strong>Təşkilat:</strong> {uObj?.management?.name}</div>
+                    <div><strong>İdarə (Bölmə):</strong> {uObj?.management?.name}</div>
                     <div><strong>Təbəqə:</strong> {uObj?.managementRank?.desc}</div>
                     <div><strong>Vəzifə:</strong> {uObj?.position}</div>
                     <div><strong>Qoşulma tarixi:</strong> {new Date(uObj?.joinedDate).toLocaleDateString()}</div>

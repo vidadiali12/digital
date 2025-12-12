@@ -7,14 +7,16 @@ import { AiFillCaretDown, AiFillHome } from 'react-icons/ai';
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { HiOutlineInbox } from "react-icons/hi";
 import { FiSend } from "react-icons/fi";
+import { RiCheckboxBlankCircleFill } from "react-icons/ri";
 import { useEffect, useState } from 'react';
 import Profile from '../Modals/Profile';
 import api from '../api';
 
-const Header = ({ setUserObj, setModalValues }) => {
+const Header = ({ setUserObj, setModalValues, connectNow, setConnectNow }) => {
 
     const [profile, setProfile] = useState(null);
-    const [unReadCount, setUnReadCount] = useState(null)
+    const [unReadCount, setUnReadCount] = useState(null);
+    const [connectOpe, setConnectOpe] = useState(null);
 
     const uObj = JSON.parse(localStorage.getItem("userObj"));
     useEffect(() => {
@@ -53,13 +55,13 @@ const Header = ({ setUserObj, setModalValues }) => {
         if (!token) throw new Error("❌ Token tapılmadı!");
 
         try {
-            const resUnRead = await api.get("doc/getUnreadDocs", {
+            const resUnRead = await api.get("/doc/getUnreadDocs", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
 
-            setUnReadCount(resUnRead.data.data)
+            setUnReadCount(resUnRead?.data?.data);
         } catch (err) {
             if (err?.response?.data?.errorDescription?.includes("User should reset password")
                 ||
@@ -79,9 +81,81 @@ const Header = ({ setUserObj, setModalValues }) => {
         }
     }
 
+    const callIsConnect = async () => {
+        try {
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) throw new Error("❌ Token tapılmadı!");
+            const isConnect = await api.get("/admin/bridge/getStatus", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setConnectNow(isConnect?.data?.data)
+
+        } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Əlaqə yaradıla bilmədi!`
+            }))
+        }
+    }
+
+    const connectNs = async () => {
+        try {
+            setConnectOpe(true);
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) throw new Error("❌ Token tapılmadı!");
+            const connectRes = await api.put("/admin/bridge/startBridging", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            setConnectNow(connectRes?.data?.data)
+            setConnectOpe(false);
+
+        } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Əlaqə yaradıla bilmədi!`
+            }))
+            setConnectOpe(false);
+        }
+    }
+
+    const disConnectNs = async () => {
+        try {
+            setConnectOpe(true);
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) throw new Error("❌ Token tapılmadı!");
+            const disConnectRes = await api.put("/admin/bridge/closeBridging", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+            setConnectNow(!disConnectRes?.data?.data)
+            setConnectOpe(false);
+
+        } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Əlaqə kəsilmədi!`
+            }));
+            setConnectOpe(false);
+        }
+    }
+
     useEffect(() => {
-        callUnRead()
-    }, [])
+        callUnRead();
+        callIsConnect();
+    }, []);
 
     return (
         uObj?.shouldChangePassword ?
@@ -147,6 +221,33 @@ const Header = ({ setUserObj, setModalValues }) => {
                             </NavLink>
                         </span>
                     </div>
+
+                    {
+                        uObj?.admin && (
+                            <div className='ns-connect-box'>
+                                <div className='ns-connect-inform'>
+                                    <span className='ns-connect-text'>NS bağlantı: </span>
+                                    {
+                                        connectNow ? <RiCheckboxBlankCircleFill className='connect-icon ci-1' /> : <RiCheckboxBlankCircleFill className='connect-icon ci-2' />
+                                    }
+                                </div>
+                                {
+                                    !connectNow && (
+                                        <button className='ns-connect-btn' onClick={connectNs}>
+                                            {connectOpe ? "Bağlantı yaradılır..." : "Bağlantı yarat"}
+                                        </button>
+                                    )
+                                }
+                                {
+                                    connectNow && (
+                                        <button className='ns-connect-btn' onClick={disConnectNs}>
+                                            {connectOpe ? "Bağlantını kəsilir..." : "Bağlantını kəs"}
+                                        </button>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
                 </ul>
 
                 {

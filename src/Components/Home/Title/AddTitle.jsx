@@ -18,6 +18,8 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
     const [loading, setLoading] = useState(false);
     const [titleValue, setTitleValue] = useState(item?.title || "");
     const [containsForm, setContainsForm] = useState(item?.containsForm || false);
+    const [titleEvents, setTitleEvents] = useState(null);
+    const [titleEventId, setTitleEventId] = useState(null);
 
     const handleClose = () => {
         setShowTitle(null);
@@ -37,13 +39,29 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
         const token = localStorage.getItem("myUserDocumentToken");
         if (!token) return;
 
-        const titleData = { 
+        if (titleEventId === null || titleEventId == "") {
+            setModalValues(prev => ({
+                ...prev,
+                message: `⚠️ Tip seçilməlidir!`,
+                isQuestion: false,
+                showModal: true
+            }));
+            return;
+        }
+
+        const titleData = {
             title: titleValue?.trim(),
-            containsForm
+            containsForm,
+            eventId: titleEventId
         };
 
         if (!titleData.title) {
-            alert("⚠ Başlıq boş ola bilməz");
+            setModalValues(prev => ({
+                ...prev,
+                message: `⚠️ Başlıq boş ola bilməz`,
+                isQuestion: false,
+                showModal: true
+            }))
             return;
         }
 
@@ -77,6 +95,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                 showModal: true
             }));
             setTimeout(() => window.location.reload(), 1500);
+            setTitleEventId(null);
         } catch (err) {
             setModalValues(prev => ({
                 ...prev,
@@ -88,9 +107,43 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
         }
     };
 
+    const callTitleEvents = async () => {
+        try {
+            setLoading(true)
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) return;
+            const hdrs = {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            };
+            const resEvents = await api.get('/chapter/getChapterEvents', hdrs);
+            setTitleEvents(resEvents?.data?.data);
+            setLoading(false)
+
+        } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                message: `❌ Proses zamanı xəta baş verdi: \n⚠️ ${err?.response?.data?.errorDescription || err}.\nYenidən yoxlayın`,
+                showModal: true,
+                isQuestion: false,
+            }));
+            setLoading(false)
+        }
+    }
+
+    const changeTitleEvent = (id) => {
+        setTitleEventId(Number(id));
+    }
+
+    useEffect(() => {
+        setTitleEventId(Number(item?.eventId))
+        callTitleEvents();
+    }, []);
+
     return (
         loading ? (
-            <Loading loadingMessage={"Başlıq əlavə olunur..."} />
+            <Loading loadingMessage={"Proses davam edir..."} />
         ) : (
             userObj?.admin && (
                 <section
@@ -105,21 +158,33 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                         </button>
 
                         <div className="addtitle-container">
-                            <input
-                                type="text"
-                                placeholder="Başlıq yaz"
-                                id="titleElement"
-                                className="addtitle-input"
-                                value={titleValue}
-                                onChange={handleChangeTitle}
-                            />
+                            <div className='input-select'>
+                                <select className='addtitle-select' value={titleEventId} onChange={(e) => changeTitleEvent(e?.target?.value)}>
+                                    <option value="">Əməliyyat tipi seç</option>
+                                    {
+                                        titleEvents?.map((titleEvent) => {
+                                            return <option value={titleEvent?.id}>
+                                                {titleEvent?.event}
+                                            </option>
+                                        })
+                                    }
+                                </select>
+                                <input
+                                    type="text"
+                                    placeholder="Başlıq yaz"
+                                    id="titleElement"
+                                    className="addtitle-input"
+                                    value={titleValue}
+                                    onChange={handleChangeTitle}
+                                />
+                            </div>
                             <label className="form-checkbox-label">
                                 <input
                                     type="checkbox"
                                     checked={containsForm}
                                     onChange={handleChangeFormCheckbox}
                                 />
-                                Bu başlıqda form olacaq
+                                Bu başlıqda form olacaq:
                             </label>
                             <button onClick={addTitle} className="addtitle-btn">
                                 {typeOfOperation === "createTitle"

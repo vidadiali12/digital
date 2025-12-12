@@ -254,3 +254,50 @@
   background-color: #d1bc02 !important;
   color: white;
 }
+
+.ns-connect-box {
+  display: flex;
+  gap: 10px;
+}
+
+.ns-connect-inform {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  background-color: var(--color-light-teal);
+  border: 1px solid var(--color-pale-teal);
+  border-radius: 10px;
+}
+
+.ns-connect-text {
+  color: white;
+}
+
+.connect-icon {
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.ci-1 {
+  color: #169e4a;
+}
+
+.ci-2 {
+  color: red;
+}
+
+.ns-connect-btn {
+  border-radius: 10px;
+  color: white;
+  border: 1px solid var(--color-pale-teal);
+  padding: 10px 15px;
+  background-color: var(--color-light-teal);
+  outline: none;
+  transition: .5s;
+  cursor: pointer;
+}
+
+.ns-connect-btn:hover{
+  background-color: var(--color-dark-teal);
+}
