@@ -33,17 +33,16 @@ api.interceptors.request.use(async (config) => {
 
     let diffMinutes = (expDate - now) / 1000 / 60;
 
-    if (firstLogin) {
-      if (emin <= now.getMinutes() && eh === now.getHours()) {
-        diffMinutes = emin - now.getMinutes() + 15;
-      } else if (eh !== now.getHours()) {
-        diffMinutes = 15 - (60 - emin + now.getMinutes());
-      }
-      diffMinutes = Math.max(0, diffMinutes);
-    }
-
-    console.log(expDate, now)
-    console.log(diffMinutes)
+    // if (firstLogin) {
+    //   if (emin <= now.getMinutes() && eh === now.getHours()) {
+    //     diffMinutes = emin - now.getMinutes() + 15;
+    //   } else if (eh !== now.getHours()) {
+    //     diffMinutes = 15 - (60 - emin + now.getMinutes());
+    //   }
+    //   diffMinutes = Math.max(0, diffMinutes);
+    // }
+    // console.log(expDate, now)
+    // console.log(diffMinutes)
     if (diffMinutes <= 1) {
       if (!isRefreshing) {
         localStorage.removeItem("firstLogin");

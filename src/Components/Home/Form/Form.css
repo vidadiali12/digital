@@ -310,3 +310,10 @@
     background: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
+.pass-eye-icon{
+    position: absolute;
+    top: 13px;
+    right: 10px;
+    color: white;
+}

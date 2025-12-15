@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './Form.css';
 import * as XLSX from 'xlsx';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import {
+    FaEdit,
+    FaTrashAlt,
+    FaEye,
+    FaEyeSlash,
+} from 'react-icons/fa';
 import { FiPlus } from 'react-icons/fi';
 import api from '../../api';
 import Loading from '../../Modals/Loading';
@@ -53,7 +58,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const [receiver, setReceiver] = useState(null);
     const [showDocument, setShowDocument] = useState(false);
     const [showFlash, setShowFlash] = useState(null)
-    const [classForWord, setClassForWord] = useState('')
+    const [classForWord, setClassForWord] = useState('');
+    const [passEyeIcon, setPassEyeIcon] = useState(true)
 
     const renderPdfToCanvas = async (pdfBase64) => {
         if (!pdfBase64) return;
@@ -97,7 +103,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         serialNumber: ''
     };
 
-    const initialFormKey = {
+    const initialFormKeyObj = {
         name: 'Ad',
         surname: 'Soyad',
         fatherName: 'Ata adı',
@@ -114,7 +120,24 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
     const fileForm = { file: null };
 
-    const [formData, setFormData] = useState(initialForm);
+    const [formData, setFormData] = useState(
+        (
+            (item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)
+        ) ?
+            { ...initialForm, username: '' } :
+            ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) ?
+                { ...initialForm, username: '', passwword: '' } :
+                initialForm);
+
+    const [initialFormKey, setInitialFormKey] = useState(
+        (
+            (item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)
+        ) ?
+            { ...initialFormKeyObj, username: 'İstifadəçi Adı' } :
+            ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) ?
+                { ...initialFormKeyObj, username: 'İstifadəçi Adı', passwword: 'Parol' } :
+                initialFormKeyObj)
+
     const [fileData, setFileData] = useState(fileForm);
 
     const handleWordClick = (word) => setSelectedWord(word);
@@ -699,6 +722,8 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             }
         };
         load();
+        console.log(userObj)
+        console.log(((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin))
     }, []);
 
     useEffect(() => {
@@ -818,16 +843,42 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                             <input name="surname" value={formData?.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
                                             <input name="fatherName" value={formData?.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
                                             <input name="fin" value={formData?.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
+
+                                            {
+                                                ((item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)) &&
+                                                (
+                                                    <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" />
+                                                )
+                                            }
+
+                                            {
+                                                ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) && (
+                                                    <>
+                                                        <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" />
+                                                        <label htmlFor="" style={{ position: 'relative', padding: '0', margin: '0' }}>
+                                                            <input name="password" value={formData?.password} disabled={totalDisabled} onChange={handleChange} placeholder="Parol"
+                                                                autoComplete='off'
+                                                                type={`${passEyeIcon ? "password" : "text"}`} />
+                                                            {
+                                                                passEyeIcon ? <FaEye onClick={() => setPassEyeIcon(!passEyeIcon)} className='pass-eye-icon' />
+                                                                    : <FaEyeSlash onClick={() => setPassEyeIcon(!passEyeIcon)} className='pass-eye-icon' />
+                                                            }
+                                                        </label>
+                                                    </>
+                                                )
+                                            }
+
                                             <select name="rankId" value={formData?.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
                                                 <option value="">Rütbə seç</option>
                                                 {
                                                     ranks?.map((rank) => (
-                                                        <option value={rank?.id}>
+                                                        <option value={rank?.id} key={rank?.id}>
                                                             {rank?.description}
                                                         </option>
                                                     ))
                                                 }
                                             </select>
+
                                             <input name="position" value={formData?.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
                                             <input name="phoneNumber" value={formData?.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
 
