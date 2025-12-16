@@ -17,7 +17,7 @@ import {
 import api from '../api';
 import Loading from '../Modals/Loading';
 
-const Login = ({ setToken, setItem, setModalValues }) => {
+const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [errMsg, setErrMsg] = useState(null);
@@ -133,6 +133,7 @@ const Login = ({ setToken, setItem, setModalValues }) => {
                     });
 
                     localStorage.setItem("userObj", JSON.stringify(response?.data?.data));
+                    setUserObj(JSON.stringify(response?.data?.data))
 
                     function base64UrlToBase64(base64Url) {
                         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

@@ -1,0 +1,31 @@
+.pag-box {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pag-btn {
+    background: #ffffff10;
+    border: 1px solid #401a93;
+    color: #401a93;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .25s;
+    min-width: 32px;
+}
+
+.pag-btn.active {
+    background: #401a93;
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 54, 198, 0.6);
+}
+
+.pag-btn:hover {
+    background: #6535cd;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(99, 54, 198, 0.6);
+}

@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import Profile from '../Modals/Profile';
 import api from '../api';
 
-const Header = ({ setUserObj, setModalValues, connectNow, setConnectNow }) => {
+const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow }) => {
 
     const [profile, setProfile] = useState(null);
     const [unReadCount, setUnReadCount] = useState(null);
@@ -52,7 +52,7 @@ const Header = ({ setUserObj, setModalValues, connectNow, setConnectNow }) => {
 
     const callUnRead = async () => {
         const token = localStorage.getItem("myUserDocumentToken");
-        if (!token) throw new Error("❌ Token tapılmadı!");
+        if (!token) return;
 
         try {
             const resUnRead = await api.get("/doc/getUnreadDocs", {
@@ -154,11 +154,13 @@ const Header = ({ setUserObj, setModalValues, connectNow, setConnectNow }) => {
 
     useEffect(() => {
         callUnRead();
-        callIsConnect();
-    }, []);
+        (userObj?.admin || uObj?.admin)&& (
+            callIsConnect()
+        )
+    }, [localStorage.getItem("userObj")]);
 
     return (
-        uObj?.shouldChangePassword ?
+        (userObj?.shouldChangePassword || uObj?.shouldChangePassword) ?
             <Profile setProfile={setProfile}
                 setModalValues={setModalValues}
                 shouldChangePassword={uObj?.shouldChangePassword}
@@ -228,7 +230,8 @@ const Header = ({ setUserObj, setModalValues, connectNow, setConnectNow }) => {
                                 <div className='ns-connect-inform'>
                                     <span className='ns-connect-text'>NS bağlantı: </span>
                                     {
-                                        connectNow ? <RiCheckboxBlankCircleFill className='connect-icon ci-1' /> : <RiCheckboxBlankCircleFill className='connect-icon ci-2' />
+                                        connectNow ? <RiCheckboxBlankCircleFill className='connect-icon ci-1' /> :
+                                            <RiCheckboxBlankCircleFill className='connect-icon ci-2' />
                                     }
                                 </div>
                                 {

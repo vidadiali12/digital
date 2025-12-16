@@ -17,6 +17,7 @@ import GetMessages from './Components/Home/MyMessages/GetMessages';
 import SendMessages from './Components/Home/MyMessages/SendMessages';
 import Loading from './Components/Modals/Loading';
 import CreateForm from './Components/AdminPage/CreateForm';
+import Logging from './Components/AdminPage/Logging/Logging';
 
 function App() {
 
@@ -181,6 +182,7 @@ function App() {
     loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> : <div className='main-element'>
       {!noNavbar && <Header
         setUserObj={setUserObj}
+        userObj={userObj}
         setModalValues={setModalValues}
         connectNow={connectNow}
         setConnectNow={setConnectNow}
@@ -188,7 +190,7 @@ function App() {
       <Routes>
         {!token ? (
           <>
-            <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} />} />
+            <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} setUserObj={setUserObj} />} />
             {showForm && (
               <Route path='/create-admin-page' element={<CreateForm
                 formData={formData}
@@ -233,6 +235,8 @@ function App() {
               setAddItem={setAddItem}
               setItem={setItem}
               setTypeOfItem={setTypeOfItem} />} />
+
+            <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} />} />
 
             <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
               connectNow={connectNow}

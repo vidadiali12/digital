@@ -15,7 +15,7 @@ const Home = ({ setModalValues, setItem, item }) => {
     const [typeOfOperation, setTypeOfOperation] = useState(null)
     const [showTitleActions, setShowTitleActions] = useState(null)
     const [showForm, setShowForm] = useState(null)
-    const [userObj, setUserObj] = useState(null)
+    const [uObj, setuObj] = useState(null)
 
     const showTitleAdding = () => {
         setItem({})
@@ -60,7 +60,7 @@ const Home = ({ setModalValues, setItem, item }) => {
     }
 
     const goTitle = (titleId, index) => {
-        userObj?.admin ?
+        uObj?.admin ?
             setShowTitleActions(index)
             : goForm(titleId)
     }
@@ -75,12 +75,12 @@ const Home = ({ setModalValues, setItem, item }) => {
 
     useEffect(() => {
         const u = localStorage.getItem("userObj") ? JSON.parse(localStorage.getItem("userObj")) : null
-        setUserObj(u)
-        getTitles()
-    }, [])
+        setuObj(u);
+        getTitles();
+    }, [localStorage.getItem("userObj")]);
 
     return (
-        !userObj?.shouldChangePassword && (<div className="home" onClick={handleReset}>
+        !uObj?.shouldChangePassword && (<div className="home" onClick={handleReset}>
             <ul className='ul-down' onClick={(e) => e.stopPropagation()}>
                 {
                     titles?.map((title, index) => (
@@ -90,7 +90,7 @@ const Home = ({ setModalValues, setItem, item }) => {
                                 <FiPlus className="plus-icon" />
                             </NavLink>
                             {
-                                userObj?.admin && (
+                                uObj?.admin && (
                                     <div className={`${showTitleActions === index && ('show-title-actions')} actions`}>
                                         <button
                                             className="edit-btn"
@@ -120,7 +120,7 @@ const Home = ({ setModalValues, setItem, item }) => {
                     ))
                 }
                 {
-                    userObj?.admin && (
+                    uObj?.admin && (
                         <li style={{
                             display: 'flex',
                             borderRadius: '100%',
@@ -140,7 +140,7 @@ const Home = ({ setModalValues, setItem, item }) => {
                 showTitle && (
                     <AddTitle
                         setShowTitle={setShowTitle}
-                        userObj={userObj}
+                        uObj={uObj}
                         typeOfOperation={typeOfOperation}
                         item={item}
                         setModalValues={setModalValues} />
@@ -150,7 +150,7 @@ const Home = ({ setModalValues, setItem, item }) => {
             {
                 showForm && (
                     <Form
-                        userObj={userObj}
+                        uObj={uObj}
                         setShowForm={setShowForm}
                         setModalValues={setModalValues}
                         item={item}

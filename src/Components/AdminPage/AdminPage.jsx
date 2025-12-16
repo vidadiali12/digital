@@ -1,4 +1,4 @@
-import { FaUserPlus, FaUsers, FaBuilding, FaLayerGroup } from 'react-icons/fa';
+import { FaUserPlus, FaUsers, FaBuilding, FaLayerGroup, FaHistory } from 'react-icons/fa';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './AdminPage.css';
 import { useEffect, useState } from 'react';
@@ -47,6 +47,12 @@ const AdminPage = () => {
             <FaLayerGroup className="admin-card-icon" />
             <h2>Bölmələr</h2>
             <p>Yeni bölmə əlavə et və idarə et</p>
+          </NavLink>
+
+          <NavLink to="/adminpage/operations" className="admin-card">
+            <FaHistory className="admin-card-icon"/>
+            <h2>Əməliyyat Tarixçəsi</h2>
+            <p>Bütün əməliyyatları gör</p>
           </NavLink>
         </div>
       </div>
