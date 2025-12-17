@@ -121,7 +121,7 @@
 .table-header,
 .table-row {
     display: grid;
-    grid-template-columns: 60px 1.5fr 1fr 1.2fr 1.5fr 0.8fr;
+    grid-template-columns: 60px 1.5fr 1fr 1.2fr 1.5fr 0.8fr .5fr;
     align-items: center;
     padding: 14px 16px;
     font-size: 14px;
@@ -132,10 +132,6 @@
     font-weight: 600;
     color: #334155;
     border-bottom: 1px solid #e5e7eb;
-}
-
-.table-header>span:last-child{
-    text-align: center;
 }
 
 .table-row {
@@ -188,4 +184,19 @@
     .table-row span:nth-child(6) {
         display: none;
     }
+}
+
+.log-more-icon-box {
+    text-align: center !important;
+}
+
+.icon-log-more {
+    color: blue;
+    font-size: 20px;
+    scale: 1;
+    transition: .5s;
+}
+
+.icon-log-more:hover {
+    scale: 1.1;
 }

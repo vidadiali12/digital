@@ -1,0 +1,114 @@
+.detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 20, 70, 0.45);
+    display: flex;
+    justify-content: flex-end;
+    z-index: 999999;
+}
+
+.detail-box {
+    width: 40%;
+    min-width: 420px;
+    height: 100vh;
+    background: var(--color-pale-teal);
+    border-left: 3px solid var(--color-light-teal);
+    padding: 28px 30px;
+    overflow-y: auto;
+    color: var(--color-gray-dark);
+    animation: open 0.35s ease;
+}
+
+@keyframes open {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.detail-box h2 {
+    margin-bottom: 25px;
+    color: var(--color-dark-teal);
+    font-size: 22px;
+}
+
+.detail-box section {
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-gray-light);
+}
+
+.detail-box section:last-of-type {
+    border-bottom: none;
+}
+
+.detail-box section h3 {
+    margin: 0 0 14px 0;
+    color: var(--color-teal);
+    font-size: 17px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 6px 0;
+    gap: 16px;
+    font-size: 14.5px;
+}
+
+.detail-label {
+    min-width: 140px;
+    font-weight: 600;
+    color: var(--color-teal);
+    white-space: nowrap;
+}
+
+.detail-value {
+    font-weight: 500;
+    color: var(--color-gray-dark);
+    word-break: break-word;
+}
+
+.detail-json {
+    background: var(--color-white);
+    border: 1px solid var(--color-gray-light);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--color-gray-dark);
+    max-height: 260px;
+    overflow: auto;
+}
+
+.detail-close {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--color-teal);
+    color: var(--color-white);
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 18px;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.detail-close:hover {
+    background: var(--color-light-teal);
+}
+
+.detail-close:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 900px) {
+    .detail-box {
+        width: 100%;
+        min-width: unset;
+    }
+}

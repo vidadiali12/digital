@@ -20,6 +20,7 @@ const Home = ({ setModalValues, setItem, item }) => {
     const showTitleAdding = () => {
         setItem({})
         setShowTitle(true)
+        console.log(1)
         setTypeOfOperation("createTitle")
     }
 

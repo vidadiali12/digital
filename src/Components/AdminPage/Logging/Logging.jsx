@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 import "./Logging.css";
 import api from "../../api";
+import { FiInfo } from "react-icons/fi";
 import Pagination from "../../Modals/Pagination/Pagination";
+import LogDetails from "./LogDetails";
 
 const LOG_LEVEL_LIST = [
     { id: 1, name: "Low" },
@@ -11,7 +13,7 @@ const LOG_LEVEL_LIST = [
     { id: 4, name: "Info" }
 ];
 
-export default function Logging({ setModalValues }) {
+export default function Logging({ setModalValues, item, setItem }) {
     const [logs, setLogs] = useState([]);
     const [categories, setCategories] = useState([]);
     const [activeFilter, setActiveFilter] = useState(null);
@@ -19,7 +21,8 @@ export default function Logging({ setModalValues }) {
     const [page, setPage] = useState(1);
     const [pageSize] = useState(12);
     const [totalItem, setTotalItem] = useState(null);
-    const [totalPages, setTotalPages] = useState(null)
+    const [totalPages, setTotalPages] = useState(null);
+    const [showLogDetails, setShowLogDetails] = useState(null);
 
     const [filters, setFilters] = useState({
         categoryId: [],
@@ -95,8 +98,27 @@ export default function Logging({ setModalValues }) {
         setActiveFilter(null);
     };
 
+    const showDetails = async (log) => {
+        const token = localStorage.getItem('myUserDocumentToken');
+
+        try {
+            const res = await api.get(
+                `/admin/log/getLogDetails/${log?.id}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+
+            setItem(res?.data?.data);
+            setShowLogDetails(true)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     useEffect(() => {
         loadCategories();
+        setItem(null);
     }, []);
 
     useEffect(() => {
@@ -202,7 +224,8 @@ export default function Logging({ setModalValues }) {
                     <span>Level</span>
                     <span>Komputer IP</span>
                     <span>Tarix</span>
-                    <span>Server xətası</span>
+                    <span style={{textAlign: 'center'}}>Server xətası</span>
+                    <span className="log-more-icon-box">Ətraflı</span>
                 </div>
 
                 {logs.map((l, i) => (
@@ -213,9 +236,18 @@ export default function Logging({ setModalValues }) {
                         <span>{l.compIP}</span>
                         <span>{l.logDate?.split("T")[0]} {l.logDate?.split("T")[1]?.slice(0, 8)}</span>
                         <span className={`${l.crash ? "red-color" : 'green-color'}`}>{l.crash ? "Bəli" : "Xeyr"}</span>
+                        <span className="log-more-icon-box">
+                            <FiInfo className="icon-log-more" onClick={() => showDetails(l)} />
+                        </span>
                     </div>
                 ))}
             </div>
+
+            {
+                showLogDetails && (
+                    <LogDetails setModalValues={setModalValues} setItem={setItem} item={item} setShowLogDetails={setShowLogDetails} />
+                )
+            }
 
             {totalItem && totalPages && totalItem > pageSize && (
                 <Pagination

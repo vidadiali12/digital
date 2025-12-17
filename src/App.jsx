@@ -236,7 +236,7 @@ function App() {
               setItem={setItem}
               setTypeOfItem={setTypeOfItem} />} />
 
-            <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} />} />
+            <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} item={item} setItem={setItem} />} />
 
             <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
               connectNow={connectNow}
