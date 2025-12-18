@@ -1,51 +1,42 @@
-import './Home.css';
-import { NavLink } from 'react-router-dom';
-import { FiPlus } from "react-icons/fi";
-import { FaEdit, FaTrashAlt, FaArrowRight } from "react-icons/fa";
-
-import api from '../api';
-import { useEffect, useState } from 'react';
-import AddTitle from './Title/AddTitle';
-import Form from './Form/Form';
-
+import './Home.css'
+import { FiPlus } from "react-icons/fi"
+import { FaEdit, FaTrashAlt, FaArrowRight, FaFolderOpen } from "react-icons/fa"
+import api from '../api'
+import { useEffect, useState } from 'react'
+import AddTitle from './Title/AddTitle'
+import Form from './Form/Form'
 
 const Home = ({ setModalValues, setItem, item }) => {
-    const [showTitle, setShowTitle] = useState(null)
     const [titles, setTitles] = useState([])
+    const [showTitle, setShowTitle] = useState(false)
     const [typeOfOperation, setTypeOfOperation] = useState(null)
-    const [showTitleActions, setShowTitleActions] = useState(null)
-    const [showForm, setShowForm] = useState(null)
+    const [showForm, setShowForm] = useState(false)
     const [uObj, setuObj] = useState(null)
+
+    const getTitles = async () => {
+        const token = localStorage.getItem("myUserDocumentToken")
+        if (!token) return
+
+        const res = await api.get('/chapter/getChapters', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        setTitles(res.data.data)
+    }
 
     const showTitleAdding = () => {
         setItem({})
-        setShowTitle(true)
-        console.log(1)
         setTypeOfOperation("createTitle")
-    }
-
-    const getTitles = async () => {
-        const token = localStorage.getItem("myUserDocumentToken");
-        if (!token) return;
-
-        const resTitles = await api.get('/chapter/getChapters', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-
-        setTitles(resTitles.data.data)
+        setShowTitle(true)
     }
 
     const handleEdit = (id) => {
+        setItem(titles.find(t => t.id === id))
         setTypeOfOperation("editTitle")
         setShowTitle(true)
-        setItem(titles?.find(title => title?.id === id))
     }
 
     const handleDelete = (id) => {
-        setItem(titles?.find(title => title?.id === id))
+        setItem(titles.find(t => t.id === id))
         setModalValues(prev => ({
             ...prev,
             message: "Bu başlığı silməyə əminsiniz?",
@@ -55,113 +46,86 @@ const Home = ({ setModalValues, setItem, item }) => {
         }))
     }
 
-    const goForm = (titleId) => {
-        setItem(titles?.find(title => title?.id === titleId));
+    const goForm = (id) => {
+        setItem(titles.find(t => t.id === id))
         setShowForm(true)
     }
 
-    const goTitle = (titleId, index) => {
-        uObj?.admin ?
-            setShowTitleActions(index)
-            : goForm(titleId)
-    }
-
-    const createForm = (titleId) => {
-        goForm(titleId)
-    }
-
-    const handleReset = () => {
-        setShowTitleActions(null)
-    }
-
     useEffect(() => {
-        const u = localStorage.getItem("userObj") ? JSON.parse(localStorage.getItem("userObj")) : null
-        setuObj(u);
-        getTitles();
-    }, [localStorage.getItem("userObj")]);
+        const u = localStorage.getItem("userObj")
+            ? JSON.parse(localStorage.getItem("userObj"))
+            : null
+        setuObj(u)
+        getTitles()
+    }, [localStorage.getItem("userObj")])
+
+    if (uObj?.shouldChangePassword) return null
 
     return (
-        !uObj?.shouldChangePassword && (<div className="home" onClick={handleReset}>
-            <ul className='ul-down' onClick={(e) => e.stopPropagation()}>
-                {
-                    titles?.map((title, index) => (
-                        <li key={title?.id} onClick={() => goTitle(title?.id, index)}>
-                            <NavLink to="/">
-                                {title?.title}
-                                <FiPlus className="plus-icon" />
-                            </NavLink>
-                            {
-                                uObj?.admin && (
-                                    <div className={`${showTitleActions === index && ('show-title-actions')} actions`}>
-                                        <button
-                                            className="edit-btn"
-                                            onClick={() => handleEdit(title?.id)}
-                                            title="Redaktə et"
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                        <button
-                                            className="delete-btn"
-                                            onClick={() => handleDelete(title?.id)}
-                                            title="Sil"
-                                        >
-                                            <FaTrashAlt />
-                                        </button>
-                                        <button
-                                            className="delete-btn"
-                                            onClick={() => createForm(title?.id)}
-                                            title="Davam et"
-                                        >
-                                            <FaArrowRight />
-                                        </button>
-                                    </div>
-                                )
-                            }
-                        </li>
-                    ))
-                }
-                {
-                    uObj?.admin && (
-                        <li style={{
-                            display: 'flex',
-                            borderRadius: '100%',
-                            width: '60px',
-                            height: '60px',
-                            marginLeft: 'auto'
-                        }} onClick={showTitleAdding}>
-                            <NavLink to="/" >
-                                <FiPlus className="plus-icon" />
-                            </NavLink>
-                        </li>
-                    )
-                }
-            </ul>
+        <section className="home">
 
-            {
-                showTitle && (
+            <div className="cards-wrapper">
+
+                {uObj?.admin && (
+                    <div className="title-card add-card" onClick={showTitleAdding}>
+                        <FiPlus />
+                        <span>Yeni başlıq əlavə et</span>
+                    </div>
+                )}
+
+                {titles.map(title => (
+                    <div key={title.id} className="title-card">
+                        <div className="card-head">
+                            <FaFolderOpen />
+                            <span>{title.title}</span>
+                        </div>
+
+                        <div className="card-actions">
+                            {uObj?.admin && (
+                                <>
+                                    <button onClick={() => handleEdit(title.id)}>
+                                        <FaEdit />
+                                        <span>Redaktə</span>
+                                    </button>
+                                    <button onClick={() => handleDelete(title.id)}>
+                                        <FaTrashAlt />
+                                        <span>Sil</span>
+                                    </button>
+                                </>
+                            )}
+                            <button className="primary" onClick={() => goForm(title.id)}>
+                                <FaArrowRight />
+                                <span>Davam et</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {showTitle && (
+                <div className="overlay">
                     <AddTitle
                         setShowTitle={setShowTitle}
-                        uObj={uObj}
+                        userObj={uObj}
                         typeOfOperation={typeOfOperation}
                         item={item}
-                        setModalValues={setModalValues} />
-                )
-            }
-
-            {
-                showForm && (
-                    <Form
-                        uObj={uObj}
-                        setShowForm={setShowForm}
                         setModalValues={setModalValues}
-                        item={item}
-                        fromDocDetail={[]}
-                        chapter={null} />
-                )
-            }
-        </div>
-        )
-    );
-};
+                    />
+                </div>
+            )}
 
-export default Home;
+            {showForm && (
+                <Form
+                    uObj={uObj}
+                    setShowForm={setShowForm}
+                    setModalValues={setModalValues}
+                    item={item}
+                    fromDocDetail={[]}
+                    chapter={null}
+                />
+            )}
+        </section>
+    )
+}
+
+export default Home

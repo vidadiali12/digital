@@ -95,7 +95,7 @@
     cursor: pointer;
 }
 
-.logs-filters button {
+.logs-filters .clear-filters {
     height: 38px;
     padding: 0 14px;
     border-radius: 6px;
@@ -106,7 +106,7 @@
     font-size: 14px;
 }
 
-.logs-filters button:hover {
+.logs-filters .clear-filters:hover {
     background: #dc2626;
 }
 

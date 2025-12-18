@@ -21,7 +21,7 @@ import workerSrc from "pdfjs-dist/build/pdf.worker?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
-const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapter }) => {
+const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter }) => {
 
     const [selectedWord, setSelectedWord] = useState('');
     const [pdfUrl, setPdfUrl] = useState('');
@@ -64,28 +64,39 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const renderPdfToCanvas = async (pdfBase64) => {
         if (!pdfBase64) return;
 
-        const pdfData = atob(pdfBase64);
+        const pdfWrapper = document.querySelector(".pdf-wrapper");
+        if (!pdfWrapper) return;
+
+        pdfWrapper.innerHTML = "";
+
+        const pdfData = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
         const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
 
-        const canvas = document.getElementById("pdf-canvas");
-        const context = canvas.getContext("2d");
+        const wrapperWidth = pdfWrapper.clientWidth || 600;
 
-        const page = await pdf.getPage(1);
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
 
-        const wrapperWidth = document.querySelector(".pdf-wrapper").clientWidth;
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = wrapperWidth / viewport.width;
+            const scaledViewport = page.getViewport({ scale });
 
-        const viewport = page.getViewport({ scale: 1 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
 
-        const scale = wrapperWidth / viewport.width;
-        const scaledViewport = page.getViewport({ scale });
+            canvas.width = scaledViewport.width;
+            canvas.height = scaledViewport.height;
+            canvas.style.width = "100%";
+            canvas.style.display = "block";
+            canvas.style.marginBottom = "16px";
 
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
+            pdfWrapper.appendChild(canvas);
 
-        await page.render({
-            canvasContext: context,
-            viewport: scaledViewport,
-        }).promise;
+            await page.render({
+                canvasContext: context,
+                viewport: scaledViewport,
+            }).promise;
+        }
     };
 
     const initialForm = {
@@ -121,22 +132,20 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
     const fileForm = { file: null };
 
     const [formData, setFormData] = useState(
-        (
-            (item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)
-        ) ?
+        (item?.eventId == 3 || chapter?.eventId == 3) ?
             { ...initialForm, username: '' } :
-            ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) ?
-                { ...initialForm, username: '', passwword: '' } :
-                initialForm);
+            ((item?.eventId == 2 || chapter?.eventId == 2) && uObj?.admin) ?
+                { ...initialForm, username: '', password: '' } :
+                (item?.eventId == 4 || chapter?.eventId == 4) ?
+                    { username: '' } : initialForm);
 
     const [initialFormKey, setInitialFormKey] = useState(
-        (
-            (item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)
-        ) ?
-            { ...initialFormKeyObj, username: 'İstifadəçi Adı' } :
-            ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) ?
-                { ...initialFormKeyObj, username: 'İstifadəçi Adı', passwword: 'Parol' } :
-                initialFormKeyObj)
+        (item?.eventId == 3 || chapter?.eventId == 3) ?
+            { ...initialFormKeyObj, username: 'İstifadəçi adı' } :
+            ((item?.eventId == 2 || chapter?.eventId == 2) && uObj?.admin) ?
+                { ...initialFormKeyObj, username: 'İstifadəçi adı', password: 'Parol' } :
+                (item?.eventId == 4 || chapter?.eventId == 4) ?
+                    { username: 'İstifadəçi adı' } : initialFormKeyObj);
 
     const [fileData, setFileData] = useState(fileForm);
 
@@ -330,8 +339,6 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 // const blob = new Blob([pdfBuffer], { type: "application/pdf" });
                 // const url = URL.createObjectURL(blob);
 
-                renderPdfToCanvas(decryptedPdfB64);
-
                 setPdfUrl(decryptedPdfB64);
                 setPdfBase64(decrypted1);
                 setShowSendButton("");
@@ -350,8 +357,6 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
 
         reader.readAsArrayBuffer(file);
     };
-
-
 
     const downloadExcel = () => {
         const a = document.createElement('a');
@@ -488,8 +493,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 }));
 
                 setShowFileArea('show-file-area');
-                setShowButton("show-button")
-                setAddedEntries([])
+                setShowButton("show-button");
                 setTotalDisabled(true)
 
             } else {
@@ -547,7 +551,14 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                 ]);
             }
 
-            setFormData(initialForm);
+            setFormData(
+                (item?.eventId == 3 || chapter?.eventId == 3) ?
+                    { ...initialForm, username: '' } :
+                    ((item?.eventId == 2 || chapter?.eventId == 2) && uObj?.admin) ?
+                        { ...initialForm, username: '', password: '' } :
+                        (item?.eventId == 4 || chapter?.eventId == 4) ?
+                            { username: '' } : initialForm);
+
             setDisabled(true);
             document.getElementById('selectType').style.cursor = "default";
 
@@ -588,7 +599,14 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         setEditingIndex(prevIdx => {
             if (prevIdx === null) return null;
             if (prevIdx === index) {
-                setFormData(initialForm);
+                setFormData(
+                    (item?.eventId == 3 || chapter?.eventId == 3) ?
+                        { ...initialForm, username: '' } :
+                        ((item?.eventId == 2 || chapter?.eventId == 2) && uObj?.admin) ?
+                            { ...initialForm, username: '', password: '' } :
+                            (item?.eventId == 4 || chapter?.eventId == 4) ?
+                                { username: '' } : initialForm
+                );
                 return null;
             }
             if (prevIdx > index) return prevIdx - 1;
@@ -722,9 +740,21 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
             }
         };
         load();
-        console.log(userObj)
-        console.log(((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin))
     }, []);
+
+    useEffect(() => {
+        if (!pdfUrl) return;
+        const waitForWrapper = () => {
+            const pdfWrapper = document.getElementsByClassName("pdf-wrapper")[0];
+            if (pdfWrapper) {
+                renderPdfToCanvas(pdfUrl);
+            } else {
+                requestAnimationFrame(waitForWrapper);
+            }
+        };
+
+        waitForWrapper();
+    }, [pdfUrl]);
 
     useEffect(() => {
         if (typeOfAccounts && fromDocDetail?.length > 0) {
@@ -775,6 +805,13 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
         });
     }
 
+    const backToForm = () => {
+        setShowFileArea('');
+        setShowButton("");
+        setTotalDisabled(false)
+        setShowSendButton("unshow-button");
+    }
+
 
     return loading ? (
         <Loading loadingMessage={'Məlumatlar analiz edilir...'} />
@@ -799,7 +836,7 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                 <option value="">İstifadəçi növü seç</option>
 
                                 {typeOfAccounts?.map(type => (
-                                    <option value={type.id} key={type.id}>
+                                    <option value={type?.id} key={type?.id}>
                                         {type?.name}
                                     </option>
                                 ))}
@@ -815,7 +852,16 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                                 <p>
                                     <b>{idx + 1}.</b>{' '}
                                     <i>
-                                        {ranks?.find(rank => Number(rank?.id) == Number(entry?.rankId))?.name} {entry?.name} {entry?.surname} {entry?.fatherName}
+                                        {
+                                            ![item?.eventId, chapter?.eventId].includes(4) ?
+                                                <>
+                                                    {ranks?.find(rank => Number(rank?.id) == Number(entry?.rankId))?.name} {entry?.name} {entry?.surname} {entry?.fatherName}
+                                                </> :
+                                                <>
+                                                    {entry?.username}
+                                                </>
+                                        }
+
                                     </i>
                                 </p>
                                 <div className="entry-actions">
@@ -831,85 +877,96 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     </div>
                 )}
 
-                <div className="form-body">
+                <div className={`form-body`}>
                     {
-
                         (!showExcelData ? (
                             <div className={`form-fields ${classForWord}`}>
                                 {
                                     (item?.containsForm || chapter?.containsForm) && (
                                         <>
-                                            <input name="name" value={formData?.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" />
-                                            <input name="surname" value={formData?.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" />
-                                            <input name="fatherName" value={formData?.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" />
-                                            <input name="fin" value={formData?.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" />
-
+                                            {
+                                                ![item?.eventId, chapter?.eventId].includes(4) && (
+                                                    <>
+                                                        <input name="name" value={formData?.name} disabled={totalDisabled} onChange={handleChange} placeholder="Ad" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                        <input name="surname" value={formData?.surname} disabled={totalDisabled} onChange={handleChange} placeholder="Soyad" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                        <input name="fatherName" value={formData?.fatherName} disabled={totalDisabled} onChange={handleChange} placeholder="Ata adı" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                        <input name="fin" value={formData?.fin} disabled={totalDisabled} onChange={handleChange} placeholder="Fin" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                    </>
+                                                )
+                                            }
                                             {
                                                 ((item?.eventId == 3 || item?.eventId == 4) || (chapter?.eventId == 3 || chapter?.eventId == 4)) &&
                                                 (
-                                                    <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" />
+                                                    <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" className={`${showFileArea != '' && 'un-show-form'}`} />
                                                 )
                                             }
 
                                             {
-                                                ((item?.eventId == 2 || chapter?.eventId == 2) && userObj?.admin) && (
+                                                ((item?.eventId == 2 || chapter?.eventId == 2) && uObj?.admin) && (
                                                     <>
-                                                        <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" />
+                                                        <input name="username" value={formData?.username} disabled={totalDisabled} onChange={handleChange} placeholder="İstifadəçi adı" className={`${showFileArea != '' && 'un-show-form'}`} />
                                                         <label htmlFor="" style={{ position: 'relative', padding: '0', margin: '0' }}>
                                                             <input name="password" value={formData?.password} disabled={totalDisabled} onChange={handleChange} placeholder="Parol"
                                                                 autoComplete='off'
-                                                                type={`${passEyeIcon ? "password" : "text"}`} />
+                                                                type={`${passEyeIcon ? "password" : "text"}`} className={`${showFileArea != '' && 'un-show-form'}`} />
                                                             {
-                                                                passEyeIcon ? <FaEye onClick={() => setPassEyeIcon(!passEyeIcon)} className='pass-eye-icon' />
-                                                                    : <FaEyeSlash onClick={() => setPassEyeIcon(!passEyeIcon)} className='pass-eye-icon' />
+                                                                passEyeIcon ? <FaEye onClick={() => setPassEyeIcon(!passEyeIcon)} className={`${showFileArea != '' && 'un-show-form'} pass-eye-icon`} />
+                                                                    : <FaEyeSlash onClick={() => setPassEyeIcon(!passEyeIcon)} className={`${showFileArea != '' && 'un-show-form'} pass-eye-icon`} />
                                                             }
                                                         </label>
                                                     </>
                                                 )
                                             }
 
-                                            <select name="rankId" value={formData?.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className='select' >
-                                                <option value="">Rütbə seç</option>
-                                                {
-                                                    ranks?.map((rank) => (
-                                                        <option value={rank?.id} key={rank?.id}>
-                                                            {rank?.description}
-                                                        </option>
-                                                    ))
-                                                }
-                                            </select>
+                                            {
+                                                ![item?.eventId, chapter?.eventId].includes(4) && (
+                                                    <>
+                                                        <select name="rankId" value={formData?.rankId} disabled={totalDisabled} onChange={handleChange} placeholder="Rütbə" className={`${showFileArea != '' && 'un-show-form'} select`}>
+                                                            <option value="">Rütbə seç</option>
+                                                            {
+                                                                ranks?.map((rank) => (
+                                                                    <option value={rank?.id} key={rank?.id}>
+                                                                        {rank?.description}
+                                                                    </option>
+                                                                ))
+                                                            }
+                                                        </select>
 
-                                            <input name="position" value={formData?.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" />
-                                            <input name="phoneNumber" value={formData?.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" />
+                                                        <input name="position" value={formData?.position} disabled={totalDisabled} onChange={handleChange} placeholder="Vəzifə" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                        <input name="phoneNumber" value={formData?.phoneNumber} disabled={totalDisabled} onChange={handleChange} placeholder="+994505005050" className={`${showFileArea != '' && 'un-show-form'}`} />
 
-                                            {showFlash && (<>
-                                                <input name="mark" value={formData?.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" />
-                                                <input name="capacity" value={formData?.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" />
-                                                <input name="serialNumber" value={formData?.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" />
-                                            </>)}
+                                                        {showFlash && (<>
+                                                            <input name="mark" value={formData?.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                            <input name="capacity" value={formData?.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                            <input name="serialNumber" value={formData?.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" className={`${showFileArea != '' && 'un-show-form'}`} />
+                                                        </>)}
 
-                                            <select name="departmentId" value={formData?.departmentId} disabled={totalDisabled} onChange={handleChange} className="select">
-                                                <option value="">İdarə seç</option>
-                                                {departments?.map((d, i) => (
-                                                    <option key={i} value={d?.id}>{d?.tag}</option>
-                                                ))}
-                                                {departments.length < countOfDepartments && <option value="load_more">...</option>}
-                                            </select>
+                                                        <select name="departmentId" value={formData?.departmentId} disabled={totalDisabled} onChange={handleChange} className={`${showFileArea != '' && 'un-show-form'} select`}>
+                                                            <option value="">İdarə seç</option>
+                                                            {departments?.map((d, i) => (
+                                                                <option key={i} value={d?.id}>{d?.tag}</option>
+                                                            ))}
+                                                            {departments?.length < countOfDepartments && <option value="load_more">...</option>}
+                                                        </select>
 
-                                            <select name="unitId" value={formData?.unitId} disabled={totalDisabled} onChange={handleChange} className="select">
-                                                <option value="">Bölmə seç</option>
-                                                {units
-                                                    ?.filter(u => u.departmentId == formData?.departmentId)
-                                                    .map((u, i) => (
-                                                        <option key={i} value={u?.id}>{u?.tag}</option>
-                                                    ))}
-                                                {units.length < countOfUnits && <option value="load_more">...</option>}
-                                            </select>
+                                                        <select name="unitId" value={formData?.unitId} disabled={totalDisabled} onChange={handleChange} className={`${showFileArea != '' && 'un-show-form'} select`}>
+                                                            <option value="">Bölmə seç</option>
+                                                            {units
+                                                                ?.filter(u => u?.departmentId == formData?.departmentId)
+                                                                .map((u, i) => (
+                                                                    <option key={i} value={u?.id}>{u?.tag}</option>
+                                                                ))}
+                                                            {units?.length < countOfUnits && <option value="load_more">...</option>}
+                                                        </select>
+                                                    </>
+                                                )
+                                            }
 
-                                            <button type="button" className="btn btn-green" onClick={handleAddOrEdit} disabled={totalDisabled} style={{ display: 'flex', alignItems: 'center' }}>
+                                            <button type="button" className={`${showFileArea != '' && 'un-show-form'} btn btn-green btn-edit-and-add`} onClick={handleAddOrEdit} disabled={totalDisabled} style={{ display: 'flex', alignItems: 'center' }}>
                                                 <FiPlus style={{ marginRight: '6px', fontSize: '22px' }} />
                                                 {editingIndex !== null ? 'Yadda saxla' : 'İstifadəçi əlavə et'}
                                             </button>
+
 
                                             <label className={`file-input-label file-input-label-2 ${showFileArea}`}>
                                                 Excel olaraq endirin
@@ -953,22 +1010,22 @@ const Form = ({ userObj, item, setShowForm, setModalValues, fromDocDetail, chapt
                     <div className="doc-preview">
                         <div className="doc-icon">DOC</div>
                         <div className="doc-text">
-                            {pdfUrl ? (
-                                <div className="pdf-wrapper">
-                                    <canvas id="pdf-canvas" className="pdf-canvas"></canvas>
-                                </div>
-                            ) : (
-                                <span className={`word ${selectedWord === item?.title ? 'selected' : ''}`} onClick={() => handleWordClick(item?.title)}>
-                                    {item?.title} sənədi burada görünəcək
-                                    <br />
-                                    Ən az bir istifadəçi yarat və sənədi əlavə et!
-                                </span>
-                            )}
+                            {
+                                pdfUrl ? (<div className="pdf-wrapper"></div>) :
+                                    <span className={`word ${selectedWord === item?.title ? 'selected' : ''}`} onClick={() => handleWordClick(item?.title)}>
+                                        {item?.title} sənədi burada görünəcək
+                                        <br />
+                                        Ən az bir istifadəçi yarat və sənədi əlavə et!
+                                    </span>
+                            }
                         </div>
                     </div>
                 </div>
 
                 <div className="form-buttons">
+                    <button type="button" className={`btn btn-green btn-back ${showFileArea}`} onClick={backToForm}>
+                        Forma geri qayıt
+                    </button>
                     <button className={`btn btn-red ${showButton}`} style={{ padding: '10px 22px' }} onClick={() => setShowForm(false)}>
                         Geri
                     </button>

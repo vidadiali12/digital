@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./GetDocument.css";
 import api from "../../api";
 import { FiX } from "react-icons/fi";
@@ -32,36 +32,50 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
   const [pdfBase64, setPdfBase64] = useState("");
   const [docList, setDocList] = useState(null);
 
-  const [userItem, setUserItem] = useState(null)
+  const [userItem, setUserItem] = useState(null);
 
-  const renderPdfToCanvas = async (pdfBase64) => {
+  async function renderPdfToCanvas(pdfBase64) {
     if (!pdfBase64) return;
 
-    const pdfData = atob(pdfBase64);
-    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    const pdfWrapper = document.getElementsByClassName("pdf-wrapper")[0];
+    if (!pdfWrapper) return;
 
-    const canvas = document.getElementById("pdf-canvas");
-    const context = canvas.getContext("2d");
+    pdfWrapper.innerHTML = "";
 
-    const page = await pdf.getPage(1);
+    try {
+      const pdfData = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
 
-    const wrapper = document.querySelector(".pdf-wrapper")
-    const wrapperWidth = wrapper ? wrapper.offsetWidth : 600
+      const wrapperWidth = pdfWrapper.offsetWidth || 600;
 
-    const viewport = page.getViewport({ scale: 1 });
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
 
-    const scale = wrapperWidth / viewport.width;
-    const scaledViewport = page.getViewport({ scale });
+        const viewport = page.getViewport({ scale: 1 });
+        const scale = wrapperWidth / viewport.width;
+        const scaledViewport = page.getViewport({ scale });
 
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
 
-    await page.render({
-      canvasContext: context,
-      viewport: scaledViewport,
-    }).promise;
-  };
+        canvas.width = scaledViewport.width;
+        canvas.height = scaledViewport.height;
+        canvas.style.width = "100%";
+        canvas.style.display = "block";
+        canvas.style.marginBottom = "16px";
 
+        pdfWrapper.appendChild(canvas);
+
+        await page.render({
+          canvasContext: context,
+          viewport: scaledViewport,
+        }).promise;
+      }
+      console.log("PDF rendered successfully!");
+    } catch (err) {
+      console.error("PDF render error:", err);
+    }
+  }
 
 
   const downloadPdf = () => {
@@ -248,11 +262,18 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
   }, [choosenDoc]);
 
   useEffect(() => {
-    setTimeout(() => {
-      if (!pdfUrl) return
-      renderPdfToCanvas(pdfUrl)
-    }, 200);
-  }, [pdfUrl, showDocument, userItem, docElements])
+    if (!showDocument || !pdfUrl) return;
+    const waitForWrapper = () => {
+      const pdfWrapper = document.getElementsByClassName("pdf-wrapper")[0];
+      if (pdfWrapper && pdfWrapper.offsetWidth > 0) {
+        renderPdfToCanvas(pdfUrl);
+      } else {
+        requestAnimationFrame(waitForWrapper);
+      }
+    };
+
+    waitForWrapper();
+  }, [pdfUrl, showDocument]);
 
   const sendDocumend = async (receiver, description) => {
     const mainForm = docList?.forms;
@@ -348,9 +369,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
               }
             </div>
 
-            <div className="pdf-wrapper">
-              <canvas id="pdf-canvas" className="pdf-canvas"></canvas>
-            </div>
+            <div className="pdf-wrapper" ></div>
 
             {docElements && (
               <div className="doc-info">
@@ -421,7 +440,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
         )}
 
         {showForm && (
-          <Form userObj={JSON.parse(localStorage.getItem("userObj"))} item={item} setShowForm={setShowForm} setModalValues={setModalValues} fromDocDetail={docList?.forms} chapter={docElements?.chapter} />
+          <Form uObj={JSON.parse(localStorage.getItem("userObj"))} item={item} setShowForm={setShowForm} setModalValues={setModalValues} fromDocDetail={docList?.forms} chapter={docElements?.chapter} />
         )}
       </div>
   );

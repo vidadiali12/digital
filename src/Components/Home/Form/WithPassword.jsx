@@ -69,7 +69,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
               letterSpacing: 0.2,
             }}
           >
-            Sənəd üçün parol
+            Təsdiq üçün hesab parolu:
           </h2>
           {typeof onClose === "function" && (
             <button
@@ -89,7 +89,7 @@ const WithPassword = ({ visible = true, onSend, onClose }) => {
         </header>
 
         <p style={{ margin: 0, color: "var(--color-gray-dark, #2a2d3e)" }}>
-          Parolu daxil edib <strong>İmzala</strong> düyməsinə bas.
+          İstifadəçi hesab parolunuzu daxil edib <strong>İmzala</strong> düyməsinə klikləyin.
         </p>
 
         <div

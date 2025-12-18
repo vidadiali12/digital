@@ -21,6 +21,7 @@
     padding: 25px;
     position: relative;
     box-shadow: 0 8px 50px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
 }
 
 .close-modal-btn {
@@ -63,21 +64,15 @@
 
 .pdf-wrapper {
     width: 100%;
-    height: calc(100vh - 120px);
+    min-height: 150px;
     overflow-y: auto;
-    background: #f3f3f3;
-    padding: 12px;
-    box-sizing: border-box;
 }
 
 .pdf-canvas {
-    width: 100% !important;
-    height: auto !important;
+    width: 100%;
     display: block;
-    margin: 0 auto;
-    background: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 
 .doc-info {
     padding: 18px;

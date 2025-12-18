@@ -163,7 +163,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                                     <option value="">Əməliyyat tipi seç</option>
                                     {
                                         titleEvents?.map((titleEvent) => {
-                                            return <option value={titleEvent?.id}>
+                                            return <option value={titleEvent?.id} key={titleEvent?.id}>
                                                 {titleEvent?.event}
                                             </option>
                                         })

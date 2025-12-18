@@ -1,150 +1,131 @@
 .home {
-    display: flex;
-    gap: 20px;
-    padding: 30px 0;
     width: 100%;
+    height: min-content;
+    background: var(--color-pale-teal);
+    padding: 30px;
+    margin-top: 20px;
 }
 
-.home>.home-area {
-    width: 40%;
+.cards-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.title-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    background-color: #f9fdf5;
-    padding: 20px 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    transition: .35s;
+    z-index: 0;
+    position: relative;
+    overflow: hidden;
 }
 
-.home>.home-area>.home-head {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.home>.home-area>.home-head>span {
-    font-weight: bold;
-    font-size: 20px;
-    color: #405c29;
-}
-
-.home>.home-area>.home-head>.home-buttons {
-    display: flex;
-    gap: 12px;
-}
-
-.home>.home-area>.home-head>.home-buttons>button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 6px;
-    background-color: #405c29;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.home>.home-area>.home-head>.home-buttons>button:hover {
-    background-color: #2f461b;
-}
-
-.home>.right-bar {
-    width: 60%;
-    background-color: #fff;
-    padding: 20px 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-x: auto;
-}
-
-.home>.right-bar table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 20px 10px;
-    font-size: 15px;
-    color: #333;
-}
-
-.home>.right-bar table thead th {
-    background-color: #f9fdf5;
-    color: #405c29;
-    text-align: left;
-    padding: 5px 10px;
-    font-weight: 700;
-    border-bottom: 2px solid #ddd;
-    width: 50%;
-}
-
-.home>.right-bar table tbody tr td {
-    border-bottom: 1px solid lightgray;
-    width: 50%;
-    padding: 6px 0;
-}
-
-.head-tr>td>span {
-    color: gray;
-    font-style: italic;
-    padding: 5px 10px;
-}
-
-.toggle-row {
-    box-shadow: 0 0 4px rgb(190, 190, 190);
-    border-radius: 4px;
-}
-
-.toggle-row td {
-    border: none !important;
-    padding: 10px !important;
-}
-
-
-.sign-button {
-    padding: 10px 20px;
-    outline: none;
-    border: none;
-    border-radius: 4px;
-    background: #405c29;
-    color: white;
-    cursor: pointer;
-    transition: 0.5s;
-}
-
-.sign-button:hover {
-    background: #2f461b;
-}
-
-li>.actions {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 2px;
+.title-card::after {
+    content: '';
     position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
+    height: 0;
+    background-color: var(--color-dark-teal);
+    transition: .3s;
+    z-index: -1;
+}
+
+.title-card:hover {
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15);
+}
+
+.title-card:hover::after {
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    z-index: 1;
-    scale: .1;
-    visibility: hidden;
-    transition: .4s;
 }
-li>.show-title-actions{
-    visibility: visible;
-    scale: 1;
+.card-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-teal);
+}
+
+.card-head svg {
+    font-size: 22px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.card-actions button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
     border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    background: var(--color-pale-teal);
+    color: var(--color-teal);
+    transition: .3s;
 }
-li>.actions>button{
-    padding: 1px !important;
-    font-size: 1rem;
+
+.card-actions button:hover {
+    background: var(--color-teal);
+    color: #fff;
 }
-li>.actions>.edit-btn, 
-li>.actions>.delete-btn{
-    min-height: 25px !important;
-    background-color: transparent;
-    color: white !important;
-    width: min-content !important;
-    white-space: nowrap;
+
+.card-actions .primary {
+    margin-left: auto;
+    background: var(--color-teal);
+    color: #fff;
+}
+
+.card-actions .primary:hover {
+    background: #fff;
+    color: var(--color-dark-teal);
+}
+
+.title-card:hover .card-head {
+    color: var(--color-pale-teal);
+}
+.add-card {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    background: linear-gradient(135deg,
+            var(--color-teal),
+            var(--color-dark-teal));
+    color: #fff;
+}
+
+.add-card svg {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.add-card span {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }

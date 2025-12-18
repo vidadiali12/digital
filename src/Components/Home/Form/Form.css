@@ -60,12 +60,13 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
+    height: min-content;
 }
 
 .form-fields input,
 .form-fields select,
 .select {
-    padding: 10px 15px;
+    padding: 15px;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 0.95rem;
@@ -74,6 +75,7 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     color: rgb(240, 240, 240);
+    height: min-content;
 }
 
 .form-fields input::placeholder {
@@ -131,10 +133,6 @@
     padding: 10px;
     overflow-y: auto;
     color: white;
-}
-
-.show-file-area {
-    display: flex;
 }
 
 .doc-icon {
@@ -207,9 +205,24 @@
     background-color: var(--color-dark-teal);
 }
 
+.btn-edit-and-add {
+    height: min-content;
+    padding: 15px;
+}
+
+.btn-back {
+    display: none;
+    background-color: var(--color-light-teal);
+}
+
+.show-file-area {
+    display: flex;
+    height: min-content;
+    padding: 15px 20px;
+}
+
 .select {
     appearance: none;
-    /* brauzer default oxunu gizlət */
     -webkit-appearance: none;
     -moz-appearance: none;
     background: rgba(255, 255, 255, 0.15);
@@ -266,15 +279,15 @@
     color: var(--color-dark-teal);
 }
 
-.show-button{
+.show-button {
     display: none;
 }
 
-.unshow-button{
+.unshow-button {
     display: none;
 }
 
-.word-file-style{
+.word-file-style {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -282,8 +295,11 @@
     border: 2px solid rgb(0, 123, 255);
     background-color: rgb(0, 123, 255, .1);
     border-radius: 20px;
+    padding: 70px 20px;
+    margin-top: 100px;
 }
-.word-file-style>label{
+
+.word-file-style>label {
     width: min-content;
     white-space: nowrap;
     height: min-content;
@@ -293,25 +309,22 @@
     background-color: rgb(0, 123, 255, .6);
 }
 
+.un-show-form{
+    display: none !important;
+}
+
 .pdf-wrapper {
     width: 100%;
-    height: calc(100vh - 120px);
+    min-height: 150px;
     overflow-y: auto;
-    background: #f3f3f3;
-    padding: 12px;
-    box-sizing: border-box;
 }
 
 .pdf-canvas {
-    width: 100% !important;
-    height: auto !important;
+    width: 100%;
     display: block;
-    margin: 0 auto;
-    background: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.pass-eye-icon{
+.pass-eye-icon {
     position: absolute;
     top: 13px;
     right: 10px;

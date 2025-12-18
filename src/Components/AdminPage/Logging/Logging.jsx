@@ -125,6 +125,10 @@ export default function Logging({ setModalValues, item, setItem }) {
         loadLogs();
     }, [filters, page]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [filters]);
+
     return (
         <div className="logs-wrapper p-4 w-full">
 
@@ -214,7 +218,7 @@ export default function Logging({ setModalValues, item, setItem }) {
                     <option value="false">Normal</option>
                 </select>
 
-                <button onClick={clearFilter}>Filteri sıfırla</button>
+                <button onClick={clearFilter} className="clear-filters">Filteri sıfırla</button>
             </div>
 
             <div className="logs-table">
@@ -224,7 +228,7 @@ export default function Logging({ setModalValues, item, setItem }) {
                     <span>Level</span>
                     <span>Komputer IP</span>
                     <span>Tarix</span>
-                    <span style={{textAlign: 'center'}}>Server xətası</span>
+                    <span style={{ textAlign: 'center' }}>Server xətası</span>
                     <span className="log-more-icon-box">Ətraflı</span>
                 </div>
 

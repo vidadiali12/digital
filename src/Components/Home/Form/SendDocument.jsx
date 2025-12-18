@@ -84,7 +84,7 @@ export const sendDoc = async ({
 
         setTimeout(() => {
             window.location.reload()
-        }, 1200)
+        }, 1200);
     } catch (err) {
         setModalValues(prev => (
             {
