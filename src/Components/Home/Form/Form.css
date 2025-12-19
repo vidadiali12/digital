@@ -296,7 +296,6 @@
     background-color: rgb(0, 123, 255, .1);
     border-radius: 20px;
     padding: 70px 20px;
-    margin-top: 100px;
 }
 
 .word-file-style>label {
@@ -309,7 +308,7 @@
     background-color: rgb(0, 123, 255, .6);
 }
 
-.un-show-form{
+.un-show-form {
     display: none !important;
 }
 
@@ -329,4 +328,29 @@
     top: 13px;
     right: 10px;
     color: white;
+}
+
+
+.form-group-capacity {
+    display: flex !important;
+    flex-direction: row;
+}
+
+.form-group-capacity>input {
+    border-radius: 10px 0 0 10px;
+    border-right: none;
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.form-group-capacity>select {
+    border-radius: 0 10px 10px 0;
+    border-left: none;
+    outline: none;
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 30px;
+    cursor: pointer;
 }

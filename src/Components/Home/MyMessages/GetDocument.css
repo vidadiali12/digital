@@ -93,7 +93,7 @@
 
 .label {
     font-weight: bold;
-    color: rgb(190, 190, 190);
+    color: var(--color-pale-teal);
     font-style: normal;
 }
 
@@ -173,4 +173,90 @@
 .deleted-user {
     color: rgb(191, 191, 191);
     font-style: italic;
+}
+
+.show-doc-or-sign-btn {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.show-doc-or-sign-btn button {
+    padding: 8px 18px;
+    border: none;
+    background: transparent;
+    color: #cfd8dc;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.show-doc-or-sign-btn button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.show-doc-or-sign-btn button.active {
+    background: var(--color-teal);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.form-list-doc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-card-doc {
+    background: #ffffff;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row-doc {
+    display: flex;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.form-label-doc {
+    font-weight: 600;
+    color: #555;
+    min-width: 120px;
+}
+
+.form-value-doc {
+    color: #222;
+}
+
+.form-status-doc {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.form-status-doc.pending-doc {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.form-status-doc.approved-doc {
+    background: #d4edda;
+    color: #155724;
+}
+
+.form-status-doc.rejected-doc {
+    background: #f8d7da;
+    color: #721c24;
 }

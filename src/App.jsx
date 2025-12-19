@@ -18,6 +18,7 @@ import SendMessages from './Components/Home/MyMessages/SendMessages';
 import Loading from './Components/Modals/Loading';
 import CreateForm from './Components/AdminPage/CreateForm';
 import Logging from './Components/AdminPage/Logging/Logging';
+import Footer from './Components/Footer/Footer';
 
 function App() {
 
@@ -179,95 +180,100 @@ function App() {
   }, [modalValues?.answer])
 
   return (
-    loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> : <div className='main-element'>
-      {!noNavbar && <Header
-        setUserObj={setUserObj}
-        userObj={userObj}
-        setModalValues={setModalValues}
-        connectNow={connectNow}
-        setConnectNow={setConnectNow}
-      />}
-      <Routes>
-        {!token ? (
-          <>
-            <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} setUserObj={setUserObj} />} />
-            {showForm && (
-              <Route path='/create-admin-page' element={<CreateForm
-                formData={formData}
-                setFormData={setFormData}
-                setShowForm={setShowForm}
-                ep={"/admin/createAdmin"} isAdmin={true}
-                setModalValues={setModalValues}
-                changePassword={true}
-                user={null}
-              />
-              } />
+    loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> :
+      <div className='main-element'>
+        <div className='main-element-child'>
+          {!noNavbar && <Header
+            setUserObj={setUserObj}
+            userObj={userObj}
+            setModalValues={setModalValues}
+            connectNow={connectNow}
+            setConnectNow={setConnectNow}
+          />}
+          <Routes>
+            {!token ? (
+              <>
+                <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} setUserObj={setUserObj} />} />
+                {showForm && (
+                  <Route path='/create-admin-page' element={<CreateForm
+                    formData={formData}
+                    setFormData={setFormData}
+                    setShowForm={setShowForm}
+                    ep={"/admin/createAdmin"} isAdmin={true}
+                    setModalValues={setModalValues}
+                    changePassword={true}
+                    user={null}
+                  />
+                  } />
+                )}
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </>
+            ) : (
+              <>
+                <Route path="/" element={<Home
+                  setModalValues={setModalValues}
+                  setItem={setItem}
+                  item={item} />} />
+
+                <Route path="/adminpage" element={<AdminPage />} />
+
+                <Route path="/adminpage/create-user" element={<CreateUser
+                  modalValues={modalValues}
+                  setModalValues={setModalValues} />} />
+
+                <Route path="/adminpage/all-users" element={<AllUsers
+                  setItem={setItem}
+                  setModalValues={setModalValues} />} />
+
+                <Route path="/adminpage/all-units" element={<Units
+                  setModalValues={setModalValues}
+                  setUpdateItem={setUpdateItem}
+                  setAddItem={setAddItem}
+                  setItem={setItem}
+                  setTypeOfItem={setTypeOfItem} />} />
+
+                <Route path="/adminpage/all-departments" element={<Departments
+                  setModalValues={setModalValues}
+                  setUpdateItem={setUpdateItem}
+                  setAddItem={setAddItem}
+                  setItem={setItem}
+                  setTypeOfItem={setTypeOfItem} />} />
+
+                <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} item={item} setItem={setItem} />} />
+
+                <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
+                  connectNow={connectNow}
+                  setConnectNow={setConnectNow} />} />
+
+                <Route path='/sent-all-messages' element={<SendMessages setModalValues={setModalValues} setItem={setItem} item={item}
+                  connectNow={connectNow}
+                  setConnectNow={setConnectNow} />} />
+
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </>
             )}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </>
-        ) : (
-          <>
-            <Route path="/" element={<Home
-              setModalValues={setModalValues}
-              setItem={setItem}
-              item={item} />} />
+          </Routes>
+        </div>
 
-            <Route path="/adminpage" element={<AdminPage />} />
+        <Footer />
 
-            <Route path="/adminpage/create-user" element={<CreateUser
-              modalValues={modalValues}
-              setModalValues={setModalValues} />} />
+        {modalValues.showModal && <Modal modalValues={modalValues} setModalValues={setModalValues} />}
 
-            <Route path="/adminpage/all-users" element={<AllUsers
-              setItem={setItem}
-              setModalValues={setModalValues} />} />
-
-            <Route path="/adminpage/all-units" element={<Units
-              setModalValues={setModalValues}
-              setUpdateItem={setUpdateItem}
-              setAddItem={setAddItem}
-              setItem={setItem}
-              setTypeOfItem={setTypeOfItem} />} />
-
-            <Route path="/adminpage/all-departments" element={<Departments
-              setModalValues={setModalValues}
-              setUpdateItem={setUpdateItem}
-              setAddItem={setAddItem}
-              setItem={setItem}
-              setTypeOfItem={setTypeOfItem} />} />
-
-            <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} item={item} setItem={setItem} />} />
-
-            <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
-              connectNow={connectNow}
-              setConnectNow={setConnectNow} />} />
-
-            <Route path='/sent-all-messages' element={<SendMessages setModalValues={setModalValues} setItem={setItem} item={item}
-              connectNow={connectNow}
-              setConnectNow={setConnectNow} />} />
-
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </>
-        )}
-      </Routes>
-
-      {modalValues.showModal && <Modal modalValues={modalValues} setModalValues={setModalValues} />}
-
-      {updateItem && (<Update
-        setModalValues={setModalValues}
-        setUpdateItem={setUpdateItem}
-        item={item}
-        typeOfItem={typeOfItem} />
-      )}
-
-      {addItem && (
-        <AddItem
+        {updateItem && (<Update
           setModalValues={setModalValues}
-          setAddItem={setAddItem}
+          setUpdateItem={setUpdateItem}
+          item={item}
           typeOfItem={typeOfItem} />
-      )}
-    </div>
+        )}
+
+        {addItem && (
+          <AddItem
+            setModalValues={setModalValues}
+            setAddItem={setAddItem}
+            typeOfItem={typeOfItem} />
+        )}
+      </div>
   );
 }
 

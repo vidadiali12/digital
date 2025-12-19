@@ -154,7 +154,7 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
 
     useEffect(() => {
         callUnRead();
-        (userObj?.admin || uObj?.admin)&& (
+        (userObj?.admin || uObj?.admin) && (
             callIsConnect()
         )
     }, [localStorage.getItem("userObj")]);
@@ -227,27 +227,16 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
                     {
                         uObj?.admin && (
                             <div className='ns-connect-box'>
-                                <div className='ns-connect-inform'>
-                                    <span className='ns-connect-text'>NS bağlantı: </span>
+                                <div className='ns-connect-inform' onClick={connectNow ? disConnectNs : connectNs}>
+                                    <span className='ns-connect-text' >
+                                        {(connectOpe && !connectNow) ? "Bağlantı yaradılır..." : (!connectOpe && !connectNow) ? "Bağlantı yarat" :
+                                            (connectOpe && connectNow) ? "Bağlantını kəsilir..." : "Bağlantını kəs"}
+                                    </span>
                                     {
                                         connectNow ? <RiCheckboxBlankCircleFill className='connect-icon ci-1' /> :
                                             <RiCheckboxBlankCircleFill className='connect-icon ci-2' />
                                     }
                                 </div>
-                                {
-                                    !connectNow && (
-                                        <button className='ns-connect-btn' onClick={connectNs}>
-                                            {connectOpe ? "Bağlantı yaradılır..." : "Bağlantı yarat"}
-                                        </button>
-                                    )
-                                }
-                                {
-                                    connectNow && (
-                                        <button className='ns-connect-btn' onClick={disConnectNs}>
-                                            {connectOpe ? "Bağlantını kəsilir..." : "Bağlantını kəs"}
-                                        </button>
-                                    )
-                                }
                             </div>
                         )
                     }

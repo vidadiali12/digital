@@ -19,7 +19,7 @@
 .all-messages-header,
 .all-messages-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: .6fr 2.8fr 2.5fr .5fr 2.7fr 2fr 1.5fr 1fr .7fr;
     align-items: center;
     padding: 10px 8px;
     border-bottom: 1px solid #ddd;
@@ -54,15 +54,6 @@
 .header-delete {
     text-align: center;
 }
-
-.full-width {
-    grid-column: 2 span;
-}
-
-.full-width-3 {
-    grid-column: 3 span;
-}
-
 
 .pdf-cell {
     display: flex;

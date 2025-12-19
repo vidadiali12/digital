@@ -44,7 +44,9 @@ const AllUsers = ({ setItem, setModalValues }) => {
             try {
                 const res = await api.get("/manage/getRanks");
                 setRanks(res?.data?.data || []);
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+            }
         };
         fetchRanks();
     }, []);

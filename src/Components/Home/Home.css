@@ -45,6 +45,7 @@
 .title-card:hover::after {
     height: 100%;
 }
+
 .card-head {
     display: flex;
     align-items: center;
@@ -89,15 +90,20 @@
     background: var(--color-teal);
     color: #fff;
 }
+.title-card:hover .primary{
+    background-color: white;
+    color: var(--color-dark-teal);
+}
 
 .card-actions .primary:hover {
-    background: #fff;
-    color: var(--color-dark-teal);
+    background: var(--color-teal);
+    color: var(--color-pale-teal);
 }
 
 .title-card:hover .card-head {
     color: var(--color-pale-teal);
 }
+
 .add-card {
     align-items: center;
     justify-content: center;

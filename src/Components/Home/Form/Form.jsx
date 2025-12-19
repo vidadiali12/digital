@@ -59,7 +59,9 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
     const [showDocument, setShowDocument] = useState(false);
     const [showFlash, setShowFlash] = useState(null)
     const [classForWord, setClassForWord] = useState('');
-    const [passEyeIcon, setPassEyeIcon] = useState(true)
+    const [passEyeIcon, setPassEyeIcon] = useState(true);
+
+    const [valueOfCapacity, setValueOfCapacity] = useState('');
 
     const renderPdfToCanvas = async (pdfBase64) => {
         if (!pdfBase64) return;
@@ -207,7 +209,8 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
             } else {
                 setFormData(prev => ({ ...prev, unitId: value }));
             }
-        } else {
+        }
+        else {
             setFormData({ ...formData, [name]: value });
         }
     };
@@ -525,6 +528,22 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
                     }
                 }
             }
+            if (showFlash && formData.capacity) {
+                const hasNumber = /\d/.test(formData.capacity);
+                const hasUnit = /(KB|MB|GB)$/.test(formData.capacity);
+
+                if (!hasNumber || !hasUnit) {
+                    throw new Error("❌ Tutum üçün həm rəqəm, həm vahid seçilməlidir!");
+                }
+            }
+
+            if (formData.password) {
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+
+                if (!passwordRegex.test(formData.password)) {
+                    throw new Error("Şifrə ən az 8 simvol, böyük hərf, kiçik hərf və xüsusi simvol içerməlidir");
+                }
+            }
 
             if (editingIndex !== null) {
                 const updated = [...addedEntries];
@@ -560,6 +579,7 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
                             { username: '' } : initialForm);
 
             setDisabled(true);
+            setValueOfCapacity("")
             document.getElementById('selectType').style.cursor = "default";
 
         } catch (err) {
@@ -578,6 +598,7 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
     const handleEdit = (index) => {
         setFormData(addedEntries[index]);
         setEditingIndex(index);
+        setValueOfCapacity(addedEntries[index]?.capacity?.slice(-2))
     };
 
     const handleDelete = (index) => {
@@ -777,6 +798,30 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
         }
     };
 
+    const onCapacityNumberChange = (e) => {
+        const number = e.target.value;
+        const unit = valueOfCapacity || "";
+
+        setFormData({
+            ...formData,
+            capacity: number ? number + unit : ""
+        });
+    };
+
+
+    const chooseCapacityValue = (e) => {
+        const unit = e.target.value;
+        const number = formData?.capacity?.replace(/\D/g, "") || "";
+
+        setValueOfCapacity(unit);
+
+        setFormData({
+            ...formData,
+            capacity: number ? number + unit : ""
+        });
+    };
+
+
     const signDocument = async (pwd) => {
         await signDoc({
             pwd,
@@ -788,7 +833,6 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
             setModalValues
         })
     };
-
 
     const sendDocumend = async (receiver, description) => {
         await sendDoc({
@@ -812,6 +856,14 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
         setShowSendButton("unshow-button");
     }
 
+    useEffect(() => {
+        const wordElement = document.getElementsByClassName('word-file-style')[0];
+        const docPrewiev = document.getElementsByClassName('doc-preview')[0]
+        if (wordElement && docPrewiev) {
+            wordElement.style.marginTop = `${((docPrewiev.offsetHeight - wordElement.offsetHeight) / 2)}px`;
+            console.log(docPrewiev.offsetHeight, docPrewiev, wordElement.offsetHeight)
+        }
+    }, [classForWord, pdfUrl]);
 
     return loading ? (
         <Loading loadingMessage={'Məlumatlar analiz edilir...'} />
@@ -937,7 +989,21 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
 
                                                         {showFlash && (<>
                                                             <input name="mark" value={formData?.mark} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Markası" className={`${showFileArea != '' && 'un-show-form'}`} />
-                                                            <input name="capacity" value={formData?.capacity} disabled={totalDisabled} onChange={handleChange} placeholder="Cihazın Tutumu" className={`${showFileArea != '' && 'un-show-form'}`} />
+
+                                                            <div className='form-group-capacity'>
+                                                                <input name="capacity" value={formData?.capacity?.replace(/\D/g, "") || ""} disabled={totalDisabled} type='number'
+                                                                    onChange={onCapacityNumberChange} placeholder="Cihazın Tutumu" className={`${showFileArea != '' && 'un-show-form'}`}
+                                                                    id='capacity' />
+                                                                <select name="" id="" disabled={totalDisabled}
+                                                                    value={valueOfCapacity || formData?.capacity?.slice(-2)}
+                                                                    onChange={chooseCapacityValue} className={`${showFileArea != '' && 'un-show-form'} select`} >
+                                                                    <option value="">Seç</option>
+                                                                    <option value="KB">KB</option>
+                                                                    <option value="MB">MB</option>
+                                                                    <option value="GB">GB</option>
+                                                                </select>
+                                                            </div>
+
                                                             <input name="serialNumber" value={formData?.serialNumber} disabled={totalDisabled} onChange={handleChange} placeholder="Unikal Nömrə" className={`${showFileArea != '' && 'un-show-form'}`} />
                                                         </>)}
 
@@ -977,9 +1043,9 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
                                 }
 
 
-                                <label className={`file-input-label ${showFileArea} ${classForWord}`}>
-                                    {fileData?.file ? fileData?.file?.name : 'Word faylını seçin'}
-                                    <input type="file" name="file" accept=".doc,.docx" onChange={handleChangeFile} />
+                                <label className={`file-input-label ${showFileArea} ${classForWord}`} >
+                                    {fileData?.file ? fileData?.file?.name : 'Davam edin!'}
+                                    <input type="file" name="file" accept=".doc,.docx" onChange={handleChangeFile} style={{ cursor: 'pointer' }} />
                                 </label>
                             </div>
                         ) :
@@ -1023,9 +1089,13 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
                 </div>
 
                 <div className="form-buttons">
-                    <button type="button" className={`btn btn-green btn-back ${showFileArea}`} onClick={backToForm}>
-                        Forma geri qayıt
-                    </button>
+                    {
+                        (item?.containsForm || chapter?.containsForm) && (
+                            <button type="button" className={`btn btn-green btn-back ${showFileArea}`} onClick={backToForm}>
+                                Forma geri qayıt
+                            </button>
+                        )
+                    }
                     <button className={`btn btn-red ${showButton}`} style={{ padding: '10px 22px' }} onClick={() => setShowForm(false)}>
                         Geri
                     </button>

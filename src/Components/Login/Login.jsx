@@ -22,7 +22,7 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [errMsg, setErrMsg] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("Daxil ol");
 
     const fetchServerPublicKey = async () => {
         try {
@@ -47,6 +47,7 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
     const login = async (e) => {
         e.preventDefault();
         setErrMsg(null);
+        setError("Daxil olunur...");
 
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -171,7 +172,7 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
                     localStorage.setItem("privateKeyLast", btoa(bin));
                     navigate("/")
                 } catch (err) {
-                    setError("İstifadəçi məlumatları alınarkən xəta baş verdi.");
+                    setErrMsg("İstifadəçi məlumatları alınarkən xəta baş verdi.");
                     navigate("/login", { replace: true });
                 } finally {
                     setLoading(false);
@@ -181,6 +182,8 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
             fetchUserData();
             setToken(responseModel?.accessToken);
             navigate("/");
+            setError("Daxil ol")
+
         } catch (err) {
             setErrMsg(`❌ Xəta baş verdi:
                     \n⚠️${err?.response?.data?.errorDescription || err
@@ -214,7 +217,7 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
                         </div>
                     </label>
 
-                    <button type="submit">Daxil ol</button>
+                    <button type="submit">{error}</button>
                     {errMsg && <div className="error-message">{errMsg}</div>}
                 </form>
             </div>

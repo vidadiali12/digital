@@ -101,7 +101,7 @@ const SendMessages = ({ setModalValues, setItem, item, connectNow, setConnectNow
 
                         <span className="pdf-cell full-width" onClick={() => goDocument(msg?.id)}>
                             <FaFilePdf className="pdf-icon" />
-                            <span className={`see-text  ${msg?.read ? "" : unReadStyle}`}>Sənədi gör</span>
+                            <span className={`see-text  ${msg?.read ? "" : unReadStyle}`}>{msg?.documentNo}</span>
                         </span>
 
                         <span className={`receiver-cell full-width-3  ${msg?.read ? "" : unReadStyle} ${!msg?.receiver?.rank?.name && 'deleted-user'}`}>
@@ -110,7 +110,7 @@ const SendMessages = ({ setModalValues, setItem, item, connectNow, setConnectNow
                         <span className={`management-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.receiver?.management?.name}</span>
                         <span className={`title-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.description}</span>
                         <span className={`chapter-cell full-width  ${msg?.read ? "" : unReadStyle}`}>{msg?.chapter || "—"}</span>
-                        <span className={`date-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.date}</span>
+                        <span className={`date-cell  ${msg?.read ? "" : unReadStyle}`}>{msg?.date?.split("T")[0]} {msg?.date?.split("T")[1].slice(0, 8)}</span>
 
                         <span className="status-cell">
                             {msg?.read ? (

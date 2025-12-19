@@ -33,6 +33,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
   const [docList, setDocList] = useState(null);
 
   const [userItem, setUserItem] = useState(null);
+  const [signOrForm, setSignOrForm] = useState(true)
 
   async function renderPdfToCanvas(pdfBase64) {
     if (!pdfBase64) return;
@@ -203,7 +204,6 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
           const importedPrivateKeyPK = await importPrivateKey();
           const decryptedDocList = await decryptKeyWithRsa(docsListRes?.key, importedPrivateKeyPK);
           const decryptedList = await decryptDataWithAes(docsListRes?.cipherText, docsListRes?.iv, decryptedDocList);
-          console.log(JSON.parse(decryptedList))
           setDocList(JSON.parse(decryptedList));
         } catch {
           setModalValues(prev => ({
@@ -344,6 +344,16 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
     }
   }
 
+
+  const changeSignOrForm = (info) => {
+    if (info == "sign") {
+      setSignOrForm(true);
+    }
+    else {
+      setSignOrForm(false)
+    }
+  }
+
   const editAndShareDoc = () => setShowForm(true);
 
   return (
@@ -353,29 +363,27 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
           <FiX className="close-modal-btn" onClick={closeDetails} />
 
           <div className="left-panel">
-            <h3 className="section-title">Sənəd</h3>
-            <div className="share-box">
-              <IoIosShareAlt className="share-box-icons" onClick={shareDoc} />
-              <FaEdit className="share-box-icons" onClick={editAndShareDoc} />
-              <FiDownload className="share-box-icons" onClick={downloadPdf} />
-              {
-                userItem?.admin &&
-                docElements?.hasForum &&
-                [2, 3, 4].includes(docElements?.chapter?.eventId) && (
-                  <span onClick={toDutySystem} style={{ color: "white", cursor: "pointer" }}>
-                    NS yönləndir
-                  </span>
-                )
-              }
+            <div style={{ display: 'flex', gap: '30px' }}>
+              <h3 className="section-title">Sənəd Məlumatları</h3>
+              <div className="share-box">
+                <IoIosShareAlt className="share-box-icons" onClick={shareDoc} />
+                <FaEdit className="share-box-icons" onClick={editAndShareDoc} />
+                <FiDownload className="share-box-icons" onClick={downloadPdf} />
+                {
+                  userItem?.admin &&
+                  docElements?.hasForum &&
+                  [2, 3, 4].includes(docElements?.chapter?.eventId) && (
+                    <span onClick={toDutySystem} style={{ color: "white", cursor: "pointer" }}>
+                      NS yönləndir
+                    </span>
+                  )
+                }
+              </div>
             </div>
-
-            <div className="pdf-wrapper" ></div>
-
             {docElements && (
               <div className="doc-info">
-                <h4 className="info-title">Sənəd məlumatları</h4>
-                <p><span className="label">Sənəd No:</span> {docElements?.documentNo}</p>
-                <p><span className="label">Tarix:</span> {docElements?.date}</p>
+                <p style={{ fontSize: '1.07rem' }}><span className="label">Sənəd No:</span> {docElements?.documentNo}</p>
+                <p style={{ fontSize: '1.07rem' }}><span className="label">Tarix:</span> {docElements?.date.split("T")[0]} {docElements?.date.split("T")[1].slice(0, 8)}</p>
 
                 <div className="info-box">
                   <div className="info-title-box">
@@ -397,11 +405,31 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
                 </div>
               </div>
             )}
+
+            <div className="pdf-wrapper" ></div>
+
           </div>
 
           <div className="right-panel">
-            <h3 className="section-title">İmzalar</h3>
-            {signDetail?.map((sig, index) => {
+            <h3 className="section-title show-doc-or-sign-btn">
+              <button
+                className={signOrForm ? "active" : ""}
+                onClick={() => changeSignOrForm("sign")}
+              >
+                İmzalar
+              </button>
+              {
+                docElements?.hasForum && (
+                  <button
+                    className={!signOrForm ? "active" : ""}
+                    onClick={() => changeSignOrForm("form")}
+                  >
+                    Form
+                  </button>
+                )
+              }
+            </h3>
+            {signOrForm ? signDetail?.map((sig, index) => {
               const ok = sig?.verified && sig?.timestampVerified;
               return (
                 <div key={index} className={`sign-card ${ok ? "ok" : "error"}`}>
@@ -410,7 +438,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
                     <span className="sign-status">{ok ? "✔" : "✖"}</span>
                   </div>
                   <p><span className="label">Ad / Soyad / Ata / Fin:</span> {sig?.signerName?.commonName}</p>
-                  <p><span className="label">Tarix:</span> {sig?.date}</p>
+                  <p><span className="label">Tarix:</span> {sig?.date}  </p>
                   <p><span className="label">Səbəb:</span> {sig?.reason}</p>
                   <p><span className="label">Yer:</span> {sig?.location}</p>
                   {!ok && (
@@ -421,7 +449,59 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
                   )}
                 </div>
               );
-            })}
+            }) :
+              <div className="form-list-doc">
+                {docList?.forms?.map((form, index) => (
+                  <div className="form-card-doc" key={index}>
+                    {form?.name && (
+                      <div className="form-row-doc">
+                        <span className="form-label-doc">Ad:</span>
+                        <span className="form-value-doc">{form.name}</span>
+                      </div>
+                    )}
+
+                    {form?.surname && (
+                      <div className="form-row-doc">
+                        <span className="form-label-doc">Soyad:</span>
+                        <span className="form-value-doc">{form.surname}</span>
+                      </div>
+                    )}
+
+                    {form?.fatherName && (
+                      <div className="form-row-doc">
+                        <span className="form-label-doc">Ata adı:</span>
+                        <span className="form-value-doc">{form.fatherName}</span>
+                      </div>
+                    )}
+                    
+                    {form?.username && (
+                      <div className="form-row-doc">
+                        <span className="form-label-doc">İstifadəçi adı:</span>
+                        <span className="form-value-doc">{form.username}</span>
+                      </div>
+                    )}
+
+                    {form?.formStatus && (
+                      <div
+                        className={`form-status-doc ${form.formStatus == 3
+                          ? "pending-doc"
+                          : form.formStatus == 2
+                            ? "approved-doc"
+                            : "rejected-doc"
+                          }`}
+                      >
+                        {form.formStatus == 3
+                          ? "Gözləmədə"
+                          : form.formStatus == 2
+                            ? "Təsdiqlənib"
+                            : "İmtina edilib"}
+                      </div>
+                    )}
+
+                  </div>
+                ))}
+              </div>
+            }
           </div>
         </div>
 
