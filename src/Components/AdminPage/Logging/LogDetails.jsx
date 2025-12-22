@@ -35,7 +35,7 @@ export default function LogDetails({ setModalValues, item, setShowLogDetails, se
                 </section>
 
                 <section>
-                    <h3>User JSON Data</h3>
+                    <h3>İstifadəçi məlumatları</h3>
                     <pre className="detail-json">
                         {item?.userJsonData || "-"}
                     </pre>

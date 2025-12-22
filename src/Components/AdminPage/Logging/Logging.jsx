@@ -5,6 +5,7 @@ import api from "../../api";
 import { FiInfo } from "react-icons/fi";
 import Pagination from "../../Modals/Pagination/Pagination";
 import LogDetails from "./LogDetails";
+import Loading from "../../Modals/Loading";
 
 const LOG_LEVEL_LIST = [
     { id: 1, name: "Low" },
@@ -23,6 +24,7 @@ export default function Logging({ setModalValues, item, setItem }) {
     const [totalItem, setTotalItem] = useState(null);
     const [totalPages, setTotalPages] = useState(null);
     const [showLogDetails, setShowLogDetails] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const [filters, setFilters] = useState({
         categoryId: [],
@@ -31,7 +33,8 @@ export default function Logging({ setModalValues, item, setItem }) {
         compIp: "",
         fromDate: "",
         toDate: "",
-        isCrash: null
+        isCrash: null,
+        newToOld: true
     });
 
     const getHeaders = () => {
@@ -55,6 +58,7 @@ export default function Logging({ setModalValues, item, setItem }) {
 
     const loadLogs = async () => {
         try {
+            setLoading(true)
             const res = await api.post(
                 "/admin/log/getAllLog",
                 filters,
@@ -67,8 +71,10 @@ export default function Logging({ setModalValues, item, setItem }) {
             setLogs(res?.data?.data || []);
             setTotalItem(res?.data?.totalItem || null);
             setTotalPages(res?.data?.totalPages || null)
+            setLoading(false)
         } catch (e) {
             console.log(e);
+            setLoading(false)
         }
     };
 
@@ -93,7 +99,8 @@ export default function Logging({ setModalValues, item, setItem }) {
             compIp: "",
             fromDate: "",
             toDate: "",
-            isCrash: null
+            isCrash: null,
+            newToOld: true
         });
         setActiveFilter(null);
     };
@@ -116,6 +123,37 @@ export default function Logging({ setModalValues, item, setItem }) {
         }
     }
 
+    const callLevelColor = (l) => {
+        let clr, level = l.toLocaleLowerCase();
+        if (level == "low") {
+            clr = "green"
+        }
+        else if (level == "high") {
+            clr = "red"
+        }
+        else if (level == "medium") {
+            clr = "orange"
+        }
+        else if (level == "info") {
+            clr = "#ffe017ff"
+        }
+
+        return clr
+    }
+
+    const changeAsc = (e) => {
+        if (e?.target?.value == `${true}`) {
+            setFilters(prev => ({
+                ...prev, newToOld: true
+            }))
+        }
+        else if (e?.target?.value == `${false}`) {
+            setFilters(prev => ({
+                ...prev, newToOld: false
+            }))
+        }
+    }
+
     useEffect(() => {
         loadCategories();
         setItem(null);
@@ -130,138 +168,153 @@ export default function Logging({ setModalValues, item, setItem }) {
     }, [filters]);
 
     return (
-        <div className="logs-wrapper p-4 w-full">
+        loading ? <Loading loadingMessage={"Məlumatlar yüklənir..."} /> :
+            <div className="logs-wrapper p-4 w-full">
 
-            <div className="logs-filters">
+                <div className="logs-filters">
 
-                <input
-                    placeholder="Axtar..."
-                    value={filters.searchText}
-                    onChange={e =>
-                        setFilters(prev => ({ ...prev, searchText: e.target.value }))
-                    }
-                />
+                    <input
+                        placeholder="Axtar..."
+                        value={filters.searchText}
+                        onChange={e =>
+                            setFilters(prev => ({ ...prev, searchText: e.target.value }))
+                        }
+                    />
 
-                <input
-                    placeholder="IP"
-                    value={filters.compIp}
-                    onChange={e =>
-                        setFilters(prev => ({ ...prev, compIp: e.target.value }))
-                    }
-                />
+                    <input
+                        placeholder="IP"
+                        value={filters.compIp}
+                        onChange={e =>
+                            setFilters(prev => ({ ...prev, compIp: e.target.value }))
+                        }
+                    />
 
-                <input
-                    value={filters.fromDate.split(".").reverse().join("-")}
-                    type="date"
-                    onChange={e =>
-                        setFilters(prev => ({ ...prev, fromDate: e.target.value.split("-").reverse().join(".") }))
-                    }
-                />
+                    <input
+                        value={filters.fromDate.split(".").reverse().join("-")}
+                        type="date"
+                        onChange={e =>
+                            setFilters(prev => ({ ...prev, fromDate: e.target.value.split("-").reverse().join(".") }))
+                        }
+                    />
 
-                <input
-                    value={filters.toDate.split(".").reverse().join("-")}
-                    type="date"
-                    onChange={e =>
-                        setFilters(prev => ({ ...prev, toDate: e.target.value.split("-").reverse().join(".") }))
-                    }
-                />
+                    <input
+                        value={filters.toDate.split(".").reverse().join("-")}
+                        type="date"
+                        onChange={e =>
+                            setFilters(prev => ({ ...prev, toDate: e.target.value.split("-").reverse().join(".") }))
+                        }
+                    />
 
-                <div className="filter-box">
-                    <span onClick={() => showFilter("category")}>
-                        Kateqoriya <FiChevronDown />
-                    </span>
-                    <div className={`filter-box-child ${activeFilter === "category" ? "show" : ""}`}>
-                        {categories.map(c => (
-                            <label key={c.id}>
-                                <input
-                                    type="checkbox"
-                                    checked={filters.categoryId.includes(c.id)}
-                                    onChange={() => toggleFilter("categoryId", c.id)}
-                                />
-                                <span>{c.category}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="filter-box">
-                    <span onClick={() => showFilter("level")}>
-                        Log Level <FiChevronDown />
-                    </span>
-                    <div className={`filter-box-child ${activeFilter === "level" ? "show" : ""}`}>
-                        {LOG_LEVEL_LIST.map(l => (
-                            <label key={l.id}>
-                                <input
-                                    type="checkbox"
-                                    checked={filters.logLevelId.includes(l.id)}
-                                    onChange={() => toggleFilter("logLevelId", l.id)}
-                                />
-                                <span>{l.name}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                <select
-                    value={filters?.isCrash == null ? "" : filters?.isCrash}
-                    onChange={e =>
-                        setFilters(prev => ({
-                            ...prev,
-                            isCrash: e.target.value === ""
-                                ? null
-                                : e.target.value === "true"
-                        }))
-                    }
-                >
-                    <option value="">Hamısı</option>
-                    <option value="true">Xətalı</option>
-                    <option value="false">Normal</option>
-                </select>
-
-                <button onClick={clearFilter} className="clear-filters">Filteri sıfırla</button>
-            </div>
-
-            <div className="logs-table">
-                <div className="table-header">
-                    <span>#</span>
-                    <span>Kateqoriya</span>
-                    <span>Level</span>
-                    <span>Komputer IP</span>
-                    <span>Tarix</span>
-                    <span style={{ textAlign: 'center' }}>Server xətası</span>
-                    <span className="log-more-icon-box">Ətraflı</span>
-                </div>
-
-                {logs.map((l, i) => (
-                    <div className="table-row" key={l.id}>
-                        <span>{pageSize * (page - 1) + i + 1}</span>
-                        <span>{l.category?.category}</span>
-                        <span>{l.logLevel}</span>
-                        <span>{l.compIP}</span>
-                        <span>{l.logDate?.split("T")[0]} {l.logDate?.split("T")[1]?.slice(0, 8)}</span>
-                        <span className={`${l.crash ? "red-color" : 'green-color'}`}>{l.crash ? "Bəli" : "Xeyr"}</span>
-                        <span className="log-more-icon-box">
-                            <FiInfo className="icon-log-more" onClick={() => showDetails(l)} />
+                    <div className="filter-box">
+                        <span onClick={() => showFilter("category")}>
+                            Kateqoriya <FiChevronDown />
                         </span>
+                        <div className={`filter-box-child ${activeFilter === "category" ? "show" : ""}`}>
+                            {categories.map(c => (
+                                <label key={c.id}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.categoryId.includes(c.id)}
+                                        onChange={() => toggleFilter("categoryId", c.id)}
+                                    />
+                                    <span>{c.category}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
-                ))}
+
+                    <div className="filter-box">
+                        <span onClick={() => showFilter("level")}>
+                            Log Level <FiChevronDown />
+                        </span>
+                        <div className={`filter-box-child ${activeFilter === "level" ? "show" : ""}`}>
+                            {LOG_LEVEL_LIST.map(l => (
+                                <label key={l.id}>
+                                    <input
+                                        type="checkbox"
+                                        checked={filters.logLevelId.includes(l.id)}
+                                        onChange={() => toggleFilter("logLevelId", l.id)}
+                                    />
+                                    <span>{l.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <select
+                        value={filters?.isCrash == null ? "" : filters?.isCrash}
+                        onChange={e =>
+                            setFilters(prev => ({
+                                ...prev,
+                                isCrash: e.target.value === ""
+                                    ? null
+                                    : e.target.value === "true"
+                            }))
+                        }
+                    >
+                        <option value="">Hamısı</option>
+                        <option value="true">Xətalı</option>
+                        <option value="false">Normal</option>
+                    </select>
+
+                    <div className="filter-box sort-filter">
+                        <select
+                            className="filter-select"
+                            onChange={changeAsc}
+                            value={filters?.newToOld}
+                        >
+                            <option value={`${true}`}>Yenidən Köhnəyə</option>
+                            <option value={`${false}`}>Köhnədən Yeniyə</option>
+                        </select>
+                        <span className="select-icon">⇅</span>
+                    </div>
+
+                    <button onClick={clearFilter} className="clear-filters">Filteri sıfırla</button>
+                </div>
+
+                <div className="logs-table">
+                    <div className="table-header">
+                        <span>#</span>
+                        <span>Kateqoriya</span>
+                        <span>Level</span>
+                        <span>Komputer IP</span>
+                        <span>Tarix</span>
+                        <span style={{ textAlign: 'center' }}>Server xətası</span>
+                        <span className="log-more-icon-box">Ətraflı</span>
+                    </div>
+
+                    {logs.map((l, i) => (
+                        <div className="table-row" key={l.id}>
+                            <span>{pageSize * (page - 1) + i + 1}</span>
+                            <span>{l.category?.category}</span>
+                            <span style={
+                                { color: callLevelColor(l.logLevel) }
+                            }>{l.logLevel}</span>
+                            <span>{l.compIP}</span>
+                            <span>{l.logDate?.split("T")[0]} {l.logDate?.split("T")[1]?.slice(0, 8)}</span>
+                            <span className={`${l.crash ? "red-color" : 'green-color'}`}>{l.crash ? "Bəli" : "Xeyr"}</span>
+                            <span className="log-more-icon-box">
+                                <FiInfo className="icon-log-more" onClick={() => showDetails(l)} />
+                            </span>
+                        </div>
+                    ))}
+                </div>
+
+                {
+                    showLogDetails && (
+                        <LogDetails setModalValues={setModalValues} setItem={setItem} item={item} setShowLogDetails={setShowLogDetails} />
+                    )
+                }
+
+                {totalItem && totalPages && totalItem > pageSize && (
+                    <Pagination
+                        page={page}
+                        setPage={setPage}
+                        pageSize={pageSize}
+                        totalItem={totalItem}
+                        totalPages={totalPages}
+                    />
+                )}
             </div>
-
-            {
-                showLogDetails && (
-                    <LogDetails setModalValues={setModalValues} setItem={setItem} item={item} setShowLogDetails={setShowLogDetails} />
-                )
-            }
-
-            {totalItem && totalPages && totalItem > pageSize && (
-                <Pagination
-                    page={page}
-                    setPage={setPage}
-                    pageSize={pageSize}
-                    totalItem={totalItem}
-                    totalPages={totalPages}
-                />
-            )}
-        </div>
     );
 }

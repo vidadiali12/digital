@@ -31,9 +31,13 @@
 
 .added-entries {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 20px;
+    width: 100%;
+    min-height: 90px;
+    padding: 10px 0;
+    align-self: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
 }
 
 .entry-card {
@@ -41,7 +45,8 @@
     padding: 10px 15px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    min-width: 180px;
+    min-width: 220px;
+    flex-shrink: 0;
 }
 
 .entry-actions {

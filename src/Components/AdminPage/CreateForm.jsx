@@ -161,7 +161,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
           setHeadUnits(response?.data?.data);
 
-          if (response?.data?.data.length === 0) {
+          if (response?.data?.data.length === 0 && !ep?.includes("/admin/updateUser/")) {
             throw new Error("❌ Seçilən İdarəyə uyğun Baş Bölmə mövcud deyil!");
           }
         } catch (err) {
@@ -203,7 +203,7 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
 
         setUnits(response?.data?.data);
 
-        if (response?.data?.data?.length === 0) {
+        if (response?.data?.data?.length === 0 && !ep?.includes("/admin/updateUser/")) {
           throw new Error("❌ Seçilən Baş Bölməyə uyğun Bölmə mövcud deyil!");
         }
       } catch (err) {
@@ -290,11 +290,47 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
             changeDepartment(formData?.managementId);
             break;
           case 3: {
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) throw new Error("Token tapılmadı");
+            const hdrs = {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+            const hu = await api.get('/manage/getAllHeadUnits', { headers: hdrs });
+
+            const allHeadUnitsForEdit = hu?.data?.data;
+            const departmentForEdit = allHeadUnitsForEdit.find(e => e.id == formData?.managementId);
             changeHeadUnit(formData?.managementId);
+            changeDepartment(departmentForEdit?.departmentId);
+
+            setHeadUnitsId(formData?.managementId);
+            setDepartmentsId(departmentForEdit?.departmentId);
             break;
           }
           case 4: {
+            const token = localStorage.getItem("myUserDocumentToken");
+            if (!token) throw new Error("Token tapılmadı");
+            const hdrs = {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+            const [u, hu] = await Promise.all([
+              api.get('/manage/getAllUnits', { headers: hdrs }),
+              api.get('/manage/getAllHeadUnits', { headers: hdrs })
+            ]);
+
+            const allUnitsForEdit = u?.data?.data,
+              allHeadUnitsForEdit = hu?.data?.data;
+            const headUnitForEdit = allUnitsForEdit.find(e => e.id == formData?.managementId),
+              departmentsForEdit = allHeadUnitsForEdit.find(e => e.id == headUnitForEdit?.headUnitId);
+
             changeUnit(formData?.managementId);
+            changeHeadUnit(headUnitForEdit?.headUnitId);
+            changeDepartment(departmentsForEdit?.departmentId)
+
+            setUnitsId(formData?.managementId)
+            setHeadUnitsId(headUnitForEdit?.headUnitId)
+            setDepartmentsId(departmentsForEdit?.departmentId)
             break;
           }
 

@@ -5,22 +5,35 @@ import api from '../api'
 import { useEffect, useState } from 'react'
 import AddTitle from './Title/AddTitle'
 import Form from './Form/Form'
+import Loading from '../Modals/Loading'
 
 const Home = ({ setModalValues, setItem, item }) => {
     const [titles, setTitles] = useState([])
     const [showTitle, setShowTitle] = useState(false)
     const [typeOfOperation, setTypeOfOperation] = useState(null)
     const [showForm, setShowForm] = useState(false)
-    const [uObj, setuObj] = useState(null)
+    const [uObj, setuObj] = useState(null);
+    const [loading, setLoading] = useState(null);
 
     const getTitles = async () => {
-        const token = localStorage.getItem("myUserDocumentToken")
-        if (!token) return
+        try {
+            setLoading(true)
+            const token = localStorage.getItem("myUserDocumentToken")
+            if (!token) return
 
-        const res = await api.get('/chapter/getChapters', {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        setTitles(res.data.data)
+            const res = await api.get('/chapter/getChapters', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            setTitles(res.data.data);
+            setLoading(false)
+        } catch (err) {
+            setModalValues(prev => ({
+                ...prev,
+                message: `❌ Xəta baş verdi: \n⚠️${err?.response?.data?.errorDescription || err}.`,
+                isQuestion: false,
+                showModal: true
+            }))
+        }
     }
 
     const showTitleAdding = () => {
@@ -62,6 +75,7 @@ const Home = ({ setModalValues, setItem, item }) => {
     if (uObj?.shouldChangePassword) return null
 
     return (
+        loading ? <Loading loadingMessage={"Sənəd tipləri yüklənir..."} /> :
         <section className="home">
 
             <div className="cards-wrapper">
@@ -69,7 +83,7 @@ const Home = ({ setModalValues, setItem, item }) => {
                 {uObj?.admin && (
                     <div className="title-card add-card" onClick={showTitleAdding}>
                         <FiPlus />
-                        <span>Yeni başlıq əlavə et</span>
+                        <span>Yeni sənəd tipi əlavə et</span>
                     </div>
                 )}
 

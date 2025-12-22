@@ -1,3 +1,16 @@
+:root {
+    --bg-1: #f6f7fb;
+    --bg-2: #ffffff;
+    --bg-3: #eef0fb;
+    --bg-4: #d8ddff;
+
+    --accent: #6f5ff0;
+    --accent-light: #5940d6;
+
+    --text-1: #1a1446;
+    --text-2: #241b5a;
+}
+
 .logs-wrapper {
     background: #f8f9fb;
     height: min-content;
@@ -30,7 +43,7 @@
     border-color: #4f46e5 !important;
 }
 
-.logs-filters input[type="checkbox"]:focus{
+.logs-filters input[type="checkbox"]:focus {
     border: none !important;
     outline: none !important;
     background-color: yellow !important;
@@ -195,8 +208,60 @@
     font-size: 20px;
     scale: 1;
     transition: .5s;
+    cursor: pointer;
 }
 
 .icon-log-more:hover {
     scale: 1.1;
+}
+
+.sort-filter {
+    position: relative;
+    width: 200px;
+}
+
+.filter-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    width: 100%;
+    height: 42px;
+    padding: 0 44px 0 16px;
+
+    background: var(--bg-3);
+    border: 1px solid var(--bg-4);
+    border-radius: 8px;
+
+    font-size: 15px;
+    color: var(--text-1);
+    cursor: pointer;
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: 0.2s;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+    border-color: var(--accent);
+    color: var(--accent-light);
+    outline: none;
+}
+
+.select-icon {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    pointer-events: none;
+
+    font-size: 16px;
+    color: var(--text-2);
+    transition: 0.2s;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.filter-select:hover+.select-icon {
+    color: var(--accent);
 }

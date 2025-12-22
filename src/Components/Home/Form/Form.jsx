@@ -36,7 +36,7 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
     const [typeOfAccounts, setTypeOfAccounts] = useState(null);
     const [ranks, setRanks] = useState([])
     const [loading, setLoading] = useState(null);
-    const [disabled, setDisabled] = useState(false)
+    const [disabled, setDisabled] = useState(false);
 
     const [totalDisabled, setTotalDisabled] = useState(true)
 
@@ -864,6 +864,16 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
             console.log(docPrewiev.offsetHeight, docPrewiev, wordElement.offsetHeight)
         }
     }, [classForWord, pdfUrl]);
+
+
+    useEffect(() => {
+        if (departments == [] || departments == null || units == [] || units == null || typeOfAccounts == [] || typeOfAccounts == null) {
+            setLoading(true)
+        }
+        else {
+            setLoading(false)
+        }
+    }, [departments, units, typeOfAccounts])
 
     return loading ? (
         <Loading loadingMessage={'Məlumatlar analiz edilir...'} />

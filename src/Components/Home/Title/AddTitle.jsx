@@ -184,7 +184,7 @@ const AddTitle = ({ setShowTitle, userObj, typeOfOperation, item, setModalValues
                                     checked={containsForm}
                                     onChange={handleChangeFormCheckbox}
                                 />
-                                Bu başlıqda form olacaq:
+                                Bu tipdə form olacaq:
                             </label>
                             <button onClick={addTitle} className="addtitle-btn">
                                 {typeOfOperation === "createTitle"

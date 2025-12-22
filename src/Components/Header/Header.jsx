@@ -62,7 +62,8 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
             })
 
             setUnReadCount(resUnRead?.data?.data);
-        } catch (err) {
+        }
+        catch (err) {
             if (err?.response?.data?.errorDescription?.includes("User should reset password")
                 ||
                 err?.response?.data?.errorDescription?.toLowerCase().includes("parol".toLowerCase())) {
