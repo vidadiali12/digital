@@ -435,7 +435,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
                 <div key={index} className={`sign-card ${ok ? "ok" : "error"}`}>
                   <div className="sign-header">
                     <span className="sign-index">İmza #{index + 1}</span>
-                    <span className="sign-status">{ok ? "✔" : "✖"}</span>
+                    <span className="sign-status">{ok ? "✔" : ""}</span>
                   </div>
                   <p><span className="label">Ad / Soyad / Ata / Fin:</span> {sig?.signerName?.commonName}</p>
                   <p><span className="label">Tarix:</span> {sig?.date}  </p>

@@ -18,6 +18,7 @@ import { signDoc } from './signDocument';
 
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import workerSrc from "pdfjs-dist/build/pdf.worker?url";
+import axios from 'axios';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -642,11 +643,11 @@ const Form = ({ uObj, item, setShowForm, setModalValues, fromDocDetail, chapter 
 
         try {
             setLoading(true);
-            const [resType, resRank, resDepartments, resUnits] = await Promise.all([
+            const resRank = await axios.get('https://localhost:9097/rank/getAllRank');
+            const [resType, resDepartments, resUnits] = await Promise.all([
                 api.get('/form/getAccountTypes', {
                     headers: { Authorization: `Bearer ${token}` },
                 }),
-                api.get('/manage/getRanks'),
                 api.get('/form/getDepartments', {
                     headers: { Authorization: `Bearer ${token}` },
                     params: { page: depPage, pageSize },

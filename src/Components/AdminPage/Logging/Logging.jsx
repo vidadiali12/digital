@@ -29,7 +29,7 @@ export default function Logging({ setModalValues, item, setItem }) {
     const [filters, setFilters] = useState({
         categoryId: [],
         logLevelId: [],
-        searchText: "",
+        userDataText: "",
         compIp: "",
         fromDate: "",
         toDate: "",
@@ -52,13 +52,21 @@ export default function Logging({ setModalValues, item, setItem }) {
             );
             setCategories(res?.data?.data || []);
         } catch (e) {
-            console.log(e);
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Xəta baş verdi:\n⚠️"${err?.response?.data?.errorDescription || err}"`
+            }))
         }
     };
 
-    const loadLogs = async () => {
+    const loadLogs = async (filterType) => {
         try {
-            setLoading(true)
+            if (filterType) {
+                setLoading(true)
+            }
+
             const res = await api.post(
                 "/admin/log/getAllLog",
                 filters,
@@ -73,7 +81,12 @@ export default function Logging({ setModalValues, item, setItem }) {
             setTotalPages(res?.data?.totalPages || null)
             setLoading(false)
         } catch (e) {
-            console.log(e);
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Xəta baş verdi:\n⚠️"${err?.response?.data?.errorDescription || err}"`
+            }))
             setLoading(false)
         }
     };
@@ -95,7 +108,7 @@ export default function Logging({ setModalValues, item, setItem }) {
         setFilters({
             categoryId: [],
             logLevelId: [],
-            searchText: "",
+            userDataText: "",
             compIp: "",
             fromDate: "",
             toDate: "",
@@ -119,7 +132,12 @@ export default function Logging({ setModalValues, item, setItem }) {
             setItem(res?.data?.data);
             setShowLogDetails(true)
         } catch (err) {
-            console.log(err)
+            setModalValues(prev => ({
+                ...prev,
+                isQuestion: false,
+                showModal: true,
+                message: `❌ Xəta baş verdi:\n⚠️"${err?.response?.data?.errorDescription || err}"`
+            }))
         }
     }
 
@@ -160,161 +178,169 @@ export default function Logging({ setModalValues, item, setItem }) {
     }, []);
 
     useEffect(() => {
-        loadLogs();
-    }, [filters, page]);
+        loadLogs(true);
+    }, [filters?.categoryId, filters?.fromDate, filters?.isCrash, filters?.logLevelId, filters?.newToOld, filters?.toDate, page]);
+
+
+    useEffect(() => {
+        loadLogs(false);
+    }, [filters?.compIp, filters?.userDataText]);
 
     useEffect(() => {
         setPage(1);
     }, [filters]);
 
     return (
-        loading ? <Loading loadingMessage={"Məlumatlar yüklənir..."} /> :
-            <div className="logs-wrapper p-4 w-full">
+        <div className="logs-wrapper p-4 w-full">
 
-                <div className="logs-filters">
+            <div className="logs-filters">
 
-                    <input
-                        placeholder="Axtar..."
-                        value={filters.searchText}
-                        onChange={e =>
-                            setFilters(prev => ({ ...prev, searchText: e.target.value }))
-                        }
-                    />
+                <input
+                    placeholder="Axtar..."
+                    value={filters.userDataText}
+                    onChange={e =>
+                        setFilters(prev => ({ ...prev, userDataText: e.target.value }))
+                    }
+                />
 
-                    <input
-                        placeholder="IP"
-                        value={filters.compIp}
-                        onChange={e =>
-                            setFilters(prev => ({ ...prev, compIp: e.target.value }))
-                        }
-                    />
+                <input
+                    placeholder="IP"
+                    value={filters.compIp}
+                    onChange={e =>
+                        setFilters(prev => ({ ...prev, compIp: e.target.value }))
+                    }
+                />
 
-                    <input
-                        value={filters.fromDate.split(".").reverse().join("-")}
-                        type="date"
-                        onChange={e =>
-                            setFilters(prev => ({ ...prev, fromDate: e.target.value.split("-").reverse().join(".") }))
-                        }
-                    />
+                <input
+                    value={filters.fromDate.split(".").reverse().join("-")}
+                    type="date"
+                    onChange={e =>
+                        setFilters(prev => ({ ...prev, fromDate: e.target.value.split("-").reverse().join(".") }))
+                    }
+                />
 
-                    <input
-                        value={filters.toDate.split(".").reverse().join("-")}
-                        type="date"
-                        onChange={e =>
-                            setFilters(prev => ({ ...prev, toDate: e.target.value.split("-").reverse().join(".") }))
-                        }
-                    />
+                <input
+                    value={filters.toDate.split(".").reverse().join("-")}
+                    type="date"
+                    onChange={e =>
+                        setFilters(prev => ({ ...prev, toDate: e.target.value.split("-").reverse().join(".") }))
+                    }
+                />
 
-                    <div className="filter-box">
-                        <span onClick={() => showFilter("category")}>
-                            Kateqoriya <FiChevronDown />
-                        </span>
-                        <div className={`filter-box-child ${activeFilter === "category" ? "show" : ""}`}>
-                            {categories.map(c => (
-                                <label key={c.id}>
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.categoryId.includes(c.id)}
-                                        onChange={() => toggleFilter("categoryId", c.id)}
-                                    />
-                                    <span>{c.category}</span>
-                                </label>
-                            ))}
-                        </div>
+                <div className="filter-box">
+                    <span onClick={() => showFilter("category")}>
+                        Kateqoriya <FiChevronDown />
+                    </span>
+                    <div className={`filter-box-child ${activeFilter === "category" ? "show" : ""}`}>
+                        {categories.map(c => (
+                            <label key={c.id}>
+                                <input
+                                    type="checkbox"
+                                    checked={filters.categoryId.includes(c.id)}
+                                    onChange={() => toggleFilter("categoryId", c.id)}
+                                />
+                                <span>{c.category}</span>
+                            </label>
+                        ))}
                     </div>
+                </div>
 
-                    <div className="filter-box">
-                        <span onClick={() => showFilter("level")}>
-                            Log Level <FiChevronDown />
-                        </span>
-                        <div className={`filter-box-child ${activeFilter === "level" ? "show" : ""}`}>
-                            {LOG_LEVEL_LIST.map(l => (
-                                <label key={l.id}>
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.logLevelId.includes(l.id)}
-                                        onChange={() => toggleFilter("logLevelId", l.id)}
-                                    />
-                                    <span>{l.name}</span>
-                                </label>
-                            ))}
-                        </div>
+                <div className="filter-box">
+                    <span onClick={() => showFilter("level")}>
+                        Log Level <FiChevronDown />
+                    </span>
+                    <div className={`filter-box-child ${activeFilter === "level" ? "show" : ""}`}>
+                        {LOG_LEVEL_LIST.map(l => (
+                            <label key={l.id}>
+                                <input
+                                    type="checkbox"
+                                    checked={filters.logLevelId.includes(l.id)}
+                                    onChange={() => toggleFilter("logLevelId", l.id)}
+                                />
+                                <span>{l.name}</span>
+                            </label>
+                        ))}
                     </div>
+                </div>
 
+                <select
+                    value={filters?.isCrash == null ? "" : filters?.isCrash}
+                    onChange={e =>
+                        setFilters(prev => ({
+                            ...prev,
+                            isCrash: e.target.value === ""
+                                ? null
+                                : e.target.value === "true"
+                        }))
+                    }
+                >
+                    <option value="">Hamısı</option>
+                    <option value="true">Xətalı</option>
+                    <option value="false">Normal</option>
+                </select>
+
+                <div className="filter-box sort-filter">
                     <select
-                        value={filters?.isCrash == null ? "" : filters?.isCrash}
-                        onChange={e =>
-                            setFilters(prev => ({
-                                ...prev,
-                                isCrash: e.target.value === ""
-                                    ? null
-                                    : e.target.value === "true"
-                            }))
-                        }
+                        className="filter-select"
+                        onChange={changeAsc}
+                        value={filters?.newToOld}
                     >
-                        <option value="">Hamısı</option>
-                        <option value="true">Xətalı</option>
-                        <option value="false">Normal</option>
+                        <option value={`${true}`}>Yenidən Köhnəyə</option>
+                        <option value={`${false}`}>Köhnədən Yeniyə</option>
                     </select>
-
-                    <div className="filter-box sort-filter">
-                        <select
-                            className="filter-select"
-                            onChange={changeAsc}
-                            value={filters?.newToOld}
-                        >
-                            <option value={`${true}`}>Yenidən Köhnəyə</option>
-                            <option value={`${false}`}>Köhnədən Yeniyə</option>
-                        </select>
-                        <span className="select-icon">⇅</span>
-                    </div>
-
-                    <button onClick={clearFilter} className="clear-filters">Filteri sıfırla</button>
+                    <span className="select-icon">⇅</span>
                 </div>
 
-                <div className="logs-table">
-                    <div className="table-header">
-                        <span>#</span>
-                        <span>Kateqoriya</span>
-                        <span>Level</span>
-                        <span>Komputer IP</span>
-                        <span>Tarix</span>
-                        <span style={{ textAlign: 'center' }}>Server xətası</span>
-                        <span className="log-more-icon-box">Ətraflı</span>
-                    </div>
-
-                    {logs.map((l, i) => (
-                        <div className="table-row" key={l.id}>
-                            <span>{pageSize * (page - 1) + i + 1}</span>
-                            <span>{l.category?.category}</span>
-                            <span style={
-                                { color: callLevelColor(l.logLevel) }
-                            }>{l.logLevel}</span>
-                            <span>{l.compIP}</span>
-                            <span>{l.logDate?.split("T")[0]} {l.logDate?.split("T")[1]?.slice(0, 8)}</span>
-                            <span className={`${l.crash ? "red-color" : 'green-color'}`}>{l.crash ? "Bəli" : "Xeyr"}</span>
-                            <span className="log-more-icon-box">
-                                <FiInfo className="icon-log-more" onClick={() => showDetails(l)} />
-                            </span>
-                        </div>
-                    ))}
-                </div>
-
-                {
-                    showLogDetails && (
-                        <LogDetails setModalValues={setModalValues} setItem={setItem} item={item} setShowLogDetails={setShowLogDetails} />
-                    )
-                }
-
-                {totalItem && totalPages && totalItem > pageSize && (
-                    <Pagination
-                        page={page}
-                        setPage={setPage}
-                        pageSize={pageSize}
-                        totalItem={totalItem}
-                        totalPages={totalPages}
-                    />
-                )}
+                <button onClick={clearFilter} className="clear-filters">Filteri sıfırla</button>
             </div>
+
+            <div className="logs-table">
+                <div className="table-header">
+                    <span>#</span>
+                    <span>Kateqoriya</span>
+                    <span>Level</span>
+                    <span>Komputer IP</span>
+                    <span>Tarix</span>
+                    <span style={{ textAlign: 'center' }}>Server xətası</span>
+                    <span className="log-more-icon-box">Ətraflı</span>
+                </div>
+
+                {logs.map((l, i) => (
+                    <div className="table-row" key={l.id}>
+                        <span>{pageSize * (page - 1) + i + 1}</span>
+                        <span>{l.category?.category}</span>
+                        <span style={
+                            { color: callLevelColor(l.logLevel) }
+                        }>{l.logLevel}</span>
+                        <span>{l.compIP}</span>
+                        <span>{l.logDate?.split("T")[0]} {l.logDate?.split("T")[1]?.slice(0, 8)}</span>
+                        <span className={`${l.crash ? "red-color" : 'green-color'}`}>{l.crash ? "Bəli" : "Xeyr"}</span>
+                        <span className="log-more-icon-box">
+                            <FiInfo className="icon-log-more" onClick={() => showDetails(l)} />
+                        </span>
+                    </div>
+                ))}
+            </div>
+
+            {
+                showLogDetails && (
+                    <LogDetails setModalValues={setModalValues} setItem={setItem} item={item} setShowLogDetails={setShowLogDetails} />
+                )
+            }
+
+            {totalItem && totalPages && totalItem > pageSize && (
+                <Pagination
+                    page={page}
+                    setPage={setPage}
+                    pageSize={pageSize}
+                    totalItem={totalItem}
+                    totalPages={totalPages}
+                />
+            )}
+
+            {
+                loading && <Loading loadingMessage={"Məlumatlar yüklənir..."} />
+            }
+        </div>
     );
 }

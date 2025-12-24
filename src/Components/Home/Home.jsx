@@ -24,7 +24,7 @@ const Home = ({ setModalValues, setItem, item }) => {
             const res = await api.get('/chapter/getChapters', {
                 headers: { Authorization: `Bearer ${token}` }
             })
-            setTitles(res.data.data);
+            setTitles(res?.data?.data || []);
             setLoading(false)
         } catch (err) {
             setModalValues(prev => ({
@@ -60,7 +60,7 @@ const Home = ({ setModalValues, setItem, item }) => {
     }
 
     const goForm = (id) => {
-        setItem(titles.find(t => t.id === id))
+        setItem(titles?.find(t => t.id === id) || null)
         setShowForm(true)
     }
 
@@ -69,76 +69,78 @@ const Home = ({ setModalValues, setItem, item }) => {
             ? JSON.parse(localStorage.getItem("userObj"))
             : null
         setuObj(u)
-        getTitles()
+        u && !u?.shouldChangePassword && (
+            getTitles()
+        )
     }, [localStorage.getItem("userObj")])
 
     if (uObj?.shouldChangePassword) return null
 
     return (
         loading ? <Loading loadingMessage={"Sənəd tipləri yüklənir..."} /> :
-        <section className="home">
+            <section className="home">
 
-            <div className="cards-wrapper">
+                <div className="cards-wrapper">
 
-                {uObj?.admin && (
-                    <div className="title-card add-card" onClick={showTitleAdding}>
-                        <FiPlus />
-                        <span>Yeni sənəd tipi əlavə et</span>
+                    {uObj?.admin && (
+                        <div className="title-card add-card" onClick={showTitleAdding}>
+                            <FiPlus />
+                            <span>Yeni sənəd tipi əlavə et</span>
+                        </div>
+                    )}
+
+                    {titles.map(title => (
+                        <div key={title.id} className="title-card">
+                            <div className="card-head">
+                                <FaFolderOpen />
+                                <span>{title.title}</span>
+                            </div>
+
+                            <div className="card-actions">
+                                {uObj?.admin && (
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button onClick={() => handleEdit(title.id)}>
+                                            <FaEdit />
+                                            <span>Redaktə</span>
+                                        </button>
+                                        <button onClick={() => handleDelete(title.id)}>
+                                            <FaTrashAlt />
+                                            <span>Sil</span>
+                                        </button>
+                                    </div>
+                                )}
+                                <button className="primary" onClick={() => goForm(title.id)}>
+                                    <FaArrowRight />
+                                    <span>Davam et</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {showTitle && (
+                    <div className="overlay">
+                        <AddTitle
+                            setShowTitle={setShowTitle}
+                            userObj={uObj}
+                            typeOfOperation={typeOfOperation}
+                            item={item}
+                            setModalValues={setModalValues}
+                        />
                     </div>
                 )}
 
-                {titles.map(title => (
-                    <div key={title.id} className="title-card">
-                        <div className="card-head">
-                            <FaFolderOpen />
-                            <span>{title.title}</span>
-                        </div>
-
-                        <div className="card-actions">
-                            {uObj?.admin && (
-                                <>
-                                    <button onClick={() => handleEdit(title.id)}>
-                                        <FaEdit />
-                                        <span>Redaktə</span>
-                                    </button>
-                                    <button onClick={() => handleDelete(title.id)}>
-                                        <FaTrashAlt />
-                                        <span>Sil</span>
-                                    </button>
-                                </>
-                            )}
-                            <button className="primary" onClick={() => goForm(title.id)}>
-                                <FaArrowRight />
-                                <span>Davam et</span>
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {showTitle && (
-                <div className="overlay">
-                    <AddTitle
-                        setShowTitle={setShowTitle}
-                        userObj={uObj}
-                        typeOfOperation={typeOfOperation}
-                        item={item}
+                {showForm && (
+                    <Form
+                        uObj={uObj}
+                        setShowForm={setShowForm}
                         setModalValues={setModalValues}
+                        item={item}
+                        fromDocDetail={[]}
+                        chapter={null}
                     />
-                </div>
-            )}
-
-            {showForm && (
-                <Form
-                    uObj={uObj}
-                    setShowForm={setShowForm}
-                    setModalValues={setModalValues}
-                    item={item}
-                    fromDocDetail={[]}
-                    chapter={null}
-                />
-            )}
-        </section>
+                )}
+            </section>
     )
 }
 

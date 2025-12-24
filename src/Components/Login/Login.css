@@ -73,9 +73,8 @@ input:focus {
 
 .password-wrapper button {
   position: absolute;
-  top: 50%;
+  top: 11px;
   right: 12px;
-  transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--color-gray-dark);

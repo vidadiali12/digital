@@ -84,7 +84,7 @@
 }
 
 .form-fields input::placeholder {
-    color: rgb(240, 240, 240);
+    color: rgb(185, 185, 185);
 }
 
 .file-input-label {
@@ -330,7 +330,7 @@
 
 .pass-eye-icon {
     position: absolute;
-    top: 13px;
+    top: 17px;
     right: 10px;
     color: white;
 }

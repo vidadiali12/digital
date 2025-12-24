@@ -154,19 +154,17 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
     }
 
     useEffect(() => {
-        callUnRead();
-        (userObj?.admin || uObj?.admin) && (
-            callIsConnect()
-        )
+        if (userObj?.shouldChangePassword == false || uObj?.shouldChangePassword == false) {
+            callUnRead();
+            if (userObj?.admin == true || uObj?.admin == true) {
+                callIsConnect()
+            }
+        }
     }, [localStorage.getItem("userObj")]);
 
     return (
-        (userObj?.shouldChangePassword || uObj?.shouldChangePassword) ?
-            <Profile setProfile={setProfile}
-                setModalValues={setModalValues}
-                shouldChangePassword={uObj?.shouldChangePassword}
-            />
-            : (<div className={`header`}>
+        (userObj?.shouldChangePassword == false || uObj?.shouldChangePassword == false) ?
+            (<div className={`header`}>
                 <ul className='ul-up'>
                     <li>
                         <Link to="/">
@@ -230,8 +228,8 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
                             <div className='ns-connect-box'>
                                 <div className='ns-connect-inform' onClick={connectNow ? disConnectNs : connectNs}>
                                     <span className='ns-connect-text' >
-                                        {(connectOpe && !connectNow) ? "Bağlantı yaradılır..." : (!connectOpe && !connectNow) ? "Bağlantı yarat" :
-                                            (connectOpe && connectNow) ? "Bağlantını kəsilir..." : "Bağlantını kəs"}
+                                        {(connectOpe && !connectNow) ? "NS Bağlantı yaradılır..." : (!connectOpe && !connectNow) ? "NS Bağlantı yarat" :
+                                            (connectOpe && connectNow) ? "NS Bağlantını kəsilir..." : "NS Bağlantını kəs"}
                                     </span>
                                     {
                                         connectNow ? <RiCheckboxBlankCircleFill className='connect-icon ci-1' /> :
@@ -251,7 +249,13 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
                             shouldChangePassword={uObj?.shouldChangePassword} />
                     )
                 }
-            </div>)
+            </div>
+            )
+            :
+            <Profile setProfile={setProfile}
+                setModalValues={setModalValues}
+                shouldChangePassword={uObj?.shouldChangePassword}
+            />
     );
 }
 

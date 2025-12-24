@@ -7,6 +7,7 @@ import Loading from "../../Modals/Loading";
 
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import workerSrc from "pdfjs-dist/build/pdf.worker?url";
+import axios from "axios";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
@@ -48,7 +49,7 @@ const GetReceivers = ({ visible = true, onClose, onSend, pdf, setModalValues }) 
 
   const fetchRanks = async () => {
     try {
-      const res = await api.get("/manage/getRanks");
+      const res = await axios.get('https://localhost:9097/rank/getAllRank');
       setRanks(res.data?.data || []);
     } catch { }
   };

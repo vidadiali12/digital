@@ -17,6 +17,7 @@ import './CreateForm.css';
 import api from '../api';
 import { encryptDataWithAes, encryptKeyWithRsa, generateCsr } from '../Functions/Functions';
 import Loading from '../Modals/Loading';
+import axios from 'axios';
 
 const iconMap = {
   name: <FaUser className="input-icon" />,
@@ -235,8 +236,8 @@ const CreateForm = ({ formData, setFormData, setShowForm, ep, isAdmin, setModalV
       try {
         setLoading(true);
 
-        const ranksRes = await api.get('/manage/getRanks')
-        setRanks(ranksRes?.data?.data);
+        const ranksRes = await axios.get('https://localhost:9097/rank/getAllRank');
+        setRanks(ranksRes?.data?.data || []);
 
         if (!isAdmin || (ep?.includes("/admin/updateUser/") && !changePassword)) {
           const token = localStorage.getItem("myUserDocumentToken");

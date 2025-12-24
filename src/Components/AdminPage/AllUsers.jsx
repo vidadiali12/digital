@@ -6,6 +6,7 @@ import "./AllUsers.css";
 import Loading from "../Modals/Loading";
 import IsChangePassoword from "./IsChangePassoword";
 import FilteredBySearch from "./FilteredBySearch";
+import axios from "axios";
 
 const AllUsers = ({ setItem, setModalValues }) => {
     const [allUsers, setAllUsers] = useState([]);
@@ -42,7 +43,7 @@ const AllUsers = ({ setItem, setModalValues }) => {
     useEffect(() => {
         const fetchRanks = async () => {
             try {
-                const res = await api.get("/manage/getRanks");
+                const res = await axios.get('https://localhost:9097/rank/getAllRank');
                 setRanks(res?.data?.data || []);
             } catch (err) {
                 console.error(err);
