@@ -173,7 +173,7 @@ const Login = ({ setToken, setItem, setModalValues, setUserObj }) => {
                     navigate("/")
                 } catch (err) {
                     setErrMsg("İstifadəçi məlumatları alınarkən xəta baş verdi.");
-                    navigate("/login", { replace: true });
+                    navigate("/login-page", { replace: true });
                 } finally {
                     setLoading(false);
                 }

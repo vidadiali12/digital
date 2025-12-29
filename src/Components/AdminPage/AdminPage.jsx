@@ -25,31 +25,31 @@ const AdminPage = () => {
         </header>
 
         <div className="admin-actions">
-          <NavLink to="/adminpage/create-user" className="admin-card">
+          <NavLink to="/admin-page/create-user" className="admin-card">
             <FaUserPlus className="admin-card-icon" />
             <h2>İstifadəçi yarat</h2>
             <p>Yeni istifadəçilər əlavə et</p>
           </NavLink>
 
-          <NavLink to="/adminpage/all-users" className="admin-card">
+          <NavLink to="/admin-page/all-users" className="admin-card">
             <FaUsers className="admin-card-icon" />
             <h2>İstifadəçiləri siyahıla</h2>
             <p>Mövcud istifadəçiləri görüntülə və idarə et</p>
           </NavLink>
 
-          <NavLink to="/adminpage/all-departments" className="admin-card">
+          <NavLink to="/admin-page/all-departments" className="admin-card">
             <FaBuilding className="admin-card-icon" />
             <h2>İdarələr</h2>
             <p>Yeni idarə əlavə et və düzəliş et</p>
           </NavLink>
 
-          <NavLink to="/adminpage/all-units" className="admin-card">
+          <NavLink to="/admin-page/all-units" className="admin-card">
             <FaLayerGroup className="admin-card-icon" />
             <h2>Bölmələr</h2>
             <p>Yeni bölmə əlavə et və idarə et</p>
           </NavLink>
 
-          <NavLink to="/adminpage/operations" className="admin-card">
+          <NavLink to="/admin-page/operations" className="admin-card">
             <FaHistory className="admin-card-icon"/>
             <h2>Əməliyyat Tarixçəsi</h2>
             <p>Bütün əməliyyatları gör</p>

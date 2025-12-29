@@ -53,7 +53,7 @@ function App() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const noNavbar = location.pathname === '/login';
+  const noNavbar = location.pathname === '/login-page';
 
   const [token, setToken] = useState(localStorage.getItem("myUserDocumentToken"));
   const [userObj, setUserObj] = useState('');
@@ -63,7 +63,7 @@ function App() {
       const currentToken = localStorage.getItem("myUserDocumentToken");
       if (token !== currentToken) {
         setToken(currentToken);
-        if (!currentToken) navigate("/login", { replace: true });
+        if (!currentToken) navigate("/login-page", { replace: true });
       }
     }, 100);
     return () => clearInterval(interval);
@@ -135,7 +135,7 @@ function App() {
           })
           localStorage.clear()
           setToken(null);
-          navigate("/login", { replace: true });
+          navigate("/login-page", { replace: true });
           setModalValues(prev => ({
             ...prev,
             answer: null,
@@ -225,7 +225,7 @@ function App() {
                   setItem={setItem}
                   setModalValues={setModalValues} />} />
 
-                <Route path="/adminpage/all-units" element={<Units
+                <Route path="/admin-page/all-units" element={<Units
                   setModalValues={setModalValues}
                   setUpdateItem={setUpdateItem}
                   setAddItem={setAddItem}
