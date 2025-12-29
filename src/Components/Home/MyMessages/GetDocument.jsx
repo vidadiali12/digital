@@ -245,7 +245,10 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
 
   const closeDetails = () => {
     setShowDocument(false);
-    if (whoIs === "getDoc" && !docElements?.read) window.location.reload();
+    if (whoIs === "getDoc" && !docElements?.read) {
+      localStorage.setItem("unReadCount", Number(localStorage.getItem("unReadCount")) - 1);
+      window.location.reload();
+    }
   };
 
   const shareDoc = () => setShowPasswordAlert(true);
@@ -473,7 +476,7 @@ const GetDocument = ({ showDocument, setShowDocument, setModalValues, choosenDoc
                         <span className="form-value-doc">{form.fatherName}</span>
                       </div>
                     )}
-                    
+
                     {form?.username && (
                       <div className="form-row-doc">
                         <span className="form-label-doc">İstifadəçi adı:</span>

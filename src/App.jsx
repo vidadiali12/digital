@@ -193,7 +193,7 @@ function App() {
           <Routes>
             {!token ? (
               <>
-                <Route path="/login" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} setUserObj={setUserObj} />} />
+                <Route path="/login-page" element={<Login setToken={setToken} setItem={setItem} setModalValues={setModalValues} setUserObj={setUserObj} />} />
                 {showForm && (
                   <Route path='/create-admin-page' element={<CreateForm
                     formData={formData}
@@ -206,7 +206,7 @@ function App() {
                   />
                   } />
                 )}
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                <Route path="*" element={<Navigate to="/login-page" replace />} />
               </>
             ) : (
               <>
@@ -215,13 +215,13 @@ function App() {
                   setItem={setItem}
                   item={item} />} />
 
-                <Route path="/adminpage" element={<AdminPage />} />
+                <Route path="/admin-page" element={<AdminPage />} />
 
-                <Route path="/adminpage/create-user" element={<CreateUser
+                <Route path="/admin-page/create-user" element={<CreateUser
                   modalValues={modalValues}
                   setModalValues={setModalValues} />} />
 
-                <Route path="/adminpage/all-users" element={<AllUsers
+                <Route path="/admin-page/all-users" element={<AllUsers
                   setItem={setItem}
                   setModalValues={setModalValues} />} />
 
@@ -232,14 +232,14 @@ function App() {
                   setItem={setItem}
                   setTypeOfItem={setTypeOfItem} />} />
 
-                <Route path="/adminpage/all-departments" element={<Departments
+                <Route path="/admin-page/all-departments" element={<Departments
                   setModalValues={setModalValues}
                   setUpdateItem={setUpdateItem}
                   setAddItem={setAddItem}
                   setItem={setItem}
                   setTypeOfItem={setTypeOfItem} />} />
 
-                <Route path="/adminpage/operations" element={<Logging setModalValues={setModalValues} item={item} setItem={setItem} />} />
+                <Route path="/admin-page/operations" element={<Logging setModalValues={setModalValues} item={item} setItem={setItem} />} />
 
                 <Route path='/inbox-all-messages' element={<GetMessages setModalValues={setModalValues} setItem={setItem} item={item}
                   connectNow={connectNow}
@@ -249,7 +249,7 @@ function App() {
                   connectNow={connectNow}
                   setConnectNow={setConnectNow} />} />
 
-                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/login-page" element={<Navigate to="/" replace />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </>
             )}

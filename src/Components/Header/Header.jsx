@@ -62,6 +62,17 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
             })
 
             setUnReadCount(resUnRead?.data?.data);
+            if (localStorage.getItem("unReadCount")) {
+                if (Number(resUnRead?.data?.data) > Number(localStorage.getItem("unReadCount"))) {
+                    setModalValues(prev => ({
+                        ...prev,
+                        isQuestion: false,
+                        showModal: true,
+                        message: `📬 Sizin yeni göndərilmiş sənədiniz var!`
+                    }))
+                }
+            }
+            localStorage.setItem("unReadCount", resUnRead?.data?.data);
         }
         catch (err) {
             if (err?.response?.data?.errorDescription?.includes("User should reset password")
@@ -162,6 +173,19 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
         }
     }, [localStorage.getItem("userObj")]);
 
+    useEffect(() => {
+        if (
+            userObj?.shouldChangePassword === false ||
+            uObj?.shouldChangePassword === false
+        ) {
+            const interval = setInterval(() => {
+                callUnRead();
+            }, 10000);
+
+            return () => clearInterval(interval);
+        }
+    }, [userObj?.shouldChangePassword, uObj?.shouldChangePassword]);
+
     return (
         (userObj?.shouldChangePassword == false || uObj?.shouldChangePassword == false) ?
             (<div className={`header`}>
@@ -174,7 +198,7 @@ const Header = ({ setUserObj, userObj, setModalValues, connectNow, setConnectNow
                     </li>
 
                     {uObj?.admin && (
-                        <NavLink to="/adminpage" className="admin-link">
+                        <NavLink to="/admin-page" className="admin-link">
                             <IoShieldCheckmarkOutline className="admin-icon" />
                             <span>Admin Səhifə</span>
                         </NavLink>

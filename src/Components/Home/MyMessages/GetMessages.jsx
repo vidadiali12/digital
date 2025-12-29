@@ -45,7 +45,7 @@ const GetMessages = ({ setModalValues, setItem, item, connectNow, setConnectNow 
 
     useEffect(() => {
         getMessages();
-    }, [page]);
+    }, [page, localStorage.getItem("unReadCount")]);
 
     const goNext = () => {
         if (page < totalPages) setPage(page + 1);
