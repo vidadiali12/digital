@@ -53,7 +53,7 @@ function App() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const noNavbar = location.pathname === '/login-page';
+  const noNavbar = location.pathname.startsWith('/login-page');;
 
   const [token, setToken] = useState(localStorage.getItem("myUserDocumentToken"));
   const [userObj, setUserObj] = useState('');
@@ -183,7 +183,7 @@ function App() {
     loading ? <Loading loadingMessage={"Hesabdan çıxılır..."} /> :
       <div className='main-element'>
         <div className='main-element-child'>
-          {!noNavbar && <Header
+          {token && !noNavbar && <Header
             setUserObj={setUserObj}
             userObj={userObj}
             setModalValues={setModalValues}
